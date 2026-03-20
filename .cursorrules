@@ -1,0 +1,563 @@
+# Cursor Rules for Pebble Playground
+
+## 🎯 Primary Directive: Speed + Accuracy
+
+**This file contains everything you need for 90% of cases.** Memorize the gotchas table below.
+Query MCP only when you need to verify complex APIs or see examples.
+
+**The workflow:**
+1. **Check this file first** (always loaded, instant) — has gotchas, tokens, patterns
+2. **Query Pebble MCP** when needed — for complex props, unfamiliar components, or verification
+3. **Never hardcode** — always use theme tokens for colors, spacing, typography
+
+## 🪨 Pebble MCP (When to Query)
+
+The Pebble MCP (`mcp_Pebble_get-component-examples`) gives you live access to component source and Storybook examples. 
+
+**Query MCP when:**
+| Situation | Action |
+|-----------|--------|
+| First time using a component this session | Query to verify API |
+| Building UI from a Figma design | Query each component for exact props |
+| Complex props (render functions, compound components) | Query for examples |
+| Something isn't working as expected | Query to check actual implementation |
+| User asks "how does X component work?" | Query for authoritative answer |
+
+**Skip MCP when:**
+| Situation | Action |
+|-----------|--------|
+| Simple component you just used | Trust this file's gotchas |
+| Basic Button, Icon, Card usage | Follow patterns in this file |
+| Token/color/spacing questions | Use the token reference below |
+
+## ⚡ Component Gotchas (Memorize This Table)
+
+These are the most common mistakes. **Check this table before writing any component code.**
+
+| Component | Wrong ❌ | Right ✅ | Notes |
+|-----------|----------|----------|-------|
+| **Tooltip** | `import Tooltip` | `import Tip from '@rippling/pebble/Tip'` | Component is called `Tip`, not `Tooltip` |
+| **Icon** | `<Icon size={Icon.SIZES.M} />` | `<Icon size={20} />` | Use numbers for size, not constants |
+| **Icon** | `<Icon name="check" />` | `<Icon type={Icon.TYPES.CHECK} />` | Use `type` prop with `Icon.TYPES.*` |
+| **Input** | `Input.SIZES.M` | `Input.Text.SIZES.M` | Size constant is on the sub-component |
+| **Button** | `<IconButton icon="x" />` | `<Button.Icon icon={Icon.TYPES.CLOSE} />` | Use `Button.Icon`, not `IconButton` |
+| **Button** | `Button.VARIANTS.ICON` | `Button.Icon` | It's a sub-component, not a variant |
+| **Card** | `<Card.Section>` | `<Card.Layout padding={...}>` | Use `Card.Layout`, not `Card.Section` |
+| **Card** | `<Card.Header>` | Just use styled elements | Card doesn't have Header/Footer sub-components |
+| **Typography** | `<Typography variant="h1">` | Use styled components + typestyle tokens | Typography component doesn't exist! |
+| **Select** | `<Select options={[...]} />` | `<Input.Select options={[...]} />` | Select is `Input.Select` |
+| **Checkbox** | `<Checkbox />` | `<Input.Checkbox />` | Checkbox is `Input.Checkbox` |
+| **Radio** | `<Radio />` | `<Input.Radio />` | Radio is `Input.Radio` |
+| **TextArea** | `<TextArea />` | `<Input.TextArea />` | TextArea is `Input.TextArea` |
+| **Modal** | `<Modal>` | `<Drawer>` or check MCP | Pebble uses `Drawer` for most modal patterns |
+| **Empty State** | Custom `Card` + styled text | `<ActionCard>` | Use ActionCard for empty states with CTAs |
+| **Layout** | `<Box display="flex">` | `<HStack>` or `<VStack>` | Use Stack components for flex layouts |
+| **Colors** | `backgroundColor: 'white'` | `backgroundColor: theme.colorSurface` | Never hardcode colors |
+| **Colors** | `color: '#000'` | `color: theme.colorOnSurface` | Never hardcode colors |
+| **Spacing** | `padding: '16px'` | `padding: theme.space400` | Never hardcode spacing |
+| **Imports** | `import { usePebbleTheme } from '../utils/theme'` | `import { usePebbleTheme } from '@/utils/theme'` | Always use `@/` alias |
+
+## 🔍 Quick Component Reference
+
+**Common imports you'll use constantly:**
+```typescript
+// Layout
+import { HStack, VStack } from '@rippling/pebble/Layout/Stack';
+import Card from '@rippling/pebble/Card';
+
+// Inputs
+import Input from '@rippling/pebble/Inputs';  // Then: Input.Text, Input.Select, Input.Checkbox, etc.
+import Button from '@rippling/pebble/Button'; // Then: Button.Icon for icon buttons
+
+// Display
+import Icon from '@rippling/pebble/Icon';
+import Avatar from '@rippling/pebble/Avatar';
+import Label from '@rippling/pebble/Label';
+import Tip from '@rippling/pebble/Tip';  // NOT Tooltip!
+
+// Feedback
+import Drawer from '@rippling/pebble/Drawer';
+import Snackbar from '@rippling/pebble/Snackbar';
+import ActionCard from '@rippling/pebble/ActionCard';  // Empty states
+
+// Data
+import TableBasic from '@rippling/pebble/TableBasic';
+import Tabs from '@rippling/pebble/Tabs';
+
+// Theme
+import { useTheme } from '@rippling/pebble/theme';
+import { usePebbleTheme } from '@/utils/theme';  // Playground utility
+```
+
+**Common patterns:**
+```typescript
+// Icon button
+<Button.Icon 
+  icon={Icon.TYPES.CLOSE} 
+  aria-label="Close"
+  appearance={Button.APPEARANCES.GHOST}
+  size={Button.SIZES.S}
+  onClick={handleClose}
+/>
+
+// Text input
+<Input.Text
+  label="Email"
+  value={email}
+  onChange={setEmail}
+  size={Input.Text.SIZES.M}
+/>
+
+// Select
+<Input.Select
+  label="Country"
+  options={[{ label: 'USA', value: 'us' }, { label: 'Canada', value: 'ca' }]}
+  value={country}
+  onChange={setCountry}
+/>
+
+// Card with content
+<Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+  <CardTitle>My Card</CardTitle>
+  <CardContent>Content here</CardContent>
+</Card.Layout>
+
+// Tooltip
+<Tip content="Helpful text" placement={Tip.PLACEMENTS.TOP}>
+  <Button>Hover me</Button>
+</Tip>
+
+// Flex layout
+<HStack gap="1rem" alignItems="center">
+  <Avatar name="John" size={Avatar.SIZES.S} />
+  <span>John Doe</span>
+</HStack>
+
+// Empty state
+<ActionCard
+  icon={Icon.TYPES.CHECKBOX_WITHCHECK_OUTLINE}
+  title="No items yet"
+  caption="Get started by creating your first item."
+  primaryAction={{
+    title: 'Create item',
+    onClick: handleCreate,
+  }}
+/>
+```
+
+## 🚫 Forbidden Patterns
+
+### NEVER do this:
+```typescript
+// ❌ Hardcoded colors
+backgroundColor: 'white'
+color: '#000000'
+
+// ❌ Wrong Icon API
+<Icon size={Icon.SIZES.M} />  // Icon.SIZES doesn't exist!
+
+// ❌ Wrong Input API
+<Input.Text size={Input.SIZES.M} />  // Should be Input.Text.SIZES.M
+
+// ❌ Wrong component name
+import Tooltip from '@rippling/pebble/Tooltip';  // It's called Tip!
+
+// ❌ Typography component doesn't exist!
+import Typography from '@rippling/pebble/Typography';
+<Typography variant="heading">Title</Typography>
+
+// ❌ Wrong Card API
+<Card>
+  <Card.Section>Content</Card.Section>  // Card.Section doesn't exist!
+</Card>
+
+// ❌ Hardcoded spacing
+padding: '16px'
+margin: '24px'
+
+// ❌ Relative imports for shared resources
+import { usePebbleTheme } from '../utils/theme';
+import { usePebbleTheme } from '../../utils/theme';
+import logo from '../assets/logo.svg';
+```
+
+### ALWAYS do this:
+```typescript
+// ✅ Use theme tokens
+const { theme } = useTheme();
+backgroundColor: theme.colorSurface
+color: theme.colorOnSurface
+
+// ✅ Correct Icon API
+<Icon size={20} />  // Use numbers!
+
+// ✅ Correct Input API
+<Input.Text size={Input.Text.SIZES.M} />
+
+// ✅ Correct component name
+import Tip from '@rippling/pebble/Tip';
+
+// ✅ Use styled components for text (Typography is NOT a component!)
+const Title = styled.h2`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleLarge};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+`;
+
+// ✅ Correct Card API
+import Card from '@rippling/pebble/Card';
+<Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+  <h2>Title</h2>
+  <p>Content goes here</p>
+</Card.Layout>
+
+// ✅ Use spacing tokens
+padding: theme.space400
+margin: theme.space600
+
+// ✅ Use @/ alias for shared imports (works from any folder depth!)
+import { usePebbleTheme } from '@/utils/theme';
+import { DURATION, EASING } from '@/utils/animation-constants';
+import RipplingLogo from '@/assets/rippling-logo-black.svg';
+import ForkedSelect from '@/demos/ForkedSelect';
+
+// ✅ Use HStack/VStack for layouts
+import { HStack, VStack } from '@rippling/pebble/Layout/Stack';
+
+<HStack gap="1rem" alignItems="center">
+  <Avatar name="John" />
+  <span>John Doe</span>
+</HStack>
+
+// Instead of:
+<Box display="flex" direction="row" gap="1rem">  // Less semantic
+```
+
+## 🎨 Theme Token Rules
+
+1. **ALWAYS import and use theme:**
+   ```typescript
+   import { useTheme } from '@rippling/pebble/theme';
+   
+   const MyComponent = () => {
+     const { theme } = useTheme();
+     // Use theme.* for all values
+   };
+   ```
+
+2. **For styled components:**
+   ```typescript
+   import styled from '@emotion/styled';
+   
+   const StyledDiv = styled.div`
+     color: ${({ theme }) => (theme as any).colorOnSurface};
+     padding: ${({ theme }) => (theme as any).space400};
+   `;
+   ```
+
+3. **Common token patterns:**
+   - Colors: `theme.colorPrimary`, `theme.colorOnSurface`, `theme.colorSuccess`
+   - Spacing: `theme.space200`, `theme.space400`, `theme.space600`
+   - Typography: `theme.typestyleBodyMedium400`, `theme.typestyleTitleLarge600`
+   - Borders: `theme.shapeCornerM`, `theme.shapeCornerL`
+
+## 🎨 Design Token Quick Reference
+
+**USE THIS SECTION CONSTANTLY - DON'T GUESS TOKEN NAMES**
+
+### Colors - Surfaces & Backgrounds
+```typescript
+theme.colorSurface              // Base page background
+theme.colorSurfaceBright         // Elevated cards, panels, modals
+theme.colorSurfaceContainerLow   // Subtle highlights (inline code, hover states)
+theme.colorSurfaceContainerHigh  // Medium emphasis containers
+theme.colorSurfaceContainerHighest // Strong emphasis (code blocks, strong highlights)
+```
+
+### Colors - Text & Foreground
+```typescript
+theme.colorOnSurface            // Primary text color (high emphasis)
+theme.colorOnSurfaceVariant     // Secondary text color (medium emphasis - descriptions, labels)
+theme.colorPrimary              // Primary brand color (links, primary actions)
+theme.colorOnPrimary            // Text on primary colored backgrounds
+theme.colorOnPrimaryContainer   // Text on primary container backgrounds
+```
+
+### Colors - Semantic (Status & Feedback)
+```typescript
+theme.colorError                // Error text and icons
+theme.colorErrorContainer       // Error background containers
+theme.colorSuccess              // Success text and icons
+theme.colorSuccessContainer     // Success background containers
+theme.colorWarning              // Warning text and icons
+```
+
+### Colors - Borders & Dividers
+```typescript
+theme.colorOutline              // Standard borders, medium emphasis
+theme.colorOutlineVariant       // Subtle borders, dividers, low emphasis
+```
+
+### Colors - Interactive Elements
+```typescript
+theme.colorPrimaryContainer     // Primary button/chip backgrounds
+theme.colorSecondaryContainer   // Secondary button/chip backgrounds
+```
+
+### Spacing Scale (Use for padding, margin, gap)
+```typescript
+theme.space100   // 4px   - Tiny spacing (icon padding)
+theme.space200   // 8px   - Extra small (compact spacing)
+theme.space300   // 12px  - Small (list item spacing)
+theme.space400   // 16px  - Medium (default padding, button padding)
+theme.space600   // 24px  - Large (card padding, section spacing)
+theme.space800   // 32px  - Extra large (major section spacing)
+theme.space1000  // 40px  - XXL (page padding)
+theme.space1200  // 48px  - XXXL (major layout spacing)
+theme.space1600  // 64px  - Huge (hero sections, major page padding)
+```
+
+### Typography - Use V2 Tokens
+```typescript
+// Display (Hero text, page titles)
+theme.typestyleV2DisplayLarge   // 57px, bold - Hero headings
+theme.typestyleV2DisplayMedium  // 45px, bold - Major page titles
+theme.typestyleV2DisplaySmall   // 36px, bold - Section headings
+
+// Titles (Section headings, card titles)
+theme.typestyleV2TitleLarge     // 22px, 600 - Large section titles
+theme.typestyleV2TitleMedium    // 16px, 600 - Medium section titles, card headers
+theme.typestyleV2TitleSmall     // 14px, 600 - Small section titles, labels
+
+// Body (Regular content text)
+theme.typestyleV2BodyLarge      // 16px, 400 - Primary body text
+theme.typestyleV2BodyMedium     // 14px, 400 - Secondary body text
+theme.typestyleV2BodySmall      // 12px, 400 - Captions, fine print
+
+// Labels (Form labels, button text)
+theme.typestyleV2LabelLarge     // 14px, 600 - Form labels
+theme.typestyleV2LabelMedium    // 12px, 600 - Small labels
+theme.typestyleV2LabelSmall     // 11px, 600 - Tiny labels
+
+// Code (Monospace text)
+theme.typestyleV2CodeLarge      // 16px, monospace - Large code blocks
+theme.typestyleV2CodeMedium     // 14px, monospace - Standard code blocks
+theme.typestyleV2CodeSmall      // 12px, monospace - Inline code
+```
+
+### Shape (Border Radius)
+```typescript
+theme.shapeCornerXs     // 2px   - Extra small radius
+theme.shapeCornerSm     // 4px   - Small radius (badges, small chips)
+theme.shapeCornerMd     // 6px   - Medium-small radius
+theme.shapeCornerLg     // 8px   - Standard radius (buttons, inputs, code)
+theme.shapeCornerXl     // 10px  - Large radius
+theme.shapeCorner2xl    // 12px  - Extra large radius (cards)
+theme.shapeCorner3xl    // 16px  - 3XL radius (modals, large panels)
+theme.shapeCorner4xl    // 24px  - 4XL radius (special cards, tables)
+theme.shapeCornerFull   // 9999px - Fully rounded (pills, avatars, icons)
+```
+
+### Token Usage Rules
+
+1. **NEVER hardcode these values:**
+   ```typescript
+   ❌ backgroundColor: '#ffffff'
+   ❌ color: 'black'
+   ❌ padding: '16px'
+   ❌ fontSize: '14px'
+   ❌ borderRadius: '8px'
+   ```
+
+2. **ALWAYS use tokens:**
+   ```typescript
+   ✅ backgroundColor: theme.colorSurface
+   ✅ color: theme.colorOnSurface
+   ✅ padding: theme.space400
+   ✅ ${theme.typestyleV2BodyMedium}
+   ✅ borderRadius: theme.shapeCornerM
+   ```
+
+3. **Common patterns:**
+   ```typescript
+   // Inline code
+   background: theme.colorSurfaceContainerLow
+   borderRadius: theme.shapeCornerLg
+   
+   // Code blocks
+   background: theme.colorSurfaceContainerHighest
+   borderRadius: theme.shapeCornerLg
+   
+   // Cards/Panels
+   background: theme.colorSurfaceBright
+   borderRadius: theme.shapeCorner2xl
+   border: 1px solid theme.colorOutlineVariant
+   
+   // Standard spacing between elements
+   gap: theme.space400  // or use VStack/HStack with gap="1rem"
+   ```
+
+4. **When to use which surface color:**
+   - `colorSurface` - Page background (lowest elevation)
+   - `colorSurfaceBright` - Cards and panels (elevated)
+   - `colorSurfaceContainerLow` - Subtle highlights, inline code
+   - `colorSurfaceContainerHigh` - Medium emphasis
+   - `colorSurfaceContainerHighest` - Strong emphasis, code blocks
+
+## 📁 Project Structure
+
+```
+pebble-playground/
+├── .cursorrules                   ← THIS FILE (primary AI reference)
+├── .cursor/mcp.json               ← Pebble MCP config (auto-generated)
+├── docs/                          ← Human-readable docs
+│   ├── COMPONENT_CATALOG.md       ← Human reference (AI uses this file instead)
+│   ├── TOKEN_CATALOG.md           ← Detailed token docs
+│   └── guides/                    ← Confluence-synced docs
+├── src/
+│   ├── demos/                     ← Working examples (copy from these!)
+│   ├── overrides/                 ← Component customizations
+│   └── utils/                     ← Shared utilities
+└── scripts/                       ← Tooling
+```
+
+## 🎯 Component Override System
+
+When you need to customize a Pebble component:
+
+1. **Check if you can use props first** - Don't override if props solve it
+2. **Use the override system:**
+   ```bash
+   yarn override ComponentName
+   ```
+3. **Only modify the specific files you need**
+4. **Document your changes in the component's README.md**
+
+## 🚀 Creating New Demos
+
+### Recommended: Use the App Shell Template
+
+When a user asks to **"Create a new demo called [Name]"**, follow these steps:
+
+1. **Copy the app shell template:**
+   - Read `src/demos/app-shell-template.tsx`
+   - Convert the name to kebab-case (e.g., "Employee Directory" → "employee-directory-demo.tsx")
+   - Convert to PascalCase for component name (e.g., "EmployeeDirectoryDemo")
+   - Create the new file in `src/demos/[kebab-case]-demo.tsx`
+   - Replace `AppShellTemplate` with the new component name throughout
+   - Update the description comment
+
+2. **Wire up in main.tsx:**
+   - Add import: `import [PascalName]Demo from './demos/[kebab]-demo';`
+   - Add to `EditorType` enum: `[UPPER_SNAKE] = '[kebab]',`
+   - Add to `DEMO_ROUTES` object
+   - Add `<Route>` in the Routes component
+
+3. **Add card to index page:**
+   - Open `src/demos/index-page.tsx`
+   - Add entry to `ALL_DEMO_CARDS` array with title, description, path, icon, and category
+
+4. **Confirm completion:**
+   - Tell the user their demo is ready at `http://localhost:4201/[kebab]-demo`
+   - Remind them they can now customize the main content area
+
+**The app shell provides:** Navigation bar, sidebar, content area, and theme integration.
+
+### Alternative: Create from Scratch
+
+If you need a simpler demo without the app shell:
+
+1. **Run the script:**
+   ```bash
+   yarn new:demo
+   ```
+
+2. **Or manually create:** `src/demos/kebab-case-demo.tsx` using this minimal template:
+   ```typescript
+   import React, { useState } from 'react';
+   import styled from '@emotion/styled';
+   import { useTheme } from '@rippling/pebble/theme';
+   import Button from '@rippling/pebble/Button';
+   // Import other components as needed
+
+   /**
+    * MyDemo
+    * 
+    * Brief description of what this demo showcases.
+    * 
+    * Components used:
+    * - Button (docs/guides/components/buttons/button.md)
+    * - [List other components with their doc paths]
+    */
+
+   const MyDemo: React.FC = () => {
+     const { theme } = useTheme();
+     
+     return (
+       <Container theme={theme}>
+         {/* Your demo content */}
+       </Container>
+     );
+   };
+
+   const Container = styled.div`
+     padding: ${({ theme }) => (theme as any).space600};
+     background-color: ${({ theme }) => (theme as any).colorSurface};
+   `;
+
+   export default MyDemo;
+   ```
+
+3. **Add to main.tsx:**
+   - Import the demo component
+   - Add a `<Route>` in the Routes component
+
+4. **Add to index page:** Update `ALL_DEMOS` array in `src/demos/index-page.tsx`
+
+## 🐛 Debugging Component Issues
+
+If you encounter an error with a Pebble component:
+
+1. **Check the Gotchas Table above** — Most common issues are listed there
+2. **Query Pebble MCP** — Get the actual component API and examples
+   ```
+   mcp_Pebble_get-component-examples({ componentName: "Button" })
+   ```
+3. **Check existing demos** — See how similar components are used in `src/demos/`
+4. **Verify props with TypeScript** — Let the type system catch mistakes
+
+## 📝 Code Review Checklist
+
+Before considering code complete, verify against the Gotchas Table:
+
+- [ ] No hardcoded colors (use `theme.color*`)
+- [ ] No hardcoded spacing (use `theme.space*`)
+- [ ] No hardcoded typography (use `theme.typestyle*`)
+- [ ] Icon sizes are numbers (`size={20}`, not `Icon.SIZES.M`)
+- [ ] Input sub-components use their own SIZES (`Input.Text.SIZES.M`)
+- [ ] Using `Tip` not `Tooltip`
+- [ ] Using `Button.Icon` not `IconButton`
+- [ ] Using `@/` alias for imports
+- [ ] All interactive icons have `aria-label`
+- [ ] No linter errors
+
+## 🎓 Learning Resources
+
+| Resource | Use For | Speed |
+|----------|---------|-------|
+| **This file** | Gotchas, tokens, patterns | ⚡ Instant |
+| **Pebble MCP** | Component APIs, examples | ⚡ Fast |
+| **Existing demos** | Working patterns | ⚡ Fast |
+| **Storybook** | Visual exploration | 🔗 https://pebble.rippling.dev |
+
+## 💡 Tips for Success
+
+1. **Trust the Gotchas Table** — It catches 90% of mistakes
+2. **Query MCP when unsure** — It's the source of truth for APIs
+3. **Copy from existing demos** — `src/demos/` has working examples
+4. **Use TypeScript** — Let the compiler catch mistakes
+5. **Test both light and dark modes** — Theme tokens handle this automatically
+
+---
+
+**Speed + Accuracy: This file has the gotchas. MCP has the APIs. You don't need to read anything else.**
+
