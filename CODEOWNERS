@@ -1,23 +1,4 @@
 # Pebble Playground — Code Owners
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Default reviewer
-*                           @pbest
-
-# Backup reviewers (when @pbest is out)
-*                           @ryanlucas @subhankar94
-
-# CI & tooling config (protect from accidental changes)
-.github/                    @pbest
-.cursor/                    @pbest
-.cursorrules                @pbest
-CLAUDE.md                   @pbest
-
-# Shared infrastructure
-src/components/             @pbest
-src/utils/                  @pbest
-package.json                @pbest
-tsconfig.json               @pbest
-
-# Demos — no specific owner (open to all contributors)
-# src/demos/ intentionally unowned
+* @pbest @ryanlucas @subhankar94
