@@ -1,0 +1,39 @@
+---
+description: When and how to use Pebble MCP tools for component lookup
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Pebble MCP Usage
+
+The Pebble MCP (`mcp_Pebble_get-component-examples`) gives live access to component source and Storybook examples.
+
+## When to query MCP
+
+| Situation | Action |
+|-----------|--------|
+| First time using a component this session | Query to verify API |
+| Building UI from a Figma design | Query each component for exact props |
+| Complex props (render functions, compound components) | Query for examples |
+| Something isn't working as expected | Query to check actual implementation |
+| User asks "how does X component work?" | Query for authoritative answer |
+
+## When to skip MCP
+
+| Situation | Action |
+|-----------|--------|
+| Simple component you just used | Trust AGENTS.md gotchas table |
+| Basic Button, Icon, Card usage | Follow patterns in AGENTS.md |
+| Token/color/spacing questions | Use AGENTS.md token reference |
+
+## Debugging with MCP
+
+If a Pebble component errors or behaves unexpectedly:
+
+```
+mcp_Pebble_get-component-examples({ componentName: "Button" })
+```
+
+## Full reference
+
+Read `AGENTS.md` for the canonical gotchas table, tokens, patterns, and troubleshooting.
