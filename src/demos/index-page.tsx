@@ -323,6 +323,14 @@ const CodeSnippet = styled.code`
   margin: ${({ theme }) => (theme as StyledTheme).space200} 0;
 `;
 
+const CodeSnippetInline = styled.code`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2CodeMedium};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  padding: 2px ${({ theme }) => (theme as StyledTheme).space100};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerSm};
+  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
+`;
+
 const StepNumber = styled.span`
   ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
@@ -545,7 +553,7 @@ const IndexPage: React.FC = () => {
               Start a Conversation
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Open your AI coding tool (Claude Code, Cursor, etc.) in the project directory.
+              Open this project in your AI coding tool. In <strong>Claude Code</strong>, run <CodeSnippetInline theme={theme}>claude</CodeSnippetInline> from the <CodeSnippetInline theme={theme}>pebble-playground</CodeSnippetInline> folder. In <strong>Cursor</strong>, open the folder with File → Open Folder.
             </InstructionText>
           </InstructionSection>
 
