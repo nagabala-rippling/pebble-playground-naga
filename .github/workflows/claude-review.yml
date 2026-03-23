@@ -1,0 +1,54 @@
+name: Claude Security Review
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.{ts,tsx}'
+      - '*.{json,yml,yaml}'
+      - '.cursor/**'
+      - '.cursorrules'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: Claude Security Review
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-security-review@main
+        with:
+          comment-pr: true
+          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude-model: claude-sonnet-4-20250514
+          upload-results: true
+          custom-security-scan-instructions: |
+            In addition to standard security checks, focus on these pebble-playground-specific issues:
+
+            1. Theme token enforcement: Flag any hardcoded colors (#hex, named colors),
+               spacing (px values), typography (fontSize, fontWeight), or border-radius.
+               All must use theme.* tokens.
+
+            2. Pebble component API correctness: Check for common mistakes —
+               Tooltip (should be Tip), IconButton (should be Button.Icon),
+               Typography component (doesn't exist), Icon.SIZES (use numbers),
+               Input.SIZES (should be Input.Text.SIZES), Card.Section (should be Card.Layout).
+
+            3. Import aliases: All shared imports must use @/ alias, never relative paths
+               like ../utils/ or ../../assets/.
+
+            4. Accessibility: Interactive icon buttons must have aria-label.
+
+            This is a prototyping repo — don't flag missing tests, i18n, or production concerns.
+          exclude-paths: |
+            **/node_modules
+            **/dist
+            **/build
+            docs/**
+            scripts/**
+            public/**
