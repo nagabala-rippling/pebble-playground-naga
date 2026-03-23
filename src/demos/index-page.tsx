@@ -37,49 +37,6 @@ const ALL_DEMOS: DemoCard[] = [
     icon: Icon.TYPES.HIERARCHY_HORIZONTAL_OUTLINE,
     category: 'template',
   },
-  // Prototypes - examples and experiments
-  {
-    title: 'Composition Manager',
-    description: 'A complex example showing a multi-view app with tables, modals, and state management.',
-    path: '/composition-manager',
-    icon: Icon.TYPES.CUSTOM_APPS_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Canada Bulk ROE',
-    description: 'Bulk Record of Employment management for Canadian payroll.',
-    path: '/canada-bulk-roe',
-    icon: Icon.TYPES.DOCUMENT_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Payroll Register Report',
-    description: 'Detailed payroll register with employee pay breakdown, deductions, taxes, and net pay.',
-    path: '/payroll-register-report',
-    icon: Icon.TYPES.DOLLAR_CIRCLE_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Employee Pay Run Tables',
-    description: 'Run Payroll settings screen with tabbed interface and configurable employee payment options.',
-    path: '/employee-pay-run-tables',
-    icon: Icon.TYPES.DOLLAR_CIRCLE_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Entity Switcher',
-    description: 'Compare 3 different prototype approaches to the same problem with a floating switcher.',
-    path: '/entity-switcher',
-    icon: Icon.TYPES.SWAP,
-    category: 'prototype',
-  },
-  {
-    title: 'Pay Schedules',
-    description: 'Redesigned pay schedule creation and priority management for payroll settings.',
-    path: '/pay-schedules',
-    icon: Icon.TYPES.CALENDAR_OUTLINE,
-    category: 'prototype',
-  },
 ];
 
 // Filter helpers
@@ -803,43 +760,43 @@ const IndexPage: React.FC = () => {
       <Drawer
         isVisible={isDrawerOpen}
         onCancel={() => setIsDrawerOpen(false)}
-        title="Create a New Demo with Cursor"
+        title="Create a New Demo"
         width={600}
       >
         <DrawerContent theme={theme}>
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 1:</StepNumber>
-              Open Cursor Chat
+              Start a Conversation
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Press <strong>Cmd+L</strong> (Mac) or <strong>Ctrl+L</strong> (Windows/Linux) to open Cursor's chat interface.
+              Open your AI coding tool (Claude Code, Cursor, etc.) in the project directory.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 2:</StepNumber>
-              Create Your Demo (Copy & Paste)
+              Create Your Demo
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Copy this prompt into Cursor (replace "My Feature" with your demo name):
+              Paste this prompt (replace "My Feature" with your demo name):
             </InstructionText>
             <CodeSnippet theme={theme}>
               Create a new demo called "My Feature" by copying app-shell-template.tsx
             </CodeSnippet>
             <InstructionText theme={theme}>
-              Cursor will automatically create the file, wire it up in main.tsx, and add a card to the index page.
+              AI will create the file, wire it up in main.tsx, and add a card to the index page.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 3:</StepNumber>
-              Customize the Content
+              Describe What You Want
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Now tell Cursor what you want to build. Use simple, direct commands:
+              Tell AI what to build. Use simple, direct commands:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Replace the main content with a data table showing employee records with search and filters
@@ -858,7 +815,7 @@ const IndexPage: React.FC = () => {
               Refine and Iterate
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Continue with natural language commands to polish your demo:
+              Keep going with natural language to polish your demo:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Update the sidebar navigation items
@@ -869,20 +826,17 @@ const IndexPage: React.FC = () => {
             <CodeSnippet theme={theme}>
               Add a loading state to the table
             </CodeSnippet>
-            <CodeSnippet theme={theme}>
-              Make the layout responsive for mobile
-            </CodeSnippet>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
-              <StepNumber theme={theme}>💡 Pro Tips:</StepNumber>
+              <StepNumber theme={theme}>💡 Tips:</StepNumber>
             </InstructionTitle>
             <InstructionText theme={theme}>
-              • Cursor has access to all documentation automatically<br/>
+              • AI has access to all Pebble component docs automatically via MCP<br/>
               • The app shell gives you navigation, sidebar, and content areas<br/>
-              • Focus on customizing the main content - keep the shell structure<br/>
-              • Use simple, direct commands for best results
+              • Focus on customizing the main content — keep the shell structure<br/>
+              • Be specific: "Add a Pebble TableBasic with sortable columns" works better than "add a table"
             </InstructionText>
           </InstructionSection>
         </DrawerContent>

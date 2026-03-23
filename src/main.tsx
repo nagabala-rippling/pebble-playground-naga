@@ -8,16 +8,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GlobalStyle from '@rippling/pebble/GlobalStyle';
 
 import AppShellTemplate from './demos/app-shell-template';
-import CompositionManagerDemo from './demos/composition-manager/composition-manager-demo';
-import { CompositionDetail } from './demos/composition-manager/compositions/CompositionDetail';
 import IndexPage from './demos/index-page';
 import GettingStartedPage from './demos/getting-started-page';
 import DocViewerPage from './demos/doc-viewer-page';
-import CanadaBulkRoeDemo from './demos/canada-bulk-roe-demo';
-import PayrollRegisterReportDemo from './demos/payroll-register-report-demo';
-import EmployeePayRunTablesDemo from './demos/employee-pay-run-tables-demo';
-import EntitySwitcherDemo from './demos/entity-switcher/entity-switcher-demo';
-import PaySchedulesDemo from './demos/pay-schedules/pay-schedules-demo';
 
 oneUiService.init({} as any);
 
@@ -61,13 +54,6 @@ init().then(() => {
             <Route path="/getting-started" element={<GettingStartedPage />} />
             <Route path="/docs" element={<DocViewerPage />} />
             <Route path="/app-shell-template" element={<AppShellTemplate />} />
-            <Route path="/composition-manager" element={<CompositionManagerDemo />} />
-            <Route path="/composition-manager/compositions/:id" element={<CompositionDetail />} />
-            <Route path="/canada-bulk-roe" element={<CanadaBulkRoeDemo />} />
-            <Route path="/payroll-register-report" element={<PayrollRegisterReportDemo />} />
-            <Route path="/employee-pay-run-tables" element={<EmployeePayRunTablesDemo />} />
-            <Route path="/entity-switcher" element={<EntitySwitcherDemo />} />
-            <Route path="/pay-schedules" element={<PaySchedulesDemo />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ThemeProvider>
