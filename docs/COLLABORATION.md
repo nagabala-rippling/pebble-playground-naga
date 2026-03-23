@@ -1,200 +1,179 @@
 # Collaboration Guide
 
-This guide explains how to work with your Pebble Playground fork—solo, with teammates, and with the community.
+How to work with the Pebble Playground — solo, with teammates, and across the team.
 
 ---
 
-## Why We Use Forks
+## How We Work: Branches, Not Forks
 
-Previous playground approaches tried to manage everyone's code in one shared repository. This led to:
-- **Merge conflicts** when multiple people edited shared files
-- **Repo bloat** as everyone's experiments accumulated
-- **Dependency nightmares** when one person's changes broke others
+Everyone works in the same repo (`Rippling/pebble-playground`) using branches. This keeps things simple — no fork management, no upstream syncing, and Vercel preview deployments work automatically for every branch.
 
-**The fork model solves this:** Each person/team gets their own copy to customize freely, while still being able to pull improvements from the core repo when we release them.
+### Branch convention
+
+| Branch | Purpose | Merges to main? |
+|---|---|---|
+| `main` | Stable, reviewed | — |
+| `feature/<name>` | Playground infrastructure/tooling improvements | Yes, via PR |
+| `docs/<name>` | Documentation updates | Yes, via PR |
+| `proto/<username>/<name>` | Personal prototyping | No |
+
+**Proto branches are your sandbox.** Create as many as you want. They don't need review, they don't merge to main, and you can delete them when you're done.
 
 ---
 
 ## Working Solo
 
-Your fork is **yours**—experiment freely without worrying about breaking anything for others.
-
 ### Daily workflow
 
 ```bash
-# Start the dev server
-yarn dev
+# Create a branch for your work
+git checkout main && git pull
+git checkout -b proto/yourname/my-experiment
 
-# Create demos, break things, iterate
-# Everything stays in your fork
+# Build demos, iterate, commit as you go
 git add .
 git commit -m "Add employee directory demo"
-git push origin main
+git push -u origin proto/yourname/my-experiment
+
+# Vercel gives you a preview URL automatically
 ```
 
-### Pulling updates from core
+### Getting updates from main
 
-When we release new features, component fixes, or documentation improvements:
+When the playground gets improvements (new templates, fixes, docs):
 
 ```bash
-# Fetch the latest from the core repo
-git fetch upstream
-
-# Merge into your branch
-git merge upstream/main
-
-# Resolve any conflicts if needed, then push
-git push origin main
+git checkout proto/yourname/my-demo
+git merge main
+# Resolve any conflicts, continue working
 ```
 
-**Tip:** Pull updates regularly (weekly or monthly) to avoid large merge conflicts.
+### Cleaning up old branches
+
+```bash
+# Delete a branch you're done with
+git push origin --delete proto/yourname/old-experiment
+git branch -d proto/yourname/old-experiment
+```
 
 ---
 
 ## Working With Your Team
 
-Since you own your fork, you control who collaborates:
+### Option A: Shared proto branch
 
-### Option A: Add collaborators to your fork
+For close collaboration on a single prototype:
 
-Best for teams working closely together on shared demos.
+```bash
+# One person creates the branch
+git checkout -b proto/team-name/dashboard-redesign
+git push -u origin proto/team-name/dashboard-redesign
 
-1. Go to your fork on GitHub → **Settings** → **Collaborators**
-2. Click **"Add people"** → enter their GitHub username
-3. Give them **Write** access
+# Others check it out
+git checkout proto/team-name/dashboard-redesign
+```
 
-Now your team can all push to the same fork.
+Coordinate pushes to avoid conflicts, or use short-lived sub-branches if needed.
 
-### Option B: Each person forks their own copy
+### Option B: Separate branches, share locally
 
-Best for independent experimentation with occasional sharing.
-
-- Each designer/developer forks the core repo (or forks your team's fork)
-- Share ideas via pull requests or just share links to running demos
-- More isolation, less coordination needed
+Each person works in their own `proto/` branch. Share by having teammates check out your branch and run `npm run dev`. Copy ideas you like into your own branch.
 
 ### Sharing demos
 
-Once you have something worth sharing:
-- **Internal:** Share your Vercel URL or localhost screenshots
-- **Cross-team:** Create a PR to a shared team fork
-- **Company-wide:** PR to the core repo (see "Contributing Back" below)
+- **Locally:** Have teammates `git checkout` your branch and run `npm run dev`
+- **Via URL:** Deploy to Vercel (see below) and share the link
+- **Permanently:** Open a PR to promote your demo to `main`
 
 ---
 
-## Deploying Your Fork
+## Deploying to Vercel
 
-Get your demos online with Vercel (free):
+To share a working prototype with anyone via URL, deploy to Vercel. Ask your AI coding tool:
 
-1. Go to [vercel.com](https://vercel.com) → sign in or create a free account
-2. Click **"Add New"** → **"Project"**
-3. **Import your fork** from GitHub (not the original pbest/pebble-playground)
-4. Click **Deploy**
+> *"Build this project locally and deploy it to Vercel as a prebuilt deployment. Give me the shareable URL."*
 
-Your playground is now live at `https://your-fork-name.vercel.app`
+Or run it yourself:
 
-### Auto-deploy on every push
+```bash
+npx vercel build && npx vercel deploy --prebuilt
+```
 
-Once connected, Vercel automatically rebuilds whenever you push to your fork. Your demos, your deployments, your URL—no conflicts with anyone else.
+First time only: you'll be asked to log in to Vercel (free account works) and link the project. After that, it's one command to get a URL.
+
+> **Note:** This is a temporary workflow. We're working toward automatic preview URLs for every branch push — so eventually you'll just push your branch and get a link without any extra steps.
 
 ---
 
-## Contributing Back to Core
+## Contributing to the Playground
 
-If you build something valuable, share it with everyone! We welcome contributions:
+If you build something that improves the playground for everyone — a useful demo, a bug fix, better docs — contribute it back to `main`.
 
 ### What to contribute
 
-- **New demo patterns** that others would find useful
-- **Documentation improvements** or clarifications
-- **Bug fixes** in the playground infrastructure
-- **Component rendering fixes** (see below)
+- New demo patterns others would find useful
+- Documentation improvements
+- Bug fixes in the playground infrastructure
+- Component rendering fixes or AI guidance updates
 
 ### How to contribute
 
-1. Create a branch in your fork with your changes
-2. Open a Pull Request to the core repo (`pbest/pebble-playground`)
-3. Describe what you're contributing and why it's useful
-4. We'll review and merge!
+```bash
+# Create a feature branch from main
+git checkout main && git pull
+git checkout -b feature/add-data-table-demo
+
+# Make your changes, then push and open a PR
+git push -u origin feature/add-data-table-demo
+```
+
+Open a PR on GitHub. It will be reviewed before merging.
+
+### Fixing component issues
+
+When you find that AI generates incorrect component code, fix it and contribute back:
+
+1. Update `.cursorrules` (add to the gotchas table)
+2. Update docs if needed
+3. Open a PR describing the issue and fix
+
+Every fix makes AI smarter for everyone using the playground.
 
 ---
 
-## 🐛 Reporting & Fixing Component Rendering Issues
+## Tips for Clean Collaboration
 
-Sometimes you'll encounter issues where Pebble components don't render correctly in the playground, or AI generates incorrect component code. **When you fix these issues, please share them back!**
+### Keep your demos isolated
 
-### Common issues you might fix
+- Put demos in `src/demos/` (not in core infrastructure files)
+- Avoid modifying `main.tsx` more than necessary for your proto work
+- Use the `@/` import alias so paths stay clean
 
-- **Wrong component API** - AI uses `<IconButton>` instead of `<Button.Icon>`
-- **Missing imports** - Component needs a specific import path
-- **Prop mismatches** - AI passes wrong prop types or values
-- **Rendering bugs** - Component displays incorrectly in the playground context
-
-### Where fixes typically live
-
-- **`.cursorrules`** - AI guidance and gotchas table
-- **`docs/COMPONENT_CATALOG.md`** - Component documentation
-- **Pebble MCP** - If the issue is in the MCP server responses
-
-### How to share your fix
-
-1. **Document what was broken** - What did AI generate wrong? What was the symptom?
-2. **Document your fix** - What change fixed it?
-3. **Open a PR to core** with:
-   - Updated `.cursorrules` (add to the gotchas table if applicable)
-   - Updated docs if needed
-   - A brief description of the issue and fix
-
-**Example PR description:**
-```
-## Fix: AI generates wrong Icon size API
-
-**Problem:** AI kept using `<Icon size={Icon.SIZES.M} />` which doesn't exist.
-**Fix:** Added to gotchas table - Icon sizes are numbers, not constants.
-
-This was causing icons to not render for several people on my team.
-```
-
-### Why this matters
-
-Every fix you contribute helps everyone using the playground. The gotchas table in `.cursorrules` is our collective knowledge of Pebble quirks—your contribution makes AI smarter for the whole community.
-
----
-
-## Tips for Clean Upstream Merges
-
-### Keep your customizations isolated
-
-- Put your demos in `src/demos/` (not in core infrastructure files)
-- Avoid modifying `main.tsx` more than necessary
-- Use the `@/` import alias so paths don't conflict
-
-### When conflicts happen
+### When merge conflicts happen
 
 Most conflicts will be in:
-- `src/main.tsx` - If you added routes
-- `src/demos/index-page.tsx` - If you added demo cards
-- `.cursorrules` - If you added custom rules
+- `src/main.tsx` — if you added routes
+- `src/demos/index-page.tsx` — if you added demo cards
+- `.cursorrules` — if you added custom rules
 
 **Resolution strategy:**
 1. Keep your additions (new demos, new routes)
 2. Accept upstream changes to infrastructure
 3. Manually merge if both sides changed the same section
 
-### Nuclear option
+### Starting fresh
 
-If merging gets too messy, you can always:
-1. Note which demos you want to keep
-2. Re-fork from fresh
-3. Copy your demos back in
+If your branch gets too messy:
+1. Note which demo files you want to keep
+2. Create a fresh branch from `main`
+3. Copy your demo files back in
 
-Your demo files are the valuable part—the infrastructure can always be re-pulled.
+Your demo files are the valuable part — the infrastructure can always be re-pulled from main.
 
 ---
 
 ## Questions?
 
-- **Slack:** #design-systems
-- **Issues:** Open an issue on the core repo
+- **Slack:** #ask-web-design-system
+- **Issues:** Open an issue on the repo
 - **Docs:** Check the `docs/` folder for more guides
-

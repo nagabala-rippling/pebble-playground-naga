@@ -23,7 +23,7 @@ A standalone, AI-friendly prototyping environment for Rippling's Pebble Design S
 - **Inline Editor** - Compact single-line editing
 
 ### 🛠️ Developer Experience
-- **Interactive demo creation** - `yarn new:demo` to scaffold new demos
+- **Interactive demo creation** - `npm run new:demo` to scaffold new demos
 - **Theme switching** - Real-time light/dark theme toggle (berry variants)
 - **Hot module replacement** - Instant feedback during development
 - **Keyboard shortcuts** - `Cmd/Ctrl+K` to toggle UI
@@ -112,16 +112,17 @@ See `docs/AI_WRAPPER_INTEGRATION.md` for:
 ### 1. Install Dependencies
 
 ```bash
-cd /Users/paulbest/Documents/htdocs/pebble-playground
-yarn install
+git clone https://github.com/Rippling/pebble-playground.git
+cd pebble-playground
+npm install
 ```
 
-**Note:** You may need to configure access to Rippling's internal package registry or use local linking. See `SETUP_GUIDE.md` for details.
+**Note:** You need an `NPM_TOKEN` (GitHub PAT with `read:packages` scope) to install `@rippling/pebble`. See `SETUP_GUIDE.md` for details.
 
 ### 2. Start Development Server
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open http://localhost:4201
@@ -129,25 +130,7 @@ Open http://localhost:4201
 ### 3. Create Your First Demo
 
 ```bash
-yarn new:demo
-```
-
-### 4. Share with Team
-
-#### Option A: GitHub (Recommended)
-
-```bash
-# Create repo on GitHub: https://github.com/Rippling/pebble-playground
-git remote add origin git@github.com:Rippling/pebble-playground.git
-git push -u origin main
-```
-
-#### Option B: Share as Archive
-
-```bash
-cd /Users/paulbest/Documents/htdocs
-tar -czf pebble-playground.tar.gz pebble-playground/
-# Share the .tar.gz file
+npm run new:demo
 ```
 
 ## For AI Wrapper Team
@@ -167,9 +150,9 @@ The playground can serve as:
 
 ### For Designers/PMs
 - Clone repo
-- Run `yarn dev`
-- Use `yarn new:demo` to prototype ideas
-- Share demos via GitHub PRs
+- Run `npm run dev`
+- Use `npm run new:demo` to prototype ideas
+- Share demos via Vercel preview URLs or GitHub PRs
 
 ### For Engineers
 - Reference implementations in main Pebble repo (`/pebble/playground/`)
@@ -205,14 +188,13 @@ See `SETUP_GUIDE.md` for troubleshooting.
 ### Updating Pebble Version
 
 ```bash
-yarn upgrade @rippling/pebble@latest
-yarn upgrade @rippling/pebble-editor@latest
+npm install @rippling/pebble@latest
 ```
 
 ### Adding New Demos
 
 ```bash
-yarn new:demo
+npm run new:demo
 # Follow prompts
 # Add to main.tsx EditorType enum and DEMO_OPTIONS
 ```
@@ -233,15 +215,14 @@ This playground architecture was designed based on:
 
 ## Quick Reference
 
-**Location:** `/Users/paulbest/Documents/htdocs/pebble-playground`  
+**Repo:** `github.com/Rippling/pebble-playground`  
 **Port:** 4201  
-**Git:** Initialized (ready to push to GitHub)  
 **Scripts:**
-- `yarn dev` - Start dev server
-- `yarn new:demo` - Create new demo
-- `yarn lint` - Lint code
-- `yarn format` - Format code
-- `yarn build` - Build for production
+- `npm run dev` - Start dev server
+- `npm run new:demo` - Create new demo
+- `npm run lint` - Lint code
+- `npm run format` - Format code
+- `npm run build` - Build for production
 
 **Questions?**
 - See `SETUP_GUIDE.md` for installation help

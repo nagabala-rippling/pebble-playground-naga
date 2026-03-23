@@ -164,7 +164,7 @@ git mv src/demos/private/my-demo.tsx src/demos/@paul/my-demo.tsx
 
 1. **Check your editor:** Restart TypeScript server in VS Code/Cursor (Cmd+Shift+P → "Restart TS Server")
 2. **Check tsconfig:** Make sure `"baseUrl": "."` and `"paths": { "@/*": ["./src/*"] }` are present
-3. **Restart dev server:** `yarn dev` (Vite will pick up the alias)
+3. **Restart dev server:** `npm run dev` (Vite will pick up the alias)
 
 ### Imports work locally but fail in deployment
 

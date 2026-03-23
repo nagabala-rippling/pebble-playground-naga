@@ -6,7 +6,7 @@
 >
 > **🎨 Live Demo:** See the "Design Tokens" demo in the playground to see all tokens in context.
 >
-> **♻️ Auto-Generated:** Token docs are automatically generated via `yarn generate-token-docs` from the `@rippling/pebble-tokens` npm package.
+> **♻️ Auto-Generated:** Token docs are automatically generated via `npm run generate-token-docs` from the `@rippling/pebble-tokens` npm package.
 
 ## ⚠️ Critical Rules
 
@@ -368,7 +368,7 @@ For the complete list of all tokens with exact values, see:
 - **[Typography](./guides/tokens/typography.md)** - All typography tokens with font specs
 - **[Spacing](./guides/tokens/spacing.md)** - All spacing and sizing tokens
 
-These files are auto-generated from `@rippling/pebble-tokens`. Run `yarn generate-token-docs` to update.
+These files are auto-generated from `@rippling/pebble-tokens`. Run `npm run generate-token-docs` to update.
 
 ---
 

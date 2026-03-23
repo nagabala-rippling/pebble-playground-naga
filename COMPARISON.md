@@ -5,12 +5,12 @@
 | Feature | Original (`/pebble/playground/`) | Standalone (`/pebble-playground/`) |
 |---------|----------------------------------|-------------------------------------|
 | **Location** | Inside main Pebble monorepo | Separate repository |
-| **Setup** | Requires full Pebble repo | `yarn install` and go |
+| **Setup** | Requires full Pebble repo | `npm install` and go |
 | **Dependencies** | Local workspace packages | Published npm packages |
 | **Target Users** | Pebble engineers | Designers, PMs, AI users |
 | **Purpose** | Test unreleased features | Prototype with stable Pebble |
 | **AI Documentation** | None | Extensive (`.cursorrules`, guides) |
-| **Demo Scaffolding** | Manual | Interactive (`yarn new:demo`) |
+| **Demo Scaffolding** | Manual | Interactive (`npm run new:demo`) |
 | **Git Tracking** | Part of Pebble repo | Independent repo |
 | **Collaboration** | Limited to engineering team | Open to all teams |
 | **CI/CD** | Shares Pebble's CI | Can have independent CI |
@@ -149,7 +149,7 @@ const DEMO_OPTIONS = [
 
 ```bash
 cd /pebble-playground
-yarn dev
+npm run dev
 # Navigate to "My Demo" in the switcher
 ```
 
@@ -191,7 +191,7 @@ cd /pebble/playground
 ```bash
 # Wait for Pebble release
 cd /pebble-playground
-yarn upgrade @rippling/pebble@latest
+npm install @rippling/pebble@latest
 # Copy demo, update imports, test
 ```
 
@@ -223,9 +223,9 @@ yarn link @rippling/pebble-editor
 **To unlink:**
 ```bash
 cd /pebble-playground
-yarn unlink @rippling/pebble
-yarn unlink @rippling/pebble-editor
-yarn install --force
+npm unlink @rippling/pebble
+npm unlink @rippling/pebble-editor
+npm install --force
 ```
 
 ## Common Questions

@@ -66,7 +66,7 @@ resolve: {
 ### Attempt 3: Rebuild Editor Package ❌
 ```bash
 cd ../pebble/packages/rippling-editor
-yarn build
+npm run build
 ```
 **Result**: Build fails with same `plumThemeConfig` import errors
 
@@ -155,7 +155,7 @@ npm exec vite serve playground --config playground/vite.config.mts
 4. **Rebuild and Republish**
    ```bash
    cd packages/rippling-editor
-   yarn build
+   npm run build
    yarn publish
    ```
 
@@ -392,7 +392,7 @@ yarn add @rippling/editor
 
 # Attempt 3: Rebuild editor
 cd ../pebble/packages/rippling-editor
-yarn build
+npm run build
 # Result: Build failed with type errors
 
 # Final: Comment out editors, focus on components

@@ -56,7 +56,7 @@ Add more pages to the array as needed!
 ### 5. Run Sync
 
 ```bash
-yarn sync-confluence
+npm run sync-confluence
 ```
 
 ✅ **Done!** Your docs are now in `docs/guides/`
@@ -104,7 +104,7 @@ When you ask AI to build something:
 
 Run the sync anytime:
 ```bash
-yarn sync-confluence
+npm run sync-confluence
 ```
 
 Or set up automated syncs - see `docs/CONFLUENCE_SYNC_GUIDE.md` for GitHub Actions workflow.

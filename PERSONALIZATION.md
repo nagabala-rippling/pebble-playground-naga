@@ -8,7 +8,7 @@ The Pebble Playground now automatically personalizes each designer's workspace u
 
 ## What It Does
 
-When you run `yarn dev`, the playground:
+When you run `npm run dev`, the playground:
 
 1. ✅ Reads your name from `git config user.name`
 2. ✅ Reads your email from `git config user.email`  
@@ -52,8 +52,8 @@ The app will always work, personalization is just a nice-to-have enhancement.
    - Type-safe access to `import.meta.env.VITE_USER_*` variables
 
 4. **`package.json`** - Updated scripts
-   - `yarn dev` now runs `setup-user.mjs` automatically
-   - `yarn setup:user` available for manual refresh
+   - `npm run dev` now runs `setup-user.mjs` automatically
+   - `npm run setup:user` available for manual refresh
 
 5. **`README.md`** - Documentation updated
    - Quick Start section explains personalization
@@ -99,7 +99,7 @@ git config --global github.user "your-github-username"
 
 Then refresh your settings:
 ```bash
-yarn setup:user
+npm run setup:user
 ```
 
 > **Note:** The system cannot auto-detect your GitHub username from the remote URL because that shows the **repo owner**, not you. You must explicitly set `github.user` in your git config to get your GitHub avatar.
@@ -128,7 +128,7 @@ Potential additions:
 ✅ **100% reproducible across any local clone:**
 - Every developer has git configured
 - No manual setup required
-- Works out of the box with `yarn dev`
+- Works out of the box with `npm run dev`
 - Graceful fallback if git config is missing
 - Personal settings stay local (`.env.local` is gitignored)
 

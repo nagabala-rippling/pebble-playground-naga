@@ -39,7 +39,7 @@ Sync the Component Catalog from MCP periodically, then use it as the **primary r
 
 ## Implementation Options
 
-### Option 1: Sync on `yarn install` (Recommended)
+### Option 1: Sync on `npm install` (Recommended)
 
 **Pros:**
 - Always fresh when starting work
@@ -116,7 +116,7 @@ jobs:
           node-version: '20'
           
       - name: Install dependencies
-        run: yarn install
+        run: npm install
         
       - name: Sync Component Catalog
         run: node scripts/sync-component-catalog.mjs
@@ -137,7 +137,7 @@ jobs:
 Combine options for maximum flexibility:
 
 1. **Weekly GitHub Action** syncs full catalog to main branch
-2. **Optional local sync** via `yarn sync:catalog` for latest
+2. **Optional local sync** via `npm run sync:catalog` for latest
 3. **MCP fallback** for components not in catalog
 
 **package.json:**
@@ -246,7 +246,7 @@ After implementing, update the workflow section:
 
 - [ ] How many components to sync? All ~100+, or just top 30 used?
 - [ ] Include full prop tables or just key props?
-- [ ] Sync on every install or make it opt-in (`yarn sync:catalog`)?
+- [ ] Sync on every install or make it opt-in (`npm run sync:catalog`)?
 - [ ] Keep manual "gotchas" separate or merge into synced catalog?
 
 ---

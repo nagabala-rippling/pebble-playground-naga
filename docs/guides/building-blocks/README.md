@@ -122,7 +122,7 @@ Building blocks come from Confluence. To add a new building block:
      "outputPath": "building-blocks/your-building-block.md"
    }
    ```
-3. Run `yarn sync-confluence`
+3. Run `npm run sync-confluence`
 
 ---
 

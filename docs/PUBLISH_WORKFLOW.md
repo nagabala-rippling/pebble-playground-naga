@@ -1,11 +1,12 @@
 # Pebble Playground: Publish & Collaboration Workflow (MVP)
 
-## 📋 Overview
+> **Note:** This document was written for an earlier fork-based model. The repo now lives at `Rippling/pebble-playground` and uses a **branch-based workflow** instead of forks. See the [README](../README.md) and [Collaboration Guide](./COLLABORATION.md) for the current workflow. Some ideas below (folder structure, demo filtering, promotion flow) are still relevant for future implementation.
+
+## Overview
 
 This document outlines the deployment and collaboration strategy for Pebble Playground, designed to enable both designers and developers to create, share, and showcase demos without cluttering each other's workspaces.
 
-**Status:** 📝 Proposal (Not Yet Implemented)  
-**Estimated Effort:** 2-4 hours  
+**Status:** 📝 Proposal (Partially Superseded — branching model replaced forks)  
 **Target Audience:** Designers and developers using Pebble
 
 ---
@@ -258,7 +259,7 @@ Each team member can have their own deployment for personal demos:
 1. Click the deploy button - Vercel walks you through account creation
 2. After deploy, go to your project settings → Environment Variables
 3. Add: `VITE_SHOW_DEMOS` = `official,team,@yourname`
-4. Clone the repo locally and run `yarn install && yarn dev`
+4. Clone the repo locally and run `npm install && npm run dev`
 5. Create demos in `src/demos/@yourname/` or `src/demos/private/`
 6. Commit and push - Vercel auto-deploys!
 ```
@@ -305,7 +306,7 @@ Add to `package.json`:
 # 2. Clone repo locally
 git clone https://github.com/rippling/pebble-playground
 cd pebble-playground
-yarn install
+npm install
 
 # 3. Create your personal folder
 mkdir src/demos/@sarah
@@ -314,7 +315,7 @@ mkdir src/demos/@sarah
 # Create: src/demos/private/my-first-demo.tsx
 
 # 5. When ready to share, move to personal folder
-yarn demo:share my-first-demo
+npm run demo:share my-first-demo
 # Or manually: git mv src/demos/private/my-first-demo.tsx src/demos/@sarah/
 
 # 6. Push to GitHub
@@ -460,7 +461,7 @@ After 1 month:
 **A:** After cloning, delete demo files you don't want. Or set `VITE_SHOW_DEMOS=@yourname` to only see yours.
 
 ### Q: How do I get a demo from `private/` into my personal folder?
-**A:** Run `yarn demo:share [demo-name]` or manually:
+**A:** Run `npm run demo:share [demo-name]` or manually:
 ```bash
 git mv src/demos/private/demo.tsx src/demos/@yourname/
 git add src/demos/@yourname/demo.tsx
