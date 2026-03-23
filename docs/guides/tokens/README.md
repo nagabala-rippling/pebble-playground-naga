@@ -384,10 +384,10 @@ http://localhost:4201/ → Switch to "Design Tokens" demo
 
 ```bash
 # 1. Update pebble-tokens to latest
-yarn upgrade @rippling/pebble-tokens
+npm install @rippling/pebble-tokens@latest
 
 # 2. Regenerate documentation
-yarn generate-token-docs
+npm run generate-token-docs
 
 # 3. Review and commit
 git add docs/guides/tokens/

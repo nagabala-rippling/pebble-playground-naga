@@ -66,7 +66,7 @@ resolve: {
 ### Attempt 3: Rebuild Editor Package ❌
 ```bash
 cd ../pebble/packages/rippling-editor
-yarn build
+npm run build
 ```
 **Result**: Build fails with same `plumThemeConfig` import errors
 
@@ -155,13 +155,13 @@ npm exec vite serve playground --config playground/vite.config.mts
 4. **Rebuild and Republish**
    ```bash
    cd packages/rippling-editor
-   yarn build
+   npm run build
    yarn publish
    ```
 
 5. **Update This Playground**
    ```bash
-   yarn add @rippling/editor@latest
+   npm install @rippling/editor@latest
    ```
 
 **Likelihood**: Medium - Requires Pebble team to prioritize this  
@@ -383,7 +383,7 @@ Uncaught TypeError: Cannot convert undefined or null to object
 
 ```bash
 # Attempt 1: Published packages
-yarn add @rippling/editor
+npm install @rippling/editor
 # Result: getTokensReverseMap error
 
 # Attempt 2: Source imports
@@ -392,7 +392,7 @@ yarn add @rippling/editor
 
 # Attempt 3: Rebuild editor
 cd ../pebble/packages/rippling-editor
-yarn build
+npm run build
 # Result: Build failed with type errors
 
 # Final: Comment out editors, focus on components

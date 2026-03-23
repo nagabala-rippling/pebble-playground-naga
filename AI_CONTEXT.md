@@ -127,7 +127,7 @@ const MyComponent = () => {
 
 ### Step 4: Verify
 ```
-1. Run yarn dev
+1. Run npm run dev
 2. Test in both light and dark modes
 3. Check for linter errors
 4. Verify all hardcoded values are replaced with tokens
@@ -251,7 +251,7 @@ When you need to customize a Pebble component beyond what props allow:
 
 1. **Use the override system:**
    ```bash
-   yarn override ComponentName
+   npm run override ComponentName
    ```
 
 2. **Only modify specific files** in `src/overrides/`
@@ -267,7 +267,7 @@ When you need to customize a Pebble component beyond what props allow:
 
 ```
 pebble-playground/
-├── .cursorrules                 # Cursor AI instructions
+├── .cursorrules                 # AI assistant instructions
 ├── AI_CONTEXT.md               # This file (for all AI tools)
 ├── docs/                       # SOURCE OF TRUTH
 │   ├── COMPONENT_CATALOG.md
@@ -340,10 +340,10 @@ Run these commands to update auto-generated docs:
 
 ```bash
 # Update component docs from Confluence
-yarn sync-confluence
+npm run sync-confluence
 
 # Update token docs from npm package
-yarn generate-token-docs
+npm run generate-token-docs
 ```
 
 ### Manually Updated Documentation

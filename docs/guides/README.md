@@ -265,7 +265,7 @@ This documentation stays in sync with Pebble using two automated systems:
 
 ### 1. Confluence Sync (Components & Building Blocks)
 ```bash
-yarn sync-confluence
+npm run sync-confluence
 ```
 - ✅ Only downloads changed pages (version tracking)
 - ✅ Fast (~20 seconds for 40 pages)
@@ -275,8 +275,8 @@ yarn sync-confluence
 ### 2. Token Documentation Generator (Tokens)
 ```bash
 # After updating @rippling/pebble-tokens
-yarn upgrade @rippling/pebble-tokens
-yarn generate-token-docs
+npm install @rippling/pebble-tokens@latest
+npm run generate-token-docs
 ```
 - ✅ Auto-generates from actual token code
 - ✅ Always accurate (derived from `@rippling/pebble-tokens`)

@@ -37,49 +37,6 @@ const ALL_DEMOS: DemoCard[] = [
     icon: Icon.TYPES.HIERARCHY_HORIZONTAL_OUTLINE,
     category: 'template',
   },
-  // Prototypes - examples and experiments
-  {
-    title: 'Composition Manager',
-    description: 'A complex example showing a multi-view app with tables, modals, and state management.',
-    path: '/composition-manager',
-    icon: Icon.TYPES.CUSTOM_APPS_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Canada Bulk ROE',
-    description: 'Bulk Record of Employment management for Canadian payroll.',
-    path: '/canada-bulk-roe',
-    icon: Icon.TYPES.DOCUMENT_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Payroll Register Report',
-    description: 'Detailed payroll register with employee pay breakdown, deductions, taxes, and net pay.',
-    path: '/payroll-register-report',
-    icon: Icon.TYPES.DOLLAR_CIRCLE_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Employee Pay Run Tables',
-    description: 'Run Payroll settings screen with tabbed interface and configurable employee payment options.',
-    path: '/employee-pay-run-tables',
-    icon: Icon.TYPES.DOLLAR_CIRCLE_OUTLINE,
-    category: 'prototype',
-  },
-  {
-    title: 'Entity Switcher',
-    description: 'Compare 3 different prototype approaches to the same problem with a floating switcher.',
-    path: '/entity-switcher',
-    icon: Icon.TYPES.SWAP,
-    category: 'prototype',
-  },
-  {
-    title: 'Pay Schedules',
-    description: 'Redesigned pay schedule creation and priority management for payroll settings.',
-    path: '/pay-schedules',
-    icon: Icon.TYPES.CALENDAR_OUTLINE,
-    category: 'prototype',
-  },
 ];
 
 // Filter helpers
@@ -185,45 +142,28 @@ const CodePath = styled.code`
   color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
 `;
 
-const ResourceLink = styled.a`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
-  text-decoration: none;
-  cursor: pointer;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const TableSection = styled.div`
+const BulletList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space300};
+  gap: ${({ theme }) => (theme as StyledTheme).space600};
 `;
 
-const TableHeader = styled.div`
+const BulletItem = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
+  flex-direction: column;
+  gap: ${({ theme }) => (theme as StyledTheme).space100};
 `;
 
-const TableTitle = styled.h3`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleSmall};
+const BulletTitle = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  margin: 0;
 `;
 
-const TableSeparator = styled.span`
+const BulletText = styled.span`
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-`;
-
-const TableDescription = styled.span`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  margin: 0;
+  line-height: 1.6;
+  max-width: 680px;
 `;
 
 const DemoGrid = styled.div`
@@ -381,6 +321,14 @@ const CodeSnippet = styled.code`
   color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
   display: inline-block;
   margin: ${({ theme }) => (theme as StyledTheme).space200} 0;
+`;
+
+const CodeSnippetInline = styled.code`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2CodeMedium};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  padding: 2px ${({ theme }) => (theme as StyledTheme).space100};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerSm};
+  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
 `;
 
 const StepNumber = styled.span`
@@ -558,244 +506,36 @@ const IndexPage: React.FC = () => {
           </DemoTableWrapper>
         )}
 
-        {/* How AI Consumes Pebble Section */}
+        {/* How AI Understands Pebble */}
         <GuidesSection theme={theme}>
-          <GuidesTitle theme={theme}>How AI Consumes Pebble</GuidesTitle>
+          <GuidesTitle theme={theme}>How AI Understands Pebble</GuidesTitle>
           
-          <VStack gap="3rem">
-            <TableSection theme={theme}>
-              <TableHeader theme={theme}>
-                <TableTitle theme={theme}>Primary</TableTitle>
-                <TableSeparator theme={theme}>•</TableSeparator>
-                <TableDescription theme={theme}>
-                  AI's automatic workflow — checks these constantly without being asked
-                </TableDescription>
-              </TableHeader>
-              <TableBasic>
-              <TableBasic.THead>
-                <TableBasic.Tr>
-                  <TableBasic.Th>Resource</TableBasic.Th>
-                  <TableBasic.Th>Description</TableBasic.Th>
-                  <TableBasic.Th>Source</TableBasic.Th>
-                  <TableBasic.Th>Location</TableBasic.Th>
-                </TableBasic.Tr>
-              </TableBasic.THead>
-              
-              <TableBasic.TBody>
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    .cursorrules
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Primary directive, token reference, forbidden patterns, component gotchas
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Hand-written for AI agents
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>.cursorrules</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      href="https://rippling.design/pebble"
-                      target="_blank"
-                    >
-                      Pebble MCP
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Live component source, full prop types, Storybook examples
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Auto-queried from @rippling/pebble-mcp
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>.cursor/mcp.json</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/COMPONENT_CATALOG.md&title=Component Catalog');
-                      }}
-                    >
-                      Component Catalog
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Curated quick reference with common patterns and gotchas
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Hand-curated for this playground
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/COMPONENT_CATALOG.md</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    Existing code files
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Pattern matching for token usage and component patterns
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Live code examples in demos
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>src/demos/*.tsx</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-              </TableBasic.TBody>
-            </TableBasic>
-            </TableSection>
-            
-            <TableSection theme={theme}>
-              <TableHeader theme={theme}>
-                <TableTitle theme={theme}>Secondary</TableTitle>
-                <TableSeparator theme={theme}>•</TableSeparator>
-                <TableDescription theme={theme}>
-                  AI uses these only when explicitly directed or when primary sources don't have enough context
-                </TableDescription>
-              </TableHeader>
-              <TableBasic>
-              <TableBasic.THead>
-                <TableBasic.Tr>
-                  <TableBasic.Th>Resource</TableBasic.Th>
-                  <TableBasic.Th>Description</TableBasic.Th>
-                  <TableBasic.Th>Source</TableBasic.Th>
-                  <TableBasic.Th>Location</TableBasic.Th>
-                </TableBasic.Tr>
-              </TableBasic.THead>
-              
-              <TableBasic.TBody>
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/TOKEN_CATALOG.md&title=Token Catalog');
-                      }}
-                    >
-                      Token Catalog
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Full list of colors, spacing, typography, shapes
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Hand-curated from Pebble source
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/TOKEN_CATALOG.md</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/AI_PROMPTING_GUIDE.md&title=AI Prompting Guide');
-                      }}
-                    >
-                      AI Prompting Guide
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Usage patterns and best practices
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Hand-written for AI context
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/AI_PROMPTING_GUIDE.md</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/guides/components/README.md&title=Component Guides');
-                      }}
-                    >
-                      Component Guides
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    When to use, accessibility, design rationale
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Synced from Confluence RDS
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/guides/components/</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/guides/patterns/README.md&title=Design Patterns');
-                      }}
-                    >
-                      Pattern Guides
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    UX patterns and layout solutions
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Synced from Confluence RDS
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/guides/patterns/</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-                
-                <TableBasic.Tr>
-                  <TableBasic.Td>
-                    <ResourceLink 
-                      theme={theme}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate('/docs?file=docs/guides/tokens/README.md&title=Token Documentation');
-                      }}
-                    >
-                      Token Guides
-                    </ResourceLink>
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Detailed token documentation
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    Auto-generated from Pebble npm
-                  </TableBasic.Td>
-                  <TableBasic.Td>
-                    <CodePath theme={theme}>docs/guides/tokens/</CodePath>
-                  </TableBasic.Td>
-                </TableBasic.Tr>
-              </TableBasic.TBody>
-            </TableBasic>
-            </TableSection>
-          </VStack>
+          <BulletList theme={theme}>
+            <BulletItem theme={theme}>
+              <BulletTitle theme={theme}>Pebble MCP</BulletTitle>
+              <BulletText theme={theme}>
+                Your AI coding tool has live access to all Pebble component docs, props, and Storybook examples. This is set up automatically when you run <CodePath theme={theme}>npm install</CodePath>.
+              </BulletText>
+            </BulletItem>
+            <BulletItem theme={theme}>
+              <BulletTitle theme={theme}>Built-in rules</BulletTitle>
+              <BulletText theme={theme}>
+                The project includes AI instruction files with component gotchas, design token references, and forbidden patterns — so AI avoids common mistakes out of the box.
+              </BulletText>
+            </BulletItem>
+            <BulletItem theme={theme}>
+              <BulletTitle theme={theme}>Documentation</BulletTitle>
+              <BulletText theme={theme}>
+                The <CodePath theme={theme}>docs/</CodePath> folder has a Component Catalog, Token Catalog, and guides synced from Confluence. AI references these automatically when building your prototypes.
+              </BulletText>
+            </BulletItem>
+            <BulletItem theme={theme}>
+              <BulletTitle theme={theme}>Your code</BulletTitle>
+              <BulletText theme={theme}>
+                AI learns patterns from existing demo files in <CodePath theme={theme}>src/demos/</CodePath>, so the more you build, the better it gets at following your conventions.
+              </BulletText>
+            </BulletItem>
+          </BulletList>
         </GuidesSection>
       </ContentWrapper>
 
@@ -803,43 +543,43 @@ const IndexPage: React.FC = () => {
       <Drawer
         isVisible={isDrawerOpen}
         onCancel={() => setIsDrawerOpen(false)}
-        title="Create a New Demo with Cursor"
+        title="Create a New Demo"
         width={600}
       >
         <DrawerContent theme={theme}>
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 1:</StepNumber>
-              Open Cursor Chat
+              Start a Conversation
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Press <strong>Cmd+L</strong> (Mac) or <strong>Ctrl+L</strong> (Windows/Linux) to open Cursor's chat interface.
+              Open this project in your AI coding tool. In <strong>Claude Code</strong>, run <CodeSnippetInline theme={theme}>claude</CodeSnippetInline> from the <CodeSnippetInline theme={theme}>pebble-playground</CodeSnippetInline> folder. In <strong>Cursor</strong>, open the folder with File → Open Folder.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 2:</StepNumber>
-              Create Your Demo (Copy & Paste)
+              Create Your Demo
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Copy this prompt into Cursor (replace "My Feature" with your demo name):
+              Paste this prompt (replace "My Feature" with your demo name):
             </InstructionText>
             <CodeSnippet theme={theme}>
               Create a new demo called "My Feature" by copying app-shell-template.tsx
             </CodeSnippet>
             <InstructionText theme={theme}>
-              Cursor will automatically create the file, wire it up in main.tsx, and add a card to the index page.
+              AI will create the file, wire it up in main.tsx, and add a card to the index page.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 3:</StepNumber>
-              Customize the Content
+              Describe What You Want
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Now tell Cursor what you want to build. Use simple, direct commands:
+              Tell AI what to build. Use simple, direct commands:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Replace the main content with a data table showing employee records with search and filters
@@ -858,7 +598,7 @@ const IndexPage: React.FC = () => {
               Refine and Iterate
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Continue with natural language commands to polish your demo:
+              Keep going with natural language to polish your demo:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Update the sidebar navigation items
@@ -869,20 +609,17 @@ const IndexPage: React.FC = () => {
             <CodeSnippet theme={theme}>
               Add a loading state to the table
             </CodeSnippet>
-            <CodeSnippet theme={theme}>
-              Make the layout responsive for mobile
-            </CodeSnippet>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
-              <StepNumber theme={theme}>💡 Pro Tips:</StepNumber>
+              <StepNumber theme={theme}>💡 Tips:</StepNumber>
             </InstructionTitle>
             <InstructionText theme={theme}>
-              • Cursor has access to all documentation automatically<br/>
+              • AI has access to all Pebble component docs automatically via MCP<br/>
               • The app shell gives you navigation, sidebar, and content areas<br/>
-              • Focus on customizing the main content - keep the shell structure<br/>
-              • Use simple, direct commands for best results
+              • Focus on customizing the main content — keep the shell structure<br/>
+              • Be specific: "Add a Pebble TableBasic with sortable columns" works better than "add a table"
             </InstructionText>
           </InstructionSection>
         </DrawerContent>

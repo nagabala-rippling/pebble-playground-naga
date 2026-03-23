@@ -427,7 +427,7 @@ When you need to customize a Pebble component:
 1. **Check if you can use props first** - Don't override if props solve it
 2. **Use the override system:**
    ```bash
-   yarn override ComponentName
+   npm run override ComponentName
    ```
 3. **Only modify the specific files you need**
 4. **Document your changes in the component's README.md**
@@ -468,7 +468,7 @@ If you need a simpler demo without the app shell:
 
 1. **Run the script:**
    ```bash
-   yarn new:demo
+   npm run new:demo
    ```
 
 2. **Or manually create:** `src/demos/kebab-case-demo.tsx` using this minimal template:

@@ -27,7 +27,7 @@ A complete system for syncing Pebble component documentation from Confluence int
 - ✅ `CONFLUENCE_SYNC_QUICKSTART.md` - 5-minute setup guide
 - ✅ `docs/guides/README.md` - Usage instructions
 - ✅ Updated `README.md` - Added sync section in technical details
-- ✅ Updated `package.json` - Added `yarn sync-confluence` script
+- ✅ Updated `package.json` - Added `npm run sync-confluence` script
 
 ### Directory Structure
 ```
@@ -67,7 +67,7 @@ docs/guides/
 
 5. **Run sync:**
    ```bash
-   yarn sync-confluence
+   npm run sync-confluence
    ```
 
 ### Example Output
@@ -152,7 +152,7 @@ When you ask AI to build something with Pebble:
 ### To Start Using:
 1. Follow the First-Time Setup above
 2. Add real page IDs to `confluence-sync.config.json`
-3. Run `yarn sync-confluence`
+3. Run `npm run sync-confluence`
 4. Commit synced docs to Git
 
 ### To Automate:
@@ -178,7 +178,7 @@ Tested scenarios:
 - ✅ Invalid page ID → Clear 404 error
 - ✅ Example page IDs → Skips with helpful message
 - ✅ Script is executable
-- ✅ NPM script works (`yarn sync-confluence`)
+- ✅ NPM script works (`npm run sync-confluence`)
 - ✅ Directory creation works
 - ✅ Markdown conversion works
 
@@ -206,7 +206,7 @@ Tested scenarios:
 
 1. **Check:** `CONFLUENCE_SYNC_QUICKSTART.md` for quick solutions
 2. **Read:** `docs/CONFLUENCE_SYNC_GUIDE.md` for detailed info
-3. **Test:** Run `yarn sync-confluence` to see error messages
+3. **Test:** Run `npm run sync-confluence` to see error messages
 
 ---
 

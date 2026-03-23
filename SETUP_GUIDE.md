@@ -1,202 +1,169 @@
 # Pebble Playground Setup Guide
 
-This guide will help you get the Pebble Playground up and running.
+Detailed setup instructions and troubleshooting for the Pebble Playground.
 
 ## Prerequisites
 
-- Node.js >= 18.0.0
-- Yarn >= 1.22
+- **Node.js** >= 18.0.0
+- **npm** (comes with Node.js)
+- **Git**
+- **NPM_TOKEN** — a GitHub Personal Access Token for installing `@rippling/pebble` from GitHub Packages
 
-## Installation Steps
+## Step 1: GitHub Packages Access
 
-### 1. Install Dependencies
+The `@rippling/pebble` packages are hosted on GitHub Packages. You need a Personal Access Token (PAT) with `read:packages` scope.
 
-Since this repo depends on Pebble packages from the main repo, you have two options:
+### Create a token
 
-#### Option A: Use Published Packages (Simpler)
+1. Go to [github.com/settings/tokens](https://github.com/settings/tokens)
+2. Click **Generate new token (classic)**
+3. Name it (e.g., "pebble-packages"), set an expiration, and select the **`read:packages`** scope
+4. Copy the token
+
+### Configure the token
+
+**Option A: Environment variable (recommended)**
+
+Add to your `~/.zshrc` (or `~/.bashrc`):
 
 ```bash
+export NPM_TOKEN=ghp_your_token_here
+```
+
+Then reload: `source ~/.zshrc`
+
+**Option B: Global `.npmrc`**
+
+Add to `~/.npmrc`:
+
+```
+@rippling:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=ghp_your_token_here
+```
+
+### Already have access?
+
+If you work in Rippling's monorepo, you likely already have a token configured in your global `~/.npmrc`. Check with:
+
+```bash
+cat ~/.npmrc | grep npm.pkg.github.com
+```
+
+If you see a line with `_authToken`, you're good to go.
+
+## Step 2: Clone and Install
+
+```bash
+git clone https://github.com/Rippling/pebble-playground.git
 cd pebble-playground
-yarn install
+npm install
 ```
 
-This will install the latest published versions of `@rippling/pebble` and `@rippling/pebble-editor` from your internal registry.
-
-#### Option B: Link to Local Pebble (For Development)
-
-If you're actively developing Pebble components and want to test them here:
+## Step 3: Run the Dev Server
 
 ```bash
-# In the pebble repo
-cd /Users/paulbest/Documents/htdocs/pebble
-yarn build
-
-# Link the packages
-cd packages/rippling-ui
-yarn link
-
-cd ../rippling-editor
-yarn link
-
-# In the playground repo
-cd /Users/paulbest/Documents/htdocs/pebble-playground
-yarn link @rippling/pebble
-yarn link @rippling/pebble-editor
+npm run dev
 ```
 
-### 2. Personalize Your Workspace (Automatic)
+The playground will be available at **http://localhost:4201**.
 
-When you run `yarn dev`, the setup automatically configures your personalized workspace from your git config:
+On first run, the setup script automatically configures your workspace from your git config:
+- Reads your name from `git config user.name`
+- Reads your email from `git config user.email`
+- Generates a Gravatar URL from your email
+- Detects your GitHub username from your git remote
+- Creates a `.env.local` file with your preferences
 
-```bash
-yarn dev
-```
+Your homepage will display a personalized greeting with your avatar.
 
-The script will:
-- ✅ Read your name from `git config user.name`
-- ✅ Read your email from `git config user.email`
-- ✅ Generate a Gravatar URL from your email
-- ✅ Try to detect your GitHub username from your git remote
-- ✅ Create a `.env.local` file with your preferences
+### Optional: GitHub Avatar
 
-**Your homepage will display:** "Hi [YourFirstName], welcome to your Pebble Playground" with your avatar! 🎉
+For a GitHub avatar instead of Gravatar, set your GitHub username:
 
-#### Optional: Add GitHub Avatar
-
-For a GitHub avatar instead of Gravatar, either:
-
-**Option 1:** Set your GitHub username in git config
 ```bash
 git config --global github.user "your-github-username"
+npm run setup:user
 ```
 
-**Option 2:** Add a GitHub remote to this repo
+## Step 4: Create Your Branch
+
 ```bash
-git remote add origin git@github.com:your-username/pebble-playground.git
+git checkout -b proto/yourname/my-first-demo
 ```
 
-Then re-run the setup:
-```bash
-yarn setup:user
-```
+See the [README](./README.md#branching--collaboration) for the full branching convention.
 
-The playground will be available at http://localhost:4201
-
-### 3. Verify Setup
+## Step 5: Verify Setup
 
 Open http://localhost:4201 in your browser. You should see:
 
 - Your personalized greeting with your avatar
-- A demo switcher with multiple options
+- A collection of demo cards on the index page
 - Theme toggle (light/dark berry themes)
-- Working Rich Text Editor by default
+- Working demo pages when you click into them
 
-## Package.json Notes
+## Commands
 
-The current `package.json` uses `"@rippling/pebble": "latest"`. You may need to update this to:
+```bash
+npm run dev          # Start dev server (port 4201)
+npm run build        # TypeScript check + Vite build
+npm run lint         # ESLint
+npm run format       # Prettier formatting
+npm run new:demo     # Scaffold a new demo interactively
+npm run new:shell    # Scaffold a demo with the app shell template
+npm run mcp:status   # Check Pebble MCP server status
+npm run override     # Override a Pebble component for customization
+```
 
-1. **Specific version:** `"@rippling/pebble": "^X.Y.Z"` (recommended)
-2. **Workspace protocol:** `"@rippling/pebble": "workspace:*"` (if using yarn workspaces)
-3. **File protocol:** `"@rippling/pebble": "file:../pebble/packages/rippling-ui"` (local development)
-
-### Current Dependencies
-
-The playground depends on:
-
-- `@rippling/pebble` - Main component library
-- `@rippling/pebble-editor` - Rich text editor components
-- `@rippling/lib-i18n` - Internationalization utilities
-- `@rippling/ui-utils` - Shared utilities
-- `@emotion/react` & `@emotion/styled` - CSS-in-JS
-- React 18.x
+> **Important:** Always use `npm run` instead of `yarn`. Yarn fails because `.npmrc` references `${NPM_TOKEN}` and yarn can't resolve it.
 
 ## Troubleshooting
 
+### `npm install` fails with 401 Unauthorized
+
+Your `NPM_TOKEN` is missing or expired.
+
+```
+npm error 401 Unauthorized - GET https://npm.pkg.github.com/@rippling%2fpebble
+```
+
+**Fix:** Follow [Step 1](#step-1-github-packages-access) to set up your token. If you already have one, it may have expired — generate a new one.
+
+### `npm install` fails with peer dependency conflict
+
+If you see `ERESOLVE could not resolve` errors about React versions:
+
+```bash
+npm install --legacy-peer-deps
+```
+
+The project pins `react@18.2.0` to match `@rippling/pebble`'s peer dependency. If the lockfile gets out of sync, `--legacy-peer-deps` will work around it.
+
 ### "Cannot find module '@rippling/pebble'"
 
-**Solution:** Ensure packages are published to your internal registry, or use local linking (Option B above).
+Dependencies aren't installed. Run `npm install` and make sure it completes without errors.
 
-### "Module not found: GlobalStyle"
+### Port 4201 is already in use
 
-**Solution:** Update the import in `src/main.tsx`:
+Vite will automatically pick the next available port and tell you in the terminal output. Look for:
 
-```typescript
-// If GlobalStyle is exported from @rippling/pebble
-import GlobalStyle from '@rippling/pebble/GlobalStyle';
-
-// Or if it's not exported, remove the import and the <GlobalStyle /> component
 ```
+Port 4201 is in use, trying another one...
+  ➜  Local:   http://localhost:4202/
+```
+
+### Pebble MCP not working
+
+1. Make sure `npm install` completed (the postinstall script sets up the MCP)
+2. In Cursor: restart the app completely (not just reload window)
+3. In Claude Code: the MCP should be picked up automatically from the project config
+4. Check status: `npm run mcp:status`
+5. If still not working, re-run setup: `npm run mcp:setup`
 
 ### TypeScript errors about missing types
 
-**Solution:** Ensure all `@types/*` packages are installed:
-
 ```bash
-yarn add -D @types/react @types/react-dom @types/lodash @types/node
-```
-
-### Vite errors about CSS-inline WASM
-
-**Solution:** The playground uses `@css-inline/css-inline-wasm` for the document editor. If you don't need the document editor, you can remove this dependency and simplify `main.tsx`:
-
-```typescript
-// Remove getCSSInliner function
-// Remove inlineCSS prop from DocumentEditor
-```
-
-## Next Steps
-
-### Add Your First Demo
-
-```bash
-yarn new:demo
-```
-
-Follow the prompts to create a new demo file. Then add it to `src/main.tsx`:
-
-```typescript
-// 1. Import your demo
-import MyDemo from './demos/my-demo';
-
-// 2. Add to EditorType enum
-enum EditorType {
-  // ... existing types
-  MY_DEMO = 'my-demo',
-}
-
-// 3. Add to DEMO_OPTIONS
-const DEMO_OPTIONS = [
-  // ... existing options
-  { type: EditorType.MY_DEMO, label: 'My Demo' },
-];
-
-// 4. Add to render logic
-{
-  editorType === EditorType.MY_DEMO && (
-    <>
-      {isTopBarVisible && buttons}
-      <MyDemo />
-    </>
-  );
-}
-```
-
-### Customize Theme
-
-The playground uses berry themes by default. To add more themes:
-
-```typescript
-// In main.tsx
-import {
-  darkThemeConfig,
-  lightThemeConfig,
-  darkThemeBerryConfig,
-  lightThemeBerryConfig,
-} from '@rippling/pebble/theme';
-
-const THEME_PROVIDER_PROPS = {
-  themeConfigs: [lightThemeConfig, darkThemeConfig, lightThemeBerryConfig, darkThemeBerryConfig],
-};
+npm install -D @types/react @types/react-dom @types/lodash @types/node
 ```
 
 ## File Structure
@@ -204,86 +171,20 @@ const THEME_PROVIDER_PROPS = {
 ```
 pebble-playground/
 ├── src/
-│   ├── demos/              # All demo components
-│   │   ├── animations-demo.tsx
-│   │   ├── modal-demo.tsx
-│   │   ├── ForkedSelect/   # Example of forked component
-│   │   └── ...
-│   ├── components/         # Reusable playground components
-│   ├── utils/              # Utilities (animation constants, etc.)
-│   │   └── animation-constants.ts
-│   ├── __mock__/           # Mock data
-│   └── main.tsx            # Entry point
-├── public/                 # Static assets
-├── docs/                   # Documentation
-│   ├── AI_PROMPTING_GUIDE.md
-│   ├── COMPONENT_CATALOG.md
-│   └── AI_WRAPPER_INTEGRATION.md
+│   ├── demos/              # Demo pages (your work goes here)
+│   ├── components/         # Reusable components (app-shell/, etc.)
+│   ├── utils/              # theme.ts, animation-constants.ts, localStorage.ts
+│   ├── overrides/          # Custom Pebble component overrides
+│   └── main.tsx            # Router entry point
+├── docs/                   # Documentation and guides
 ├── scripts/                # Helper scripts
-│   └── create-demo.mjs
-└── index.html
-```
-
-## Development Workflow
-
-1. **Start dev server:** `yarn dev`
-2. **Create new demo:** `yarn new:demo`
-3. **Lint code:** `yarn lint`
-4. **Format code:** `yarn format`
-5. **Build for production:** `yarn build`
-
-## Git Setup
-
-Initialize the repo:
-
-```bash
-cd /Users/paulbest/Documents/htdocs/pebble-playground
-git init
-git add .
-git commit -m "Initial commit: Pebble Playground setup"
-```
-
-Create a GitHub repo and push:
-
-```bash
-git remote add origin git@github.com:Rippling/pebble-playground.git
-git branch -M main
-git push -u origin main
-```
-
-## CI/CD (Optional)
-
-You can set up GitHub Actions to:
-
-1. Run linting on PRs
-2. Build the playground
-3. Deploy to a static host (Vercel, Netlify, etc.)
-
-Example `.github/workflows/ci.yml`:
-
-```yaml
-name: CI
-
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn build
+├── .cursorrules            # AI assistant rules (primary reference)
+├── CLAUDE.md               # AI assistant rules (compact version)
+└── package.json            # Dependencies and scripts
 ```
 
 ## Questions?
 
-- Check [README.md](./README.md) for general usage
+- See [README.md](./README.md) for general usage
 - See [docs/](./docs/) for detailed guides
-- Internal Slack: `#pebble-dev`
-
-Happy prototyping! 🎨
-
+- Slack: #ask-web-design-system

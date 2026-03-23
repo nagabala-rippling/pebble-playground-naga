@@ -56,7 +56,7 @@ docs/guides/
 Create a Node script for on-demand syncing:
 
 ```bash
-yarn sync-confluence-docs
+npm run sync-confluence-docs
 ```
 
 **Pros:**
@@ -101,7 +101,7 @@ Set up GitHub Actions for automatic syncing:
 ### 2. Node Packages
 
 ```bash
-yarn add -D confluence-api turndown
+npm install -D confluence-api turndown
 ```
 
 **Why these packages:**
@@ -248,7 +248,7 @@ syncAll();
 ### Step 4: Run Sync
 
 ```bash
-yarn sync-confluence
+npm run sync-confluence
 ```
 
 ---
@@ -341,14 +341,14 @@ jobs:
           cache: 'yarn'
           
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
         
       - name: Sync Confluence docs
         env:
           CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
           CONFLUENCE_USER_EMAIL: ${{ secrets.CONFLUENCE_USER_EMAIL }}
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
-        run: yarn sync-confluence
+        run: npm run sync-confluence
         
       - name: Check for changes
         id: check_changes
@@ -394,7 +394,7 @@ jobs:
 1. Update component guidelines in Confluence as normal
 2. Publish changes
 3. (If automated) Changes sync overnight and create PR
-4. (If manual) Developer runs `yarn sync-confluence` before next session
+4. (If manual) Developer runs `npm run sync-confluence` before next session
 
 ### For Developers (Local)
 
@@ -428,7 +428,7 @@ jobs:
 ### Example Output
 
 ```bash
-$ yarn sync-confluence
+$ npm run sync-confluence
 
 📄 Syncing: Button...
   → Checking for updates...
@@ -469,12 +469,12 @@ The sync will automatically detect and download:
 
 To force re-download a page even if version matches:
 1. Delete the local `.md` file
-2. Run `yarn sync-confluence` again
+2. Run `npm run sync-confluence` again
 
 Or delete all synced docs to start fresh:
 ```bash
 rm -rf docs/guides/components/*.md
-yarn sync-confluence
+npm run sync-confluence
 ```
 
 ---
