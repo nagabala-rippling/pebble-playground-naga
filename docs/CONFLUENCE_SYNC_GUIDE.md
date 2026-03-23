@@ -101,7 +101,7 @@ Set up GitHub Actions for automatic syncing:
 ### 2. Node Packages
 
 ```bash
-yarn add -D confluence-api turndown
+npm install -D confluence-api turndown
 ```
 
 **Why these packages:**

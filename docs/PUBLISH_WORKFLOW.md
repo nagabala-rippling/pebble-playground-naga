@@ -250,7 +250,7 @@ Each team member can have their own deployment for personal demos:
 
 ### Quick Setup (2 minutes)
 1. Click the "Deploy with Vercel" button above
-2. Vercel will fork/clone the repo and deploy automatically
+2. Vercel will clone the repo and deploy automatically
 3. Set environment variable: `VITE_SHOW_DEMOS=official,team,@yourname`
 4. Your playground will be live at `https://your-name-pebble-playground.vercel.app`
 5. All commits to your repo auto-deploy ✨
