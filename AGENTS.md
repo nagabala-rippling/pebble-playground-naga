@@ -7,7 +7,7 @@
 - **Success looks like:** A working interactive demo using real Pebble components, deployable to Vercel, built in minutes not days.
 - **Key constraint:** All styling must use design tokens (never hardcode colors, spacing, typography). Prototypes must look like the real Rippling product.
 - **"Pebble"** = Rippling's design system and component library (`@rippling/pebble`).
-- **"Pebble MCP"** = MCP server giving AI tools live access to component docs. Auto-installed via `yarn install`.
+- **"Pebble MCP"** = MCP server giving AI tools live access to component docs. Auto-installed via `npm install`.
 
 ## Tech Stack
 
@@ -42,6 +42,34 @@
 | **Colors**      | `color: '#000'`                                   | `color: theme.colorOnSurface`                    | Never hardcode colors                          |
 | **Spacing**     | `padding: '16px'`                                 | `padding: theme.space400`                        | Never hardcode spacing                         |
 | **Imports**     | `import { usePebbleTheme } from '../utils/theme'` | `import { usePebbleTheme } from '@/utils/theme'` | Always use `@/` alias                          |
+
+## Pebble MCP
+
+The Pebble MCP (`mcp_Pebble_get-component-examples`) gives live access to component source and Storybook examples. Available to any agent with MCP support.
+
+**Query MCP when:**
+
+| Situation                                             | Action                               |
+| ----------------------------------------------------- | ------------------------------------ |
+| First time using a component this session             | Query to verify API                  |
+| Building UI from a Figma design                       | Query each component for exact props |
+| Complex props (render functions, compound components) | Query for examples                   |
+| Something isn't working as expected                   | Query to check actual implementation |
+| User asks "how does X component work?"                | Query for authoritative answer       |
+
+**Skip MCP when:**
+
+| Situation                      | Action                               |
+| ------------------------------ | ------------------------------------ |
+| Simple component you just used | Trust the Critical Rules table above |
+| Basic Button, Icon, Card usage | Follow patterns in this file         |
+| Token/color/spacing questions  | Use the token reference below        |
+
+**Debugging with MCP:**
+
+```
+mcp_Pebble_get-component-examples({ componentName: "Button" })
+```
 
 ## Common Imports
 
@@ -231,6 +259,25 @@ theme.shapeCornerLg; // 8px     theme.shapeCorner4xl    // 24px
 theme.shapeCornerFull; // 9999px (pills, avatars)
 ```
 
+### Token Enforcement
+
+Never hardcode colors, spacing, typography, or border-radius. Always use theme tokens.
+
+**Common hardcode → token mappings:**
+
+| Hardcoded            | Token                                              |
+| -------------------- | -------------------------------------------------- |
+| `'white'` / `'#fff'` | `theme.colorSurface` or `theme.colorSurfaceBright` |
+| `'black'` / `'#000'` | `theme.colorOnSurface`                             |
+| `'#666'` / `'gray'`  | `theme.colorOnSurfaceVariant`                      |
+| `'16px'` padding     | `theme.space400`                                   |
+| `'24px'` padding     | `theme.space600`                                   |
+| `'8px'` gap          | `theme.space200`                                   |
+| `'8px'` radius       | `theme.shapeCornerLg`                              |
+| `'12px'` radius      | `theme.shapeCorner2xl`                             |
+
+**Exceptions:** Third-party library configs requiring literal values, CSS custom properties / keyframe animations using `calc()` with token values, SVG attributes that cannot accept tokens.
+
 ### Styled Components with Theme
 
 ```typescript
@@ -253,15 +300,40 @@ const Title = styled.h2`
 
 ### Recommended: Use App Shell Template
 
-1. Copy `src/demos/app-shell-template.tsx`
-2. Name: `src/demos/[kebab-case]-demo.tsx`, component: `[PascalCase]Demo`
-3. Wire into `src/main.tsx`:
-   - Add import
-   - Add to `EditorType` enum
-   - Add to `DEMO_ROUTES` object
-   - Add `<Route>`
-4. Add card to `src/demos/index-page.tsx` in `ALL_DEMO_CARDS` array
-5. Confirm: demo available at `http://localhost:4201/[kebab-case]`
+1. **Create the demo file:**
+   - Copy `src/demos/app-shell-template.tsx` → `src/demos/[kebab-case]-demo.tsx`
+   - Rename the component to `[PascalCase]Demo`
+   - Update the description comment
+
+2. **Wire up routing in `src/main.tsx`:**
+
+   ```typescript
+   // Add import
+   import MyDemo from './demos/my-demo';
+
+   // Add to EditorType enum
+   MY_DEMO = 'my-demo',
+
+   // Add to DEMO_ROUTES object
+   [EditorType.MY_DEMO]: MyDemo,
+
+   // Add <Route>
+   <Route path="my-demo" element={<MyDemo />} />
+   ```
+
+3. **Add card to `src/demos/index-page.tsx`** in `ALL_DEMO_CARDS` array:
+
+   ```typescript
+   {
+     title: 'My Demo',
+     description: 'Brief description of what this demo showcases.',
+     path: '/my-demo',
+     icon: Icon.TYPES.COMPONENT,
+     category: 'Demos',
+   },
+   ```
+
+4. **Verify:** demo loads at `http://localhost:4201/[kebab-case]-demo`, uses `@/` alias, uses theme tokens, no TS errors
 
 ### Alternative: Minimal Demo (No App Shell)
 
@@ -269,6 +341,7 @@ const Title = styled.h2`
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useTheme } from '@rippling/pebble/theme';
+import { StyledTheme } from '@/utils/theme';
 
 const MyDemo: React.FC = () => {
   const { theme } = useTheme();
@@ -280,8 +353,8 @@ const MyDemo: React.FC = () => {
 };
 
 const Container = styled.div`
-  padding: ${({ theme }) => (theme as any).space600};
-  background-color: ${({ theme }) => (theme as any).colorSurface};
+  padding: ${({ theme }) => (theme as StyledTheme).space600};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
   min-height: 100vh;
 `;
 

@@ -5,4 +5,4 @@ Read `AGENTS.md` for the canonical Pebble reference (gotchas, tokens, patterns, 
 ## Claude Code-specific notes
 
 - **Use `npm run`, never `yarn`** — Yarn fails with `Failed to replace env in config: ${NPM_TOKEN}`.
-- Pebble MCP is available for component API lookup — see `.cursor/rules/pebble-mcp.mdc` for when to use it.
+- Pebble MCP is available for component API lookup — see the "Pebble MCP" section in `AGENTS.md` for when to use it.

@@ -31,7 +31,7 @@ Button.APPEARANCES.OUTLINE      // Border only
 Button.APPEARANCES.GHOST        // No background
 
 // Usage
-<Button 
+<Button
   size={Button.SIZES.M}
   appearance={Button.APPEARANCES.PRIMARY}
   onClick={() => console.log('clicked')}
@@ -60,7 +60,7 @@ const [isOpen, setIsOpen] = useState(false);
 
 <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
 
-<Modal 
+<Modal
   isVisible={isOpen}
   onCancel={() => setIsOpen(false)}
   title="Modal Title"
@@ -68,10 +68,10 @@ const [isOpen, setIsOpen] = useState(false);
   <div style={{ padding: '1rem' }}>
     <p>Modal content goes here</p>
   </div>
-  
+
   <ModalFooter>
     <ModalCloseButton>Cancel</ModalCloseButton>
-    <Button 
+    <Button
       appearance={Button.APPEARANCES.PRIMARY}
       onClick={() => setIsOpen(false)}
     >
@@ -97,7 +97,7 @@ const [isOpen, setIsOpen] = useState(false);
   <div style={{ padding: '1rem' }}>
     Drawer content
   </div>
-  
+
   <Drawer.Footer>
     <Drawer.CloseButton>Cancel</Drawer.CloseButton>
     <Button appearance={Button.APPEARANCES.PRIMARY}>
@@ -169,7 +169,7 @@ const [value, setValue] = useState('');
 ```typescript
 import Icon from '@rippling/pebble/Icon';
 
-<Icon 
+<Icon
   type={Icon.TYPES.CHECK}
   color={theme.colorSuccess}
   size={20}
@@ -196,7 +196,7 @@ import { useTheme } from '@rippling/pebble/theme';
 
 const MyComponent = () => {
   const { theme } = useTheme();
-  
+
   return <div style={{ color: theme.colorOnSurface }}>
     Content
   </div>;
@@ -206,67 +206,74 @@ const MyComponent = () => {
 ### Common Theme Tokens
 
 #### Colors - Background
+
 ```typescript
-theme.colorSurface         // Base background (white in light, dark in dark mode)
-theme.colorSurfaceBright   // Elevated surface (cards, panels)
-theme.colorSurfaceDim      // Subtle background
+theme.colorSurface; // Base background (white in light, dark in dark mode)
+theme.colorSurfaceBright; // Elevated surface (cards, panels)
+theme.colorSurfaceDim; // Subtle background
 ```
 
 #### Colors - Text
+
 ```typescript
-theme.colorOnSurface          // Primary text
-theme.colorOnSurfaceVariant   // Secondary/muted text
-theme.colorOnPrimary          // Text on primary color
+theme.colorOnSurface; // Primary text
+theme.colorOnSurfaceVariant; // Secondary/muted text
+theme.colorOnPrimary; // Text on primary color
 ```
 
 #### Colors - Semantic
+
 ```typescript
-theme.colorPrimary      // Primary brand color
-theme.colorSecondary    // Secondary accent
-theme.colorSuccess      // Green for success states
-theme.colorError        // Red for errors
-theme.colorWarning      // Yellow for warnings
-theme.colorInfo         // Blue for informational
+theme.colorPrimary; // Primary brand color
+theme.colorSecondary; // Secondary accent
+theme.colorSuccess; // Green for success states
+theme.colorError; // Red for errors
+theme.colorWarning; // Yellow for warnings
+theme.colorInfo; // Blue for informational
 ```
 
 #### Colors - Borders
+
 ```typescript
-theme.colorOutline         // Standard borders
-theme.colorOutlineVariant  // Subtle borders
+theme.colorOutline; // Standard borders
+theme.colorOutlineVariant; // Subtle borders
 ```
 
 #### Typography
+
 ```typescript
-theme.typestyleDisplayLarge700    // 57px, Bold
-theme.typestyleHeadingLarge700    // 32px, Bold
-theme.typestyleBodyLarge500       // 16px, Medium
-theme.typestyleBodyMedium400      // 14px, Regular
-theme.typestyleLabelLarge600      // 14px, Semibold
+theme.typestyleDisplayLarge700; // 57px, Bold
+theme.typestyleHeadingLarge700; // 32px, Bold
+theme.typestyleBodyLarge500; // 16px, Medium
+theme.typestyleBodyMedium400; // 14px, Regular
+theme.typestyleLabelLarge600; // 14px, Semibold
 ```
 
 #### Spacing
+
 ```typescript
-theme.space0      // 0px
-theme.space50     // 2px
-theme.space100    // 4px
-theme.space200    // 8px
-theme.space300    // 12px
-theme.space400    // 16px
-theme.space500    // 20px
-theme.space600    // 24px
+theme.space0; // 0px
+theme.space50; // 2px
+theme.space100; // 4px
+theme.space200; // 8px
+theme.space300; // 12px
+theme.space400; // 16px
+theme.space500; // 20px
+theme.space600; // 24px
 ```
 
 #### Border Radius
+
 ```typescript
-theme.shapeCornerXs     // 2px   - Extra small radius
-theme.shapeCornerSm     // 4px   - Small radius (badges)
-theme.shapeCornerMd     // 6px   - Medium-small radius
-theme.shapeCornerLg     // 8px   - Standard radius (buttons, inputs)
-theme.shapeCornerXl     // 10px  - Large radius
-theme.shapeCorner2xl    // 12px  - Extra large radius (cards)
-theme.shapeCorner3xl    // 16px  - 3XL radius (modals, large panels)
-theme.shapeCorner4xl    // 24px  - 4XL radius (special cards)
-theme.shapeCornerFull   // 9999px - Fully rounded (pills, avatars)
+theme.shapeCornerXs; // 2px   - Extra small radius
+theme.shapeCornerSm; // 4px   - Small radius (badges)
+theme.shapeCornerMd; // 6px   - Medium-small radius
+theme.shapeCornerLg; // 8px   - Standard radius (buttons, inputs)
+theme.shapeCornerXl; // 10px  - Large radius
+theme.shapeCorner2xl; // 12px  - Extra large radius (cards)
+theme.shapeCorner3xl; // 16px  - 3XL radius (modals, large panels)
+theme.shapeCorner4xl; // 24px  - 4XL radius (special cards)
+theme.shapeCornerFull; // 9999px - Fully rounded (pills, avatars)
 ```
 
 ## Animation Constants
@@ -277,19 +284,19 @@ For consistent animations, use the provided constants:
 import { DURATION, EASING, SCALE } from '../utils/animation-constants';
 
 // Durations
-DURATION.fast      // 150ms - Quick interactions (tooltips, dropdowns)
-DURATION.standard  // 250ms - Most UI animations
-DURATION.long      // 350ms - Complex transitions
+DURATION.fast; // 150ms - Quick interactions (tooltips, dropdowns)
+DURATION.standard; // 250ms - Most UI animations
+DURATION.long; // 350ms - Complex transitions
 
 // Easing
-EASING.easeOut     // cubic-bezier(0.16, 1, 0.3, 1) - For entrance
-EASING.easeIn      // cubic-bezier(0.4, 0, 1, 1) - For exit
-EASING.easeInOut   // cubic-bezier(0.45, 0, 0.15, 1) - For transforms
+EASING.easeOut; // cubic-bezier(0.16, 1, 0.3, 1) - For entrance
+EASING.easeIn; // cubic-bezier(0.4, 0, 1, 1) - For exit
+EASING.easeInOut; // cubic-bezier(0.45, 0, 0.15, 1) - For transforms
 
 // Scale values
-SCALE.buttonActive // 0.97 - Button press scale
-SCALE.initial      // 0.93 - Starting scale for entrances
-SCALE.full         // 1.0 - Full scale
+SCALE.buttonActive; // 0.97 - Button press scale
+SCALE.initial; // 0.93 - Starting scale for entrances
+SCALE.full; // 1.0 - Full scale
 
 // Example usage
 const fadeIn = keyframes`
@@ -315,7 +322,7 @@ const AnimatedDiv = styled.div`
 ```typescript
 const MyDemo = () => {
   const { theme } = useTheme();
-  
+
   return (
     <div
       style={{
@@ -354,20 +361,20 @@ const MyDemo = () => {
   gap: '2rem',
 }}>
   <div>
-    <span style={{ 
-      fontSize: '14px', 
+    <span style={{
+      fontSize: '14px',
       fontWeight: 600,
-      color: theme.colorOnSurfaceVariant 
+      color: theme.colorOnSurfaceVariant
     }}>
       Before
     </span>
     {/* Before component */}
   </div>
   <div>
-    <span style={{ 
-      fontSize: '14px', 
+    <span style={{
+      fontSize: '14px',
       fontWeight: 600,
-      color: theme.colorOnSurfaceVariant 
+      color: theme.colorOnSurfaceVariant
     }}>
       After
     </span>
@@ -379,6 +386,7 @@ const MyDemo = () => {
 ## Common Gotchas
 
 ### ❌ Wrong
+
 ```typescript
 // Don't hardcode colors
 <div style={{ backgroundColor: 'white', color: '#000' }}>
@@ -398,23 +406,24 @@ const MyDemo = () => {
 ```
 
 ### ✅ Correct
+
 ```typescript
 // Use theme tokens
-<div style={{ 
-  backgroundColor: theme.colorSurface, 
-  color: theme.colorOnSurface 
+<div style={{
+  backgroundColor: theme.colorSurface,
+  color: theme.colorOnSurface
 }}>
 
 // Use enum values
-<Button 
-  size={Button.SIZES.M} 
+<Button
+  size={Button.SIZES.M}
   appearance={Button.APPEARANCES.PRIMARY}
 >
 
 // Include isVisible prop
-<Modal 
+<Modal
   isVisible={isOpen}
-  onCancel={() => setIsOpen(false)} 
+  onCancel={() => setIsOpen(false)}
   title="Title"
 >
 
@@ -436,6 +445,7 @@ const MyDemo = () => {
 ## Accessibility
 
 Always include:
+
 - `aria-label` for icon-only buttons
 - `id` for form inputs
 - Semantic HTML elements
@@ -460,6 +470,4 @@ Always include:
 
 - See [COMPONENT_CATALOG.md](./COMPONENT_CATALOG.md) for complete component list
 - Check [../src/demos/](../src/demos/) for working examples
-- Review [../.cursorrules](../.cursorrules) for coding standards
-
-
+- Review [`AGENTS.md`](../AGENTS.md) for coding standards
