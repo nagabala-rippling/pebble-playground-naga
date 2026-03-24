@@ -242,11 +242,11 @@ theme.colorOutlineVariant; // Subtle borders
 #### Typography
 
 ```typescript
-theme.typestyleDisplayLarge700; // 57px, Bold
-theme.typestyleHeadingLarge700; // 32px, Bold
-theme.typestyleBodyLarge500; // 16px, Medium
-theme.typestyleBodyMedium400; // 14px, Regular
-theme.typestyleLabelLarge600; // 14px, Semibold
+theme.typestyleV2DisplayLarge; // 57px, Bold
+theme.typestyleV2TitleLarge; // 32px, Bold
+theme.typestyleV2BodyLarge; // 16px, Medium
+theme.typestyleV2BodyMedium; // 14px, Regular
+theme.typestyleV2LabelLarge; // 14px, Semibold
 ```
 
 #### Spacing
