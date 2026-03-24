@@ -17,7 +17,7 @@
    - `const { theme } = useTheme();`
 3. **Theme tokens work in both light and dark modes**
 4. **For styled components, access via props**
-   - `styled.div\`color: \${({ theme }) => (theme as any).colorOnSurface};\``
+   - `styled.div\`color: \${({ theme }) => (theme as StyledTheme).colorOnSurface};\``
 
 ---
 
@@ -138,10 +138,11 @@ Used for status, feedback, and alerts.
 
 ```typescript
 import styled from '@emotion/styled';
+import { StyledTheme } from '@/utils/theme';
 
 const Heading = styled.h1`
-  ${({ theme }) => (theme as any).typestyleDisplayLarge600};
-  color: ${({ theme }) => (theme as any).colorOnSurface};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2DisplayLarge};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
 `;
 ```
 
@@ -158,59 +159,59 @@ const Heading = styled.h1`
 
 Use for large, prominent text (page titles, hero sections).
 
-| Token                       | Size | Weight         | Usage            |
-| --------------------------- | ---- | -------------- | ---------------- |
-| `typestyleDisplayLarge600`  | 57px | 600 (Semibold) | Main page titles |
-| `typestyleDisplayMedium600` | 45px | 600            | Section titles   |
-| `typestyleDisplaySmall600`  | 36px | 600            | Card titles      |
+| Token                      | Size | Weight         | Usage            |
+| -------------------------- | ---- | -------------- | ---------------- |
+| `typestyleV2DisplayLarge`  | 57px | 600 (Semibold) | Main page titles |
+| `typestyleV2DisplayMedium` | 45px | 600            | Section titles   |
+| `typestyleV2DisplaySmall`  | 36px | 600            | Card titles      |
 
 ### Title Typography
 
 Use for section headers and subsection titles.
 
-| Token                     | Size | Weight |
-| ------------------------- | ---- | ------ |
-| `typestyleTitleLarge600`  | 22px | 600    |
-| `typestyleTitleMedium600` | 16px | 600    |
-| `typestyleTitleSmall600`  | 14px | 600    |
+| Token                    | Size | Weight |
+| ------------------------ | ---- | ------ |
+| `typestyleV2TitleLarge`  | 22px | 600    |
+| `typestyleV2TitleMedium` | 16px | 600    |
+| `typestyleV2TitleSmall`  | 14px | 600    |
 
 ### Body Typography
 
 Use for paragraph text and general content.
 
-| Token                    | Size | Weight        | Usage              |
-| ------------------------ | ---- | ------------- | ------------------ |
-| `typestyleBodyLarge400`  | 16px | 400 (Regular) | Large body text    |
-| `typestyleBodyMedium400` | 14px | 400           | Standard body text |
-| `typestyleBodySmall400`  | 12px | 400           | Small body text    |
+| Token                   | Size | Weight        | Usage              |
+| ----------------------- | ---- | ------------- | ------------------ |
+| `typestyleV2BodyLarge`  | 16px | 400 (Regular) | Large body text    |
+| `typestyleV2BodyMedium` | 14px | 400           | Standard body text |
+| `typestyleV2BodySmall`  | 12px | 400           | Small body text    |
 
 ### Label Typography
 
 Use for form labels, captions, metadata.
 
-| Token                     | Size | Weight |
-| ------------------------- | ---- | ------ |
-| `typestyleLabelLarge600`  | 14px | 600    |
-| `typestyleLabelMedium600` | 12px | 600    |
-| `typestyleLabelSmall600`  | 11px | 600    |
+| Token                    | Size | Weight |
+| ------------------------ | ---- | ------ |
+| `typestyleV2LabelLarge`  | 14px | 600    |
+| `typestyleV2LabelMedium` | 12px | 600    |
+| `typestyleV2LabelSmall`  | 11px | 600    |
 
 **Example:**
 
 ```typescript
 const Container = styled.div`
   h1 {
-    ${({ theme }) => (theme as any).typestyleDisplayLarge600};
-    color: ${({ theme }) => (theme as any).colorOnSurface};
+    ${({ theme }) => (theme as StyledTheme).typestyleV2DisplayLarge};
+    color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   }
 
   p {
-    ${({ theme }) => (theme as any).typestyleBodyMedium400};
-    color: ${({ theme }) => (theme as any).colorOnSurfaceVariant};
+    ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+    color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   }
 
   label {
-    ${({ theme }) => (theme as any).typestyleLabelMedium600};
-    color: ${({ theme }) => (theme as any).colorOnSurface};
+    ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+    color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   }
 `;
 ```
@@ -238,9 +239,9 @@ All spacing tokens use an 8px base unit for consistency.
 
 ```typescript
 const Card = styled.div`
-  padding: ${({ theme }) => (theme as any).space600};
-  gap: ${({ theme }) => (theme as any).space400};
-  margin-bottom: ${({ theme }) => (theme as any).space800};
+  padding: ${({ theme }) => (theme as StyledTheme).space600};
+  gap: ${({ theme }) => (theme as StyledTheme).space400};
+  margin-bottom: ${({ theme }) => (theme as StyledTheme).space800};
 `;
 ```
 
@@ -264,15 +265,15 @@ const Card = styled.div`
 
 ```typescript
 const Button = styled.button`
-  border-radius: ${({ theme }) => (theme as any).shapeCornerLg};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
 `;
 
 const Card = styled.div`
-  border-radius: ${({ theme }) => (theme as any).shapeCorner2xl};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner2xl};
 `;
 
 const Modal = styled.div`
-  border-radius: ${({ theme }) => (theme as any).shapeCorner3xl};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner3xl};
 `;
 ```
 
@@ -296,23 +297,24 @@ Used for component sizing (icon sizes, input heights, etc.).
 ```typescript
 import styled from '@emotion/styled';
 import { useTheme } from '@rippling/pebble/theme';
+import { StyledTheme } from '@/utils/theme';
 
 // Method 1: Via props (for styled components)
 const StyledCard = styled.div`
-  background-color: ${({ theme }) => (theme as any).colorSurface};
-  padding: ${({ theme }) => (theme as any).space600};
-  border-radius: ${({ theme }) => (theme as any).shapeCornerL};
-  border: 1px solid ${({ theme }) => (theme as any).colorOutlineVariant};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
+  padding: ${({ theme }) => (theme as StyledTheme).space600};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
 
   h2 {
-    ${({ theme }) => (theme as any).typestyleTitleLarge600};
-    color: ${({ theme }) => (theme as any).colorOnSurface};
-    margin-bottom: ${({ theme }) => (theme as any).space400};
+    ${({ theme }) => (theme as StyledTheme).typestyleV2TitleLarge};
+    color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+    margin-bottom: ${({ theme }) => (theme as StyledTheme).space400};
   }
 
   p {
-    ${({ theme }) => (theme as any).typestyleBodyMedium400};
-    color: ${({ theme }) => (theme as any).colorOnSurfaceVariant};
+    ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+    color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   }
 `;
 
