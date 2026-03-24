@@ -198,6 +198,9 @@ Use for form labels, captions, metadata.
 **Example:**
 
 ```typescript
+import styled from '@emotion/styled';
+import { StyledTheme } from '@/utils/theme';
+
 const Container = styled.div`
   h1 {
     ${({ theme }) => (theme as StyledTheme).typestyleV2DisplayLarge};
@@ -238,6 +241,9 @@ All spacing tokens use an 8px base unit for consistency.
 **Example:**
 
 ```typescript
+import styled from '@emotion/styled';
+import { StyledTheme } from '@/utils/theme';
+
 const Card = styled.div`
   padding: ${({ theme }) => (theme as StyledTheme).space600};
   gap: ${({ theme }) => (theme as StyledTheme).space400};
@@ -264,6 +270,9 @@ const Card = styled.div`
 **Example:**
 
 ```typescript
+import styled from '@emotion/styled';
+import { StyledTheme } from '@/utils/theme';
+
 const Button = styled.button`
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
 `;
