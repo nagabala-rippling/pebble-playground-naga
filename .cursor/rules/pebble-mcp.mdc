@@ -1,0 +1,9 @@
+---
+description: When and how to use Pebble MCP tools for component lookup
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Pebble MCP Usage
+
+See the **Pebble MCP** section in `AGENTS.md` for when to query vs skip MCP, debugging with MCP, and the full component reference.

@@ -23,7 +23,9 @@
     "update-docs": "npm run sync-confluence && npm run generate-token-docs",
     "help": "cat CLAUDE.md",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json}\""
+    "prepare": "./scripts/husky-prepare.sh",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "ts:check": "tsc --noEmit"
   },
   "dependencies": {
     "@babel/runtime": ">=7.9.6",
@@ -34,7 +36,6 @@
     "@rippling/pebble": "^0.1017.0",
     "@rippling/pebble-tokens": "^0.0.107",
     "@rippling/ui-utils": "latest",
-
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "marked": "^16.4.1",
@@ -51,6 +52,7 @@
     "sortablejs": "^1.15.6",
     "vanilla-masker": "1.2.0"
   },
+  "//devDependencies": "husky and lint-staged versions match rippling-webapp (security-approved). Do not upgrade without checking org package allowlist.",
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
     "@rippling/pebble-mcp": "^0.137.0",
@@ -67,10 +69,21 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "husky": "7.0.4",
+    "lint-staged": "^10.5.4",
     "prettier": "^3.2.4",
     "turndown": "^7.2.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.11"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"

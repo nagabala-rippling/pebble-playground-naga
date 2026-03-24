@@ -1,0 +1,9 @@
+---
+description: Step-by-step workflow for creating new demos in pebble-playground
+globs: src/demos/**
+alwaysApply: false
+---
+
+# Creating New Demos
+
+See the **Creating New Demos** section in `AGENTS.md` for the full step-by-step workflow including code snippets for routing, index page wiring, and the minimal template.

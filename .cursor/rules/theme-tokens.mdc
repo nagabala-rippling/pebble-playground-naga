@@ -1,0 +1,9 @@
+---
+description: Enforce Pebble design token usage — no hardcoded colors, spacing, or typography
+globs: src/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+# Theme Token Enforcement
+
+See the **Theme Token Quick Reference** and **Token Enforcement** sections in `AGENTS.md` for the full token catalog, forbidden patterns, and hardcode → token mappings.
