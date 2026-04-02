@@ -9,7 +9,7 @@ import TableBasic from '@rippling/pebble/TableBasic';
 import Label from '@rippling/pebble/Label';
 import Tabs from '@rippling/pebble/Tabs';
 import Tip from '@rippling/pebble/Tip';
-import { VStack, HStack } from '@rippling/pebble/Layout/Stack';
+import { HStack } from '@rippling/pebble/Layout/Stack';
 
 /**
  * Index Page
