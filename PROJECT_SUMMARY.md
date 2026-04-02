@@ -1,7 +1,7 @@
 # Pebble Playground - Project Summary
 
 **Created:** November 1, 2025  
-**Location:** `/Users/paulbest/Documents/htdocs/pebble-playground`
+**Location:** `/Users/paulbest/Documents/htdocs/prototyping-playground`
 
 ## What Was Built
 
@@ -39,7 +39,7 @@ A standalone, AI-friendly prototyping environment for Rippling's Pebble Design S
 ## File Structure
 
 ```
-pebble-playground/
+prototyping-playground/
 ├── .cursorrules                 # AI assistant rules
 ├── .eslintrc.cjs                # ESLint configuration
 ├── .prettierrc                  # Prettier configuration
@@ -84,7 +84,7 @@ pebble-playground/
 - Couples prototyping with engineering workflow
 - Not easily shareable
 
-### New (in `/pebble-playground/`)
+### New (in `/prototyping-playground/`)
 - ✅ Standalone repository
 - ✅ Independent of Pebble repo (uses published packages)
 - ✅ AI-optimized with comprehensive documentation
@@ -112,8 +112,8 @@ See `docs/AI_WRAPPER_INTEGRATION.md` for:
 ### 1. Install Dependencies
 
 ```bash
-git clone https://github.com/Rippling/pebble-playground.git
-cd pebble-playground
+git clone https://github.com/Rippling/prototyping-playground.git
+cd prototyping-playground
 npm install
 ```
 
@@ -215,7 +215,7 @@ This playground architecture was designed based on:
 
 ## Quick Reference
 
-**Repo:** `github.com/Rippling/pebble-playground`  
+**Repo:** `github.com/Rippling/prototyping-playground`  
 **Port:** 4201  
 **Scripts:**
 - `npm run dev` - Start dev server

@@ -54,8 +54,8 @@ If you see a line with `_authToken`, you're good to go.
 ## Step 2: Clone and Install
 
 ```bash
-git clone https://github.com/Rippling/pebble-playground.git
-cd pebble-playground
+git clone https://github.com/Rippling/prototyping-playground.git
+cd prototyping-playground
 npm install
 ```
 

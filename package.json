@@ -1,5 +1,5 @@
 {
-  "name": "@rippling/pebble-playground",
+  "name": "@rippling/prototyping-playground",
   "version": "1.0.0",
   "description": "AI-friendly prototyping environment for Rippling's Pebble Design System",
   "private": true,

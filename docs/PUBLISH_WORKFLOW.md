@@ -1,6 +1,6 @@
 # Pebble Playground: Publish & Collaboration Workflow (MVP)
 
-> **Note:** This document was written for an earlier fork-based model. The repo now lives at `Rippling/pebble-playground` and uses a **branch-based workflow** instead of forks. See the [README](../README.md) and [Collaboration Guide](./COLLABORATION.md) for the current workflow. Some ideas below (folder structure, demo filtering, promotion flow) are still relevant for future implementation.
+> **Note:** This document was written for an earlier fork-based model. The repo now lives at `Rippling/prototyping-playground` and uses a **branch-based workflow** instead of forks. See the [README](../README.md) and [Collaboration Guide](./COLLABORATION.md) for the current workflow. Some ideas below (folder structure, demo filtering, promotion flow) are still relevant for future implementation.
 
 ## Overview
 
@@ -34,7 +34,7 @@ This document outlines the deployment and collaboration strategy for Pebble Play
 ### High-Level Design
 
 ```
-Main Repo (github.com/rippling/pebble-playground)
+Main Repo (github.com/rippling/prototyping-playground)
 ├── Official demos (blessed, vetted examples)
 ├── Team demos (collaborative work-in-progress)
 ├── Personal demos (@username folders - shareable experiments)
@@ -43,7 +43,7 @@ Main Repo (github.com/rippling/pebble-playground)
 Personal Vercel Deployments
 ├── Each person deploys their own instance (one-click)
 ├── Vercel auto-configures everything
-├── Share links: https://[your-name]-pebble-playground.vercel.app/your-demo
+├── Share links: https://[your-name]-prototyping-playground.vercel.app/your-demo
 ```
 
 ### Folder Structure
@@ -246,13 +246,13 @@ Add to `README.md`:
 
 Each team member can have their own deployment for personal demos:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/rippling/pebble-playground&env=VITE_SHOW_DEMOS&envDescription=Which%20demo%20folders%20to%20show&envLink=https://github.com/rippling/pebble-playground/blob/main/docs/PUBLISH_WORKFLOW.md)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/rippling/prototyping-playground&env=VITE_SHOW_DEMOS&envDescription=Which%20demo%20folders%20to%20show&envLink=https://github.com/rippling/prototyping-playground/blob/main/docs/PUBLISH_WORKFLOW.md)
 
 ### Quick Setup (2 minutes)
 1. Click the "Deploy with Vercel" button above
 2. Vercel will clone the repo and deploy automatically
 3. Set environment variable: `VITE_SHOW_DEMOS=official,team,@yourname`
-4. Your playground will be live at `https://your-name-pebble-playground.vercel.app`
+4. Your playground will be live at `https://your-name-prototyping-playground.vercel.app`
 5. All commits to your repo auto-deploy ✨
 
 ### For Designers (No Vercel Experience Required)
@@ -304,8 +304,8 @@ Add to `package.json`:
 #    Set VITE_SHOW_DEMOS=official,team,@sarah
 
 # 2. Clone repo locally
-git clone https://github.com/rippling/pebble-playground
-cd pebble-playground
+git clone https://github.com/rippling/prototyping-playground
+cd prototyping-playground
 npm install
 
 # 3. Create your personal folder
@@ -324,7 +324,7 @@ git commit -m "feat: add my first demo"
 git push
 
 # 7. Vercel auto-deploys!
-# Share link: https://sarah-pebble-playground.vercel.app/my-first-demo
+# Share link: https://sarah-prototyping-playground.vercel.app/my-first-demo
 ```
 
 ### Scenario 2: Developer Contributing to Official
@@ -364,7 +364,7 @@ git commit -m "feat: add step 2 to onboarding flow"
 git push
 
 # 3. Present to client via team deployment
-# https://team-pebble-playground.vercel.app/client-onboarding-flow
+# https://team-prototyping-playground.vercel.app/client-onboarding-flow
 
 # 4. Iterate based on feedback
 
@@ -377,7 +377,7 @@ git push
 
 ### Main Deployment (Official Showcase)
 
-**URL:** `pebble-playground.vercel.app`
+**URL:** `prototyping-playground.vercel.app`
 
 **Environment Variables:**
 ```bash
@@ -390,7 +390,7 @@ VITE_SHOW_DEMOS=official
 
 ### Team Deployment (Optional)
 
-**URL:** `team-pebble-playground.vercel.app`
+**URL:** `team-prototyping-playground.vercel.app`
 
 **Environment Variables:**
 ```bash
@@ -403,7 +403,7 @@ VITE_SHOW_DEMOS=official,team
 
 ### Personal Deployments
 
-**URL:** `[yourname]-pebble-playground.vercel.app`
+**URL:** `[yourname]-prototyping-playground.vercel.app`
 
 **Environment Variables:**
 ```bash
