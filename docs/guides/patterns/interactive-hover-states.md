@@ -27,24 +27,18 @@ const InteractiveElement = styled.button`
   color: ${({ theme }) => theme.colorOnSurface};
   cursor: pointer;
   transition: all 0.1s ease-in-out 0s;
-  
+
   &:hover {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurfaceBright, 'hover')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurfaceBright, 'hover')};
   }
-  
+
   &:active {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurfaceBright, 'active')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurfaceBright, 'active')};
   }
-  
+
   &:disabled {
     cursor: not-allowed;
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurfaceBright, 'disabled')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurfaceBright, 'disabled')};
   }
 `;
 ```
@@ -62,11 +56,11 @@ The `getStateColor(color, state)` function:
 
 ### Available States
 
-| State | Token Used | Use Case |
-|-------|-----------|----------|
-| `'hover'` | `colorHover` | Mouse hover state |
-| `'active'` | `colorPressed` | Click/press state |
-| `'disabled'` | `colorDisabledSurface` | Disabled state background |
+| State          | Token Used               | Use Case                    |
+| -------------- | ------------------------ | --------------------------- |
+| `'hover'`      | `colorHover`             | Mouse hover state           |
+| `'active'`     | `colorPressed`           | Click/press state           |
+| `'disabled'`   | `colorDisabledSurface`   | Disabled state background   |
 | `'onDisabled'` | `colorOnDisabledSurface` | Text on disabled background |
 
 ---
@@ -99,6 +93,7 @@ transition: all 0.1s ease-in-out 0s;
 ```
 
 **Behavior:**
+
 - Default: Transparent background
 - Hover: Subtle background appears
 - Active: Slightly darker background
@@ -109,20 +104,16 @@ transition: all 0.1s ease-in-out 0s;
 const NavItem = styled.button`
   background: none;
   padding: ${({ theme }) => theme.space200};
-  border-radius: ${({ theme }) => theme.shapeCornerL};
+  border-radius: ${({ theme }) => theme.shapeCornerLg};
   cursor: pointer;
   transition: all 0.1s ease-in-out 0s;
-  
+
   &:hover {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurface, 'hover')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurface, 'hover')};
   }
-  
+
   &:active {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurface, 'active')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurface, 'active')};
   }
 `;
 ```
@@ -134,20 +125,16 @@ const ProfileSection = styled.div`
   display: flex;
   align-items: center;
   padding: ${({ theme }) => theme.space200};
-  border-radius: ${({ theme }) => theme.shapeCornerL};
+  border-radius: ${({ theme }) => theme.shapeCornerLg};
   cursor: pointer;
   transition: all 0.1s ease-in-out 0s;
-  
+
   &:hover {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurfaceBright, 'hover')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurfaceBright, 'hover')};
   }
-  
+
   &:active {
-    background-color: ${({ theme }) => 
-      getStateColor(theme.colorSurfaceBright, 'active')
-    };
+    background-color: ${({ theme }) => getStateColor(theme.colorSurfaceBright, 'active')};
   }
 `;
 ```
@@ -201,6 +188,7 @@ From `docs/guides/components/buttons/icon-button.md`:
 ### App Shell Top Nav Icons
 
 See `src/demos/app-shell-demo.tsx` for complete implementation of:
+
 - Icon buttons with tips
 - Profile section with hover states
 - Logo with interactive states
@@ -214,5 +202,3 @@ See `src/demos/app-shell-demo.tsx` for complete implementation of:
 - [Button Component](../components/buttons/button.md)
 - [Color Tokens](../tokens/colors.md)
 - [Spacing Tokens](../tokens/spacing.md)
-
-

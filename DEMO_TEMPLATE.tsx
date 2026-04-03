@@ -1,8 +1,8 @@
 /**
  * Template for Creating New Demos
- * 
+ *
  * Copy this file to create a new demo. Replace placeholders with your content.
- * 
+ *
  * ⚠️ BEFORE YOU START:
  * 1. Read docs/COMPONENT_CATALOG.md for component APIs
  * 2. Read docs/TOKEN_CATALOG.md for design tokens
@@ -12,6 +12,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { useTheme } from '@rippling/pebble/theme';
+import { StyledTheme } from '@/utils/theme';
 
 // Import Pebble components you need
 // Refer to docs/COMPONENT_CATALOG.md for correct import paths
@@ -25,14 +26,14 @@ import Input from '@rippling/pebble/Inputs';
 
 /**
  * [YourDemoName]
- * 
+ *
  * [Brief description of what this demo showcases]
- * 
+ *
  * Components used:
  * - Button (docs/guides/components/buttons/button.md)
  * - Icon (docs/guides/components/icons.md)
  * - Input.Text (docs/guides/components/inputs/text-input.md)
- * 
+ *
  * Demonstrates:
  * - [List key concepts shown in this demo]
  * - [e.g., Form validation, theme tokens, component composition]
@@ -55,9 +56,7 @@ const YourDemoName: React.FC = () => {
     <Container theme={theme}>
       <Title theme={theme}>Your Demo Title</Title>
 
-      <Description theme={theme}>
-        Brief description of what this demo shows.
-      </Description>
+      <Description theme={theme}>Brief description of what this demo shows.</Description>
 
       {/* Example: Form with Input */}
       <FormSection theme={theme}>
@@ -66,8 +65,8 @@ const YourDemoName: React.FC = () => {
           label="Input Label"
           placeholder="Enter something..."
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          size={Input.Text.SIZES.M}  // NOTE: Input.Text.SIZES, not Input.SIZES!
+          onChange={e => setInputValue(e.target.value)}
+          size={Input.Text.SIZES.M} // NOTE: Input.Text.SIZES, not Input.SIZES!
         />
       </FormSection>
 
@@ -78,9 +77,9 @@ const YourDemoName: React.FC = () => {
           appearance={Button.APPEARANCES.PRIMARY}
           onClick={handleSubmit}
         >
-          <Icon 
-            type={Icon.TYPES.CHECK} 
-            size={16}  // NOTE: Use numbers, not Icon.SIZES.M!
+          <Icon
+            type={Icon.TYPES.CHECK}
+            size={16} // NOTE: Use numbers, not Icon.SIZES.M!
           />
           Submit
         </Button>
@@ -102,57 +101,57 @@ const YourDemoName: React.FC = () => {
 
 const Container = styled.div`
   /* Use theme tokens for padding */
-  padding: ${({ theme }) => (theme as any).space600};
-  
+  padding: ${({ theme }) => (theme as StyledTheme).space600};
+
   /* Use theme tokens for background */
-  background-color: ${({ theme }) => (theme as any).colorSurface};
-  
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
+
   /* Use theme tokens for spacing */
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => (theme as any).space600};
-  
+  gap: ${({ theme }) => (theme as StyledTheme).space600};
+
   min-height: 100vh;
 `;
 
 const Title = styled.h1`
   /* Use typography tokens */
-  ${({ theme }) => (theme as any).typestyleDisplayLarge600};
-  
+  ${({ theme }) => (theme as StyledTheme).typestyleV2DisplayLarge};
+
   /* Use color tokens */
-  color: ${({ theme }) => (theme as any).colorOnSurface};
-  
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+
   /* Use spacing tokens */
-  margin: 0 0 ${({ theme }) => (theme as any).space400} 0;
+  margin: 0 0 ${({ theme }) => (theme as StyledTheme).space400} 0;
 `;
 
 const Description = styled.p`
   /* Use typography tokens for body text */
-  ${({ theme }) => (theme as any).typestyleBodyLarge400};
-  
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+
   /* Use color variant for secondary text */
-  color: ${({ theme }) => (theme as any).colorOnSurfaceVariant};
-  
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+
   margin: 0;
 `;
 
 const FormSection = styled.div`
   /* Use theme tokens for all spacing */
-  padding: ${({ theme }) => (theme as any).space600};
-  
+  padding: ${({ theme }) => (theme as StyledTheme).space600};
+
   /* Use theme tokens for elevated surface */
-  background-color: ${({ theme }) => (theme as any).colorSurfaceBright};
-  
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceBright};
+
   /* Use theme tokens for border radius */
-  border-radius: ${({ theme }) => (theme as any).shapeCornerL};
-  
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+
   /* Use theme tokens for borders */
-  border: 1px solid ${({ theme }) => (theme as any).colorOutlineVariant};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${({ theme }) => (theme as any).space300};
+  gap: ${({ theme }) => (theme as StyledTheme).space300};
   align-items: center;
 `;
 
@@ -160,7 +159,7 @@ export default YourDemoName;
 
 /**
  * ✅ Checklist Before Committing:
- * 
+ *
  * - [ ] All colors use theme tokens (no hardcoded hex values)
  * - [ ] All spacing uses theme tokens (no hardcoded px values)
  * - [ ] All typography uses theme tokens
@@ -171,9 +170,9 @@ export default YourDemoName;
  * - [ ] Component follows patterns from COMPONENT_CATALOG.md
  * - [ ] No linter errors
  * - [ ] Tested in both light and dark modes
- * 
+ *
  * 📝 After Creating:
- * 
+ *
  * 1. Add to main.tsx:
  *    - Add to EditorType enum: `YOUR_DEMO = 'your-demo'`
  *    - Import: `import YourDemoName from './demos/your-demo-name';`
@@ -187,12 +186,10 @@ export default YourDemoName;
  *        </>
  *      )}
  *      ```
- * 
+ *
  * 2. Test:
- *    - Run `yarn dev`
+ *    - Run `npm run dev`
  *    - Select your demo from "Switch Demo"
  *    - Test light/dark mode toggle
  *    - Verify no console errors
  */
-
-

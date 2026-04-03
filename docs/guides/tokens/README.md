@@ -9,16 +9,18 @@
 Design tokens are the **atomic design decisions** of Pebble—the named values for colors, typography, spacing, and more that ensure consistency across all Rippling products.
 
 **Instead of:**
+
 ```tsx
 <div style={{ color: '#6D163C', padding: '16px', fontSize: '14px' }}>
 ```
 
 **Use tokens:**
+
 ```tsx
-<div style={{ 
-  color: theme.colorPrimary, 
-  padding: theme.space400, 
-  fontSize: theme.typestyleBodyMedium400.fontSize 
+<div style={{
+  color: theme.colorPrimary,
+  padding: theme.space400,
+  fontSize: theme.typestyleV2BodyMedium.fontSize
 }}>
 ```
 
@@ -28,13 +30,13 @@ Design tokens are the **atomic design decisions** of Pebble—the named values f
 
 ### ✅ Benefits
 
-| Benefit | Example |
-|---------|---------|
-| **Consistency** | All buttons use the same `colorPrimary` |
-| **Themeable** | Switch light/dark theme instantly |
+| Benefit          | Example                                        |
+| ---------------- | ---------------------------------------------- |
+| **Consistency**  | All buttons use the same `colorPrimary`        |
+| **Themeable**    | Switch light/dark theme instantly              |
 | **Maintainable** | Change `colorPrimary` once, updates everywhere |
-| **Accessible** | Tokens ensure WCAG contrast ratios |
-| **Scalable** | Add new themes without rewriting components |
+| **Accessible**   | Tokens ensure WCAG contrast ratios             |
+| **Scalable**     | Add new themes without rewriting components    |
 
 ### ❌ Without Tokens
 
@@ -66,11 +68,13 @@ Design Tokens
 ## Documentation in This Folder
 
 ### 🎨 [Colors](./colors.md)
+
 **What:** Complete color system including semantic colors  
 **When to use:** Choosing background, text, border, or accent colors  
 **Example tokens:** `colorPrimary`, `colorOnSurface`, `colorSuccess`
 
 **Topics Covered:**
+
 - Brand colors (Primary, Secondary, Tertiary)
 - Surface colors (Surface, SurfaceBright, SurfaceDim)
 - Semantic colors (Success, Error, Warning, Info)
@@ -78,11 +82,13 @@ Design Tokens
 - Container colors (lighter backgrounds for semantic states)
 
 ### ✍️ [Typography](./typography.md)
+
 **What:** Text styles for all use cases  
 **When to use:** Setting any text appearance  
-**Example tokens:** `typestyleDisplayLarge600`, `typestyleBodyMedium400`
+**Example tokens:** `typestyleV2DisplayLarge`, `typestyleV2BodyMedium`
 
 **Topics Covered:**
+
 - Display styles (largest headings)
 - Title styles (section headers)
 - Body styles (paragraphs, content)
@@ -90,21 +96,25 @@ Design Tokens
 - When to use each style
 
 ### 📐 [Spacing](./spacing.md)
+
 **What:** Consistent spacing scale  
 **When to use:** Setting padding, margins, gaps  
 **Example tokens:** `space200`, `space400`, `space800`
 
 **Topics Covered:**
+
 - Spacing scale (100 to 9600)
 - When to use each size
 - Sizing tokens for components
 
 ### 🎭 [Semantic Colors](./semantic-colors.md)
+
 **What:** Deep dive into semantic color system  
 **When to use:** Showing success, errors, warnings, info  
 **Example tokens:** `colorSuccessContainer`, `colorOnSuccessContainer`
 
 **Topics Covered:**
+
 - Container vs base colors
 - "On" colors for text
 - How they're used in components (SnackBar, Notice, Input validation)
@@ -121,54 +131,52 @@ Design Tokens
 ```
 
 **Examples:**
+
 - `colorPrimary` - Base primary color
 - `colorPrimaryHover` - Primary color on hover
 - `colorOnPrimary` - Text color for primary backgrounds
-- `typestyleBodyMedium400` - Body text, medium size, 400 weight
+- `typestyleV2BodyMedium` - Body text, medium size
 - `space400` - Spacing unit (16px)
 
 ### Color Naming
 
-| Pattern | Meaning | Example |
-|---------|---------|---------|
-| `color{Name}` | Base color | `colorPrimary` |
-| `colorOn{Name}` | Text/icon color for {Name} background | `colorOnPrimary` |
-| `color{Name}Container` | Lighter container background | `colorSuccessContainer` |
-| `colorOn{Name}Container` | Text color for container | `colorOnSuccessContainer` |
-| `color{Name}Hover` | Hover state | `colorPrimaryHover` |
-| `color{Name}Pressed` | Pressed/active state | `colorPrimaryPressed` |
+| Pattern                  | Meaning                               | Example                   |
+| ------------------------ | ------------------------------------- | ------------------------- |
+| `color{Name}`            | Base color                            | `colorPrimary`            |
+| `colorOn{Name}`          | Text/icon color for {Name} background | `colorOnPrimary`          |
+| `color{Name}Container`   | Lighter container background          | `colorSuccessContainer`   |
+| `colorOn{Name}Container` | Text color for container              | `colorOnSuccessContainer` |
+| `color{Name}Hover`       | Hover state                           | `colorPrimaryHover`       |
+| `color{Name}Pressed`     | Pressed/active state                  | `colorPrimaryPressed`     |
 
 ### Typography Naming
 
-| Pattern | Meaning | Example |
-|---------|---------|---------|
-| `typestyle{Category}{Size}{Weight}` | Text style | `typestyleBodyMedium400` |
+| Pattern                       | Meaning    | Example                 |
+| ----------------------------- | ---------- | ----------------------- |
+| `typestyleV2{Category}{Size}` | Text style | `typestyleV2BodyMedium` |
 
 **Categories:**
+
 - `Display` - Largest headings (hero text)
 - `Title` - Section headings
-- `Heading` - Subsection headings  
 - `Body` - Paragraph text
 - `Label` - UI labels, buttons, form labels
 
 **Sizes:**
-- `ExtraLarge`, `Large`, `Medium`, `Small`, `ExtraSmall`
 
-**Weights:**
-- `400` - Regular
-- `500` - Medium
-- `600` - Semi-bold
-- `700` - Bold
+- `Large`, `Medium`, `Small`, `ExtraSmall`
+
+**Variants:** Append `Emphasized` for bolder weight (e.g., `typestyleV2BodyMediumEmphasized`)
 
 ### Spacing Naming
 
-| Pattern | Value | Common Use |
-|---------|-------|------------|
-| `space100` | 4px | Minimal gap |
-| `space200` | 8px | Tight spacing |
-| `space400` | 16px | Default spacing |
-| `space600` | 24px | Comfortable spacing |
-| `space800` | 32px | Section spacing |
+| Pattern    | Value | Common Use          |
+| ---------- | ----- | ------------------- |
+| `space100` | 4px   | Minimal gap         |
+| `space200` | 8px   | Tight spacing       |
+| `space400` | 16px  | Default spacing     |
+| `space600` | 24px  | Comfortable spacing |
+| `space800` | 32px  | Section spacing     |
 
 ---
 
@@ -181,14 +189,16 @@ import { useTheme } from '@rippling/pebble/theme';
 
 const MyComponent = () => {
   const { theme } = useTheme();
-  
+
   return (
-    <div style={{
-      color: theme.colorOnSurface,
-      backgroundColor: theme.colorSurface,
-      padding: theme.space400,
-      borderRadius: theme.shapeCornerM,
-    }}>
+    <div
+      style={{
+        color: theme.colorOnSurface,
+        backgroundColor: theme.colorSurface,
+        padding: theme.space400,
+        borderRadius: theme.shapeCornerM,
+      }}
+    >
       Content
     </div>
   );
@@ -212,10 +222,11 @@ const Container = styled.div`
 
 ```tsx
 import styled from '@emotion/styled';
+import { StyledTheme } from '@/utils/theme';
 
 const Heading = styled.h1`
-  ${({ theme }) => theme.typestyleDisplayLarge600};
-  color: ${({ theme }) => theme.colorOnSurface};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2DisplayLarge};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
 `;
 
 // Typography tokens include fontSize, lineHeight, fontWeight, etc.
@@ -230,13 +241,15 @@ Pebble supports multiple themes:
 ### Berry Theme (Current)
 
 **Berry Light** - Default light theme
+
 ```tsx
-defaultTheme="berry-light"
+defaultTheme = 'berry-light';
 ```
 
 **Berry Dark** - Dark theme variant
+
 ```tsx
-defaultTheme="berry-dark"
+defaultTheme = 'berry-dark';
 ```
 
 ### Plum Theme (Legacy)
@@ -253,11 +266,13 @@ defaultTheme="berry-dark"
 Tokens come in two sizes:
 
 ### Large Tokens (Default)
+
 - **Screen:** Desktop, tablet
 - **Use case:** Most web applications
 - **Import:** Automatically used by theme
 
 ### Small Tokens
+
 - **Screen:** Mobile, compact UIs
 - **Use case:** React Native, mobile-first web
 - **Import:** Requires explicit configuration
@@ -273,6 +288,7 @@ http://localhost:4201/ → Switch to "Design Tokens" demo
 ```
 
 **Features:**
+
 - **Color Tab** - All color tokens with visual swatches
 - **Typography Tab** - All typography tokens rendered live
 - **Click to copy** - Copy token names to clipboard
@@ -291,10 +307,10 @@ http://localhost:4201/ → Switch to "Design Tokens" demo
 <div style={{ padding: theme.space400, marginBottom: theme.space600 }} />
 
 // Use typography tokens
-<Text style={theme.typestyleBodyMedium400}>Content</Text>
+<Text style={theme.typestyleV2BodyMedium}>Content</Text>
 
 // Use "on" colors for text
-<div style={{ 
+<div style={{
   backgroundColor: theme.colorPrimary,
   color: theme.colorOnPrimary  // ✅ Correct contrast
 }}>
@@ -313,7 +329,7 @@ http://localhost:4201/ → Switch to "Design Tokens" demo
 <Text style={{ fontSize: '14px', lineHeight: '20px' }}>Content</Text>
 
 // Don't use wrong "on" colors
-<div style={{ 
+<div style={{
   backgroundColor: theme.colorPrimary,
   color: theme.colorOnSurface  // ❌ Poor contrast
 }}>
@@ -325,42 +341,44 @@ http://localhost:4201/ → Switch to "Design Tokens" demo
 
 ### Backgrounds
 
-| Use Case | Token |
-|----------|-------|
-| Page background | `colorSurface` |
-| Elevated card | `colorSurfaceBright` |
+| Use Case         | Token                   |
+| ---------------- | ----------------------- |
+| Page background  | `colorSurface`          |
+| Elevated card    | `colorSurfaceBright`    |
 | Subtle container | `colorSurfaceContainer` |
-| Inverted section | `colorInverseSurface` |
-| Primary action | `colorPrimary` |
+| Inverted section | `colorInverseSurface`   |
+| Primary action   | `colorPrimary`          |
 
 ### Text
 
-| Use Case | Token |
-|----------|-------|
-| Body text | `colorOnSurface` |
-| Secondary text | `colorOnSurfaceVariant` |
-| Text on primary | `colorOnPrimary` |
-| Disabled text | `colorDisabled` |
-| Error text | `colorError` |
+| Use Case        | Token                   |
+| --------------- | ----------------------- |
+| Body text       | `colorOnSurface`        |
+| Secondary text  | `colorOnSurfaceVariant` |
+| Text on primary | `colorOnPrimary`        |
+| Disabled text   | `colorDisabled`         |
+| Error text      | `colorError`            |
 
 ### Borders
 
-| Use Case | Token |
-|----------|-------|
-| Default border | `colorOutline` |
-| Subtle border | `colorOutlineVariant` |
-| Focus ring | `colorOutlineFocus` |
-| Error border | `colorOutlineInvalid` |
+| Use Case       | Token                 |
+| -------------- | --------------------- |
+| Default border | `colorOutline`        |
+| Subtle border  | `colorOutlineVariant` |
+| Focus ring     | `colorOutlineFocus`   |
+| Error border   | `colorOutlineInvalid` |
 
 ---
 
 ## Token Reference Tools
 
 ### Design Tools
+
 - **Figma:** Pebble Design System library includes all tokens
 - **Token Studio Plugin:** Sync tokens between Figma and code
 
 ### Development
+
 - **Storybook:** [pebble.rippling.dev](https://pebble.rippling.dev) - Browse all tokens
 - **Playground:** Interactive token viewer (this playground!)
 - **TypeScript:** All tokens are typed for autocomplete
@@ -395,11 +413,13 @@ git commit -m "docs: update token documentation"
 ```
 
 **What gets generated:**
+
 - ✅ `colors.md` - All 214 color tokens with swatches
 - ✅ `typography.md` - All 44 typography tokens with specs
 - ✅ `spacing.md` - All 100 spacing/sizing tokens
 
 **Benefits:**
+
 - Always accurate (derived from actual code)
 - No manual maintenance required
 - Includes ALL tokens (not just documented ones)
@@ -423,11 +443,13 @@ git commit -m "docs: update token documentation"
 ## Questions & Feedback
 
 **Token questions?**
+
 - **Slack:** #pebble-design-system
 - **Storybook:** [pebble.rippling.dev](https://pebble.rippling.dev)
 - **Figma:** Pebble Design System library
 
 **Missing a token?**
+
 - Check if existing token covers your use case
 - If not, request new token in #pebble-design-system
 - Design team will evaluate for addition
@@ -437,4 +459,3 @@ git commit -m "docs: update token documentation"
 **Last Updated:** November 3, 2025  
 **Package:** `@rippling/pebble-tokens`  
 **Current Version:** Check `package.json` for installed version
-

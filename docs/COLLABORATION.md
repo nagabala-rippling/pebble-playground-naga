@@ -10,12 +10,12 @@ Everyone works in the same repo (`Rippling/prototyping-playground`) using branch
 
 ### Branch convention
 
-| Branch | Purpose | Merges to main? |
-|---|---|---|
-| `main` | Stable, reviewed | — |
-| `feature/<name>` | Playground infrastructure/tooling improvements | Yes, via PR |
-| `docs/<name>` | Documentation updates | Yes, via PR |
-| `proto/<username>/<name>` | Personal prototyping | No |
+| Branch                    | Purpose                                        | Merges to main? |
+| ------------------------- | ---------------------------------------------- | --------------- |
+| `main`                    | Stable, reviewed                               | —               |
+| `feature/<name>`          | Playground infrastructure/tooling improvements | Yes, via PR     |
+| `docs/<name>`             | Documentation updates                          | Yes, via PR     |
+| `proto/<username>/<name>` | Personal prototyping                           | No              |
 
 **Proto branches are your sandbox.** Create as many as you want. They don't need review, they don't merge to main, and you can delete them when you're done.
 
@@ -91,7 +91,7 @@ Each person works in their own `proto/` branch. Share by having teammates check 
 
 To share a working prototype with anyone via URL, deploy to Vercel. Ask your AI coding tool:
 
-> *"Build this project locally and deploy it to Vercel as a prebuilt deployment. Give me the shareable URL."*
+> _"Build this project locally and deploy it to Vercel as a prebuilt deployment. Give me the shareable URL."_
 
 Or run it yourself:
 
@@ -133,7 +133,7 @@ Open a PR on GitHub. It will be reviewed before merging.
 
 When you find that AI generates incorrect component code, fix it and contribute back:
 
-1. Update `.cursorrules` (add to the gotchas table)
+1. Update `AGENTS.md` (add to the gotchas table)
 2. Update docs if needed
 3. Open a PR describing the issue and fix
 
@@ -152,11 +152,13 @@ Every fix makes AI smarter for everyone using the playground.
 ### When merge conflicts happen
 
 Most conflicts will be in:
+
 - `src/main.tsx` — if you added routes
 - `src/demos/index-page.tsx` — if you added demo cards
-- `.cursorrules` — if you added custom rules
+- `AGENTS.md` — if you added custom rules
 
 **Resolution strategy:**
+
 1. Keep your additions (new demos, new routes)
 2. Accept upstream changes to infrastructure
 3. Manually merge if both sides changed the same section
@@ -164,6 +166,7 @@ Most conflicts will be in:
 ### Starting fresh
 
 If your branch gets too messy:
+
 1. Note which demo files you want to keep
 2. Create a fresh branch from `main`
 3. Copy your demo files back in

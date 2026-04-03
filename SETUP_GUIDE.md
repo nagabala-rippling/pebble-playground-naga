@@ -68,6 +68,7 @@ npm run dev
 The playground will be available at **http://localhost:4201**.
 
 On first run, the setup script automatically configures your workspace from your git config:
+
 - Reads your name from `git config user.name`
 - Reads your email from `git config user.email`
 - Generates a Gravatar URL from your email
@@ -178,7 +179,7 @@ pebble-playground/
 │   └── main.tsx            # Router entry point
 ├── docs/                   # Documentation and guides
 ├── scripts/                # Helper scripts
-├── .cursorrules            # AI assistant rules (primary reference)
+├── AGENTS.md            # AI assistant rules (primary reference)
 ├── CLAUDE.md               # AI assistant rules (compact version)
 └── package.json            # Dependencies and scripts
 ```
