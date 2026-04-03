@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "node scripts/setup-mcp.mjs setup",
-    "dev": "node scripts/setup-user.mjs && vite --port 4201",
+    "dev": "node scripts/setup-user.mjs && node scripts/preview-url.mjs --quiet && vite --port 4201",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "setup:user": "node scripts/setup-user.mjs",
@@ -21,6 +21,7 @@
     "sync-confluence": "node scripts/sync-confluence-docs.mjs",
     "generate-token-docs": "node scripts/generate-token-docs.mjs",
     "update-docs": "npm run sync-confluence && npm run generate-token-docs",
+    "preview-url": "node scripts/preview-url.mjs",
     "help": "cat CLAUDE.md",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,json}\""

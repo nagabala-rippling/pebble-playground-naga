@@ -65,6 +65,7 @@ const Header = styled.div`
 const GreetingRow = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: ${({ theme }) => (theme as StyledTheme).space200};
   margin-bottom: ${({ theme }) => (theme as StyledTheme).space400};
 `;
@@ -95,6 +96,12 @@ const Description = styled.div`
       text-decoration: underline;
     }
   }
+`;
+
+const ShareGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
 `;
 
 const SectionHeader = styled.div`
@@ -198,21 +205,11 @@ const DemoTableDescription = styled.span`
 `;
 
 const DemoCardWrapper = styled.div`
-  position: relative;
   cursor: pointer;
   transition: transform 150ms ease;
   
   &:hover {
     transform: translateY(-4px);
-  }
-
-  & .copy-link-btn {
-    opacity: 0;
-    transition: opacity 150ms ease;
-  }
-
-  &:hover .copy-link-btn {
-    opacity: 1;
   }
   
   &:active {
@@ -356,19 +353,18 @@ const IndexPage: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [copiedPath, setCopiedPath] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const deployedOrigin = import.meta.env.VITE_DEPLOY_URL || window.location.origin;
-  const isDeployed = !!import.meta.env.VITE_DEPLOY_URL || !window.location.hostname.includes('localhost');
+  const shareableUrl = import.meta.env.VITE_DEPLOY_URL || (window.location.hostname.includes('localhost') ? '' : window.location.origin);
+  const hasShareableUrl = !!shareableUrl;
 
-  const copyDemoUrl = useCallback((path: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `${deployedOrigin}${path}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiedPath(path);
-      setTimeout(() => setCopiedPath(null), 2000);
+  const copyPlaygroundUrl = useCallback(() => {
+    if (!shareableUrl) return;
+    navigator.clipboard.writeText(shareableUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     });
-  }, [deployedOrigin]);
+  }, [shareableUrl]);
 
   // Tab configuration
   const tabFilters: Array<'all' | DemoCategory> = ['all', 'prototype', 'template'];
@@ -387,8 +383,42 @@ const IndexPage: React.FC = () => {
         <Header theme={theme}>
           <GreetingRow theme={theme}>
             <GreetingText theme={theme}>Hi {firstName}</GreetingText>
+            <ShareGroup>
+              {hasShareableUrl ? (
+                <>
+                  <Status
+                    appearance={Status.APPEARANCES.SUCCESS}
+                    text="Preview URL ready"
+                    size={Status.SIZES.XL}
+                    outlined
+                  />
+                  <Tip content={copied ? 'Copied!' : 'Copy link'} placement={Tip.PLACEMENTS.BOTTOM}>
+                    <span>
+                      <Button.Icon
+                        icon={copied ? Icon.TYPES.CHECK : Icon.TYPES.COPY_OUTLINE}
+                        aria-label="Copy playground URL"
+                        appearance={Button.APPEARANCES.GHOST}
+                        size={Button.SIZES.XS}
+                        onClick={copyPlaygroundUrl}
+                      />
+                    </span>
+                  </Tip>
+                </>
+              ) : (
+                <Tip content="Push to GitHub, then run: npm run preview-url" placement={Tip.PLACEMENTS.BOTTOM}>
+                  <span>
+                    <Status
+                      appearance={Status.APPEARANCES.WARNING}
+                      text="No preview URL"
+                      size={Status.SIZES.XL}
+                      outlined
+                    />
+                  </span>
+                </Tip>
+              )}
+            </ShareGroup>
           </GreetingRow>
-          <Title theme={theme}>Welcome to your Pebble Playground</Title>
+          <Title theme={theme}>Welcome to your playground</Title>
           <Description theme={theme}>
             A prototyping environment for exploring and building with Rippling's Pebble Design System. 
             Experiment with components, tokens, and patterns in an interactive sandbox.
@@ -444,41 +474,14 @@ const IndexPage: React.FC = () => {
               >
                 <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
                   <CardContent>
-                    <CardTopBar theme={theme}>
-                      <HStack gap="0.25rem">
-                        <Status
-                          appearance={isDeployed ? Status.APPEARANCES.SUCCESS : Status.APPEARANCES.WARNING}
-                          text={isDeployed ? 'Deployed' : 'Not deployed'}
-                          size={Status.SIZES.S}
-                        />
-                        <Tip
-                          content={
-                            !isDeployed
-                              ? 'Push your branch to GitHub to deploy'
-                              : copiedPath === demo.path
-                                ? 'Copied!'
-                                : 'Copy link'
-                          }
-                          placement={Tip.PLACEMENTS.TOP}
-                        >
-                          <span className="copy-link-btn">
-                            <Button.Icon
-                              icon={Icon.TYPES.COPY_OUTLINE}
-                              aria-label="Copy link"
-                              appearance={Button.APPEARANCES.GHOST}
-                              size={Button.SIZES.XS}
-                              isDisabled={!isDeployed}
-                              onClick={(e: React.MouseEvent) => isDeployed && copyDemoUrl(demo.path, e)}
-                            />
-                          </span>
-                        </Tip>
-                      </HStack>
-                      {demo.category === 'template' && (
+                    {demo.category === 'template' && (
+                      <CardTopBar theme={theme}>
+                        <div />
                         <Label size={Label.SIZES.S} appearance={Label.APPEARANCES.NEUTRAL}>
                           Template
                         </Label>
-                      )}
-                    </CardTopBar>
+                      </CardTopBar>
+                    )}
                     <CardIcon theme={theme}>
                       <Icon 
                         type={demo.icon} 
@@ -522,7 +525,6 @@ const IndexPage: React.FC = () => {
                   <TableBasic.Th>Name</TableBasic.Th>
                   <TableBasic.Th>Description</TableBasic.Th>
                   <TableBasic.Th>Type</TableBasic.Th>
-                  <TableBasic.Th></TableBasic.Th>
                 </TableBasic.Tr>
               </TableBasic.THead>
               <TableBasic.TBody>
@@ -552,32 +554,6 @@ const IndexPage: React.FC = () => {
                       >
                         {demo.category === 'template' ? 'Template' : 'Prototype'}
                       </Label>
-                    </TableBasic.Td>
-                    <TableBasic.Td>
-                      <Tip
-                        content={copiedPath === demo.path ? 'Copied!' : 'Copy link'}
-                        placement={Tip.PLACEMENTS.LEFT}
-                      >
-                        <button
-                          aria-label="Copy link"
-                          onClick={(e: React.MouseEvent) => copyDemoUrl(demo.path, e)}
-                          style={{
-                            border: 'none',
-                            background: 'transparent',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            borderRadius: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Icon
-                            type={copiedPath === demo.path ? Icon.TYPES.CHECK : Icon.TYPES.LINK_HORIZONTAL}
-                            size={16}
-                            color={theme.colorOnSurfaceVariant}
-                          />
-                        </button>
-                      </Tip>
                     </TableBasic.Td>
                   </TableBasic.Tr>
                 ))}
