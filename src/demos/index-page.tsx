@@ -445,7 +445,7 @@ const IndexPage: React.FC = () => {
                 <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
                   <CardContent>
                     <CardTopBar theme={theme}>
-                      <HStack gap="0.25rem" alignItems="center">
+                      <HStack gap="0.25rem">
                         <Status
                           appearance={isDeployed ? Status.APPEARANCES.SUCCESS : Status.APPEARANCES.WARNING}
                           text={isDeployed ? 'Deployed' : 'Not deployed'}
@@ -572,7 +572,7 @@ const IndexPage: React.FC = () => {
                           }}
                         >
                           <Icon
-                            type={copiedPath === demo.path ? Icon.TYPES.CHECK : Icon.TYPES.LINK}
+                            type={copiedPath === demo.path ? Icon.TYPES.CHECK : Icon.TYPES.LINK_HORIZONTAL}
                             size={16}
                             color={theme.colorOnSurfaceVariant}
                           />
