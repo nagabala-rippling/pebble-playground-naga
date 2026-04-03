@@ -299,11 +299,13 @@ Before considering code complete:
 - No hardcoded spacing (use `theme.space*`)
 - No hardcoded typography (use `theme.typestyle*`)
 - Icon sizes are numbers (`size={20}`, not `Icon.SIZES.M`)
+- Icon type names exist — verify against `Icon.constants.d.ts` (e.g. `PEOPLE_HEART_OUTLINE` not `PEOPLE_OUTLINE`)
 - Input sub-components use their own SIZES (`Input.Text.SIZES.M`)
 - Using `Tip` not `Tooltip`
 - Using `Button.Icon` not `IconButton`
 - Using `@/` alias for shared imports
 - All interactive icons have `aria-label`
+- Run `npm run typecheck` before committing — Vite dev skips type-checking, so errors only show in CI
 - Works in both light and dark modes
 
 ## Commands

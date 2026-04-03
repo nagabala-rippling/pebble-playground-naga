@@ -19,7 +19,21 @@ retrieves the shareable preview URL.
 
 ## Workflow
 
-### Step 1: Commit and push
+### Step 1: Typecheck
+
+Run the TypeScript compiler to catch errors before pushing. Vite's dev server
+skips type-checking, so errors like invalid `Icon.TYPES.*` names only surface
+in CI builds. Catch them early:
+
+```bash
+npm run typecheck
+```
+
+If there are errors, fix them before proceeding. Common issues:
+- Invalid `Icon.TYPES.*` — grep `Icon.constants.d.ts` for the correct name
+- Unused imports — remove them
+
+### Step 2: Commit and push
 
 Check for uncommitted changes. If there are any, commit them with a descriptive
 message and push:
@@ -30,9 +44,9 @@ git commit -m "descriptive message about changes"
 git push -u origin HEAD
 ```
 
-If already up to date with remote, skip to Step 2.
+If already up to date with remote, skip to Step 3.
 
-### Step 2: Wait for deploy
+### Step 3: Wait for deploy
 
 The push triggers `.github/workflows/preview.yml`. Monitor it:
 
@@ -47,7 +61,7 @@ If the run fails, check logs with:
 gh run view <run-id> --log
 ```
 
-### Step 3: Fetch preview URL
+### Step 4: Fetch preview URL
 
 Once the deploy succeeds:
 
@@ -59,7 +73,7 @@ This fetches the deployed URL from GitHub Actions logs and saves it to
 `.env.local`. If the Vite dev server is running, it auto-restarts and the
 index page updates to show "Preview URL ready" with a copy button.
 
-### Step 4: Report back
+### Step 5: Report back
 
 Tell the user their preview URL. Format:
 
