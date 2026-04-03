@@ -106,19 +106,10 @@ try {
     process.exit(quiet ? 0 : 1);
   }
 
-  const logs = execFileSync('gh', [
-    'run', 'view', String(databaseId), '--log',
-  ], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-  const match = logs.match(/(https:\/\/prototyping-playground-[^\s]+\.vercel\.app)/);
-
-  if (match) {
-    const url = match[1];
-    writeUrlToEnv(url);
-    log(`  🔗 Preview URL: ${url}\n`);
-  } else {
-    log('  Deploy succeeded but could not extract URL from logs.');
-    log(`  Check: https://github.com/Rippling/prototyping-playground/actions/runs/${databaseId}\n`);
-  }
+  const safeBranch = branch.replace(/\//g, '-').slice(0, 60);
+  const url = `https://prototyping-playground-git-${safeBranch}-rippling.vercel.app`;
+  writeUrlToEnv(url);
+  log(`  🔗 Preview URL: ${url}\n`);
 } catch (err) {
   if (quiet) {
     process.exit(0);
