@@ -9,7 +9,7 @@ const DeployTestDemo: React.FC = () => {
   const mainSection: NavSectionData = {
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: Icon.TYPES.HOME_OUTLINE },
-      { id: 'team', label: 'Team', icon: Icon.TYPES.PEOPLE_OUTLINE, hasSubmenu: true },
+      { id: 'team', label: 'Team', icon: Icon.TYPES.PEOPLE_HEART_OUTLINE, hasSubmenu: true },
       { id: 'reports', label: 'Reports', icon: Icon.TYPES.BAR_CHART_OUTLINE, hasSubmenu: true },
     ],
   };
@@ -38,7 +38,7 @@ const DeployTestDemo: React.FC = () => {
       userInitial="P"
     >
       <SuccessCard>
-        <Icon type={Icon.TYPES.CHECK_CIRCLE} size={48} color="#16a34a" />
+        <Icon type={Icon.TYPES.CHECK_CIRCLE_FILLED} size={48} color="#16a34a" />
         <Title>Deploy test successful!</Title>
         <Subtitle>This prototype was created to validate the end-to-end deploy workflow.</Subtitle>
       </SuccessCard>
