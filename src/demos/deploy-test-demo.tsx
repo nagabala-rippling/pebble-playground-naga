@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { StyledTheme } from '@/utils/theme';
+import { StyledTheme, usePebbleTheme } from '@/utils/theme';
 import Icon from '@rippling/pebble/Icon';
 import Button from '@rippling/pebble/Button';
 import { AppShellLayout, NavSectionData } from '@/components/app-shell';
 
 const DeployTestDemo: React.FC = () => {
+  const { theme } = usePebbleTheme();
   const mainSection: NavSectionData = {
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: Icon.TYPES.HOME_OUTLINE },
@@ -38,7 +39,7 @@ const DeployTestDemo: React.FC = () => {
       userInitial="P"
     >
       <SuccessCard>
-        <Icon type={Icon.TYPES.CHECK_CIRCLE_FILLED} size={48} color="#16a34a" />
+        <Icon type={Icon.TYPES.CHECK_CIRCLE_FILLED} size={48} color={theme.colorSuccess} />
         <Title>Deploy test successful!</Title>
         <Subtitle>This prototype was created to validate the end-to-end deploy workflow.</Subtitle>
       </SuccessCard>

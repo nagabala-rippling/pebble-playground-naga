@@ -109,7 +109,7 @@ try {
   const logs = execFileSync('gh', [
     'run', 'view', String(databaseId), '--log',
   ], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-  const match = logs.match(/Preview: (https:\/\/prototyping-playground-[^\s]+)/);
+  const match = logs.match(/(https:\/\/prototyping-playground-[^\s]+\.vercel\.app)/);
 
   if (match) {
     const url = match[1];
