@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { usePebbleTheme, StyledTheme } from '@/utils/theme';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@rippling/pebble/Icon';
 import Card from '@rippling/pebble/Card';
+import Status from '@rippling/pebble/Status';
+import Button from '@rippling/pebble/Button';
 import Drawer from '@rippling/pebble/Drawer';
 import TableBasic from '@rippling/pebble/TableBasic';
 import Label from '@rippling/pebble/Label';
@@ -203,19 +205,21 @@ const DemoCardWrapper = styled.div`
   &:hover {
     transform: translateY(-4px);
   }
+
+  & .copy-link-btn {
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+
+  &:hover .copy-link-btn {
+    opacity: 1;
+  }
   
   &:active {
     transform: translateY(-2px);
   }
 `;
 
-const BadgeWrapper = styled.div`
-  position: absolute;
-  top: ${({ theme }) => (theme as StyledTheme).space300};
-  right: ${({ theme }) => (theme as StyledTheme).space300};
-  z-index: 1;
-  pointer-events: none;
-`;
 
 const CardContent = styled.div`
   display: flex;
@@ -338,12 +342,33 @@ const StepNumber = styled.span`
   margin-right: ${({ theme }) => (theme as StyledTheme).space200};
 `;
 
+const CardTopBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -${({ theme }) => (theme as StyledTheme).space200};
+  margin-bottom: ${({ theme }) => (theme as StyledTheme).space400};
+`;
+
 const IndexPage: React.FC = () => {
   const { theme } = usePebbleTheme();
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [copiedPath, setCopiedPath] = useState<string | null>(null);
+
+  const deployedOrigin = import.meta.env.VITE_DEPLOY_URL || window.location.origin;
+  const isDeployed = !!import.meta.env.VITE_DEPLOY_URL || !window.location.hostname.includes('localhost');
+
+  const copyDemoUrl = useCallback((path: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `${deployedOrigin}${path}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedPath(path);
+      setTimeout(() => setCopiedPath(null), 2000);
+    });
+  }, [deployedOrigin]);
 
   // Tab configuration
   const tabFilters: Array<'all' | DemoCategory> = ['all', 'prototype', 'template'];
@@ -417,15 +442,43 @@ const IndexPage: React.FC = () => {
                 key={demo.path}
                 onClick={() => navigate(demo.path)}
               >
-                {demo.category === 'template' && (
-                  <BadgeWrapper theme={theme}>
-                    <Label size={Label.SIZES.S} appearance={Label.APPEARANCES.NEUTRAL}>
-                      Template
-                    </Label>
-                  </BadgeWrapper>
-                )}
                 <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
                   <CardContent>
+                    <CardTopBar theme={theme}>
+                      <HStack gap="0.25rem" alignItems="center">
+                        <Status
+                          appearance={isDeployed ? Status.APPEARANCES.SUCCESS : Status.APPEARANCES.WARNING}
+                          text={isDeployed ? 'Deployed' : 'Not deployed'}
+                          size={Status.SIZES.S}
+                        />
+                        <Tip
+                          content={
+                            !isDeployed
+                              ? 'Push your branch to GitHub to deploy'
+                              : copiedPath === demo.path
+                                ? 'Copied!'
+                                : 'Copy link'
+                          }
+                          placement={Tip.PLACEMENTS.TOP}
+                        >
+                          <span className="copy-link-btn">
+                            <Button.Icon
+                              icon={Icon.TYPES.COPY_OUTLINE}
+                              aria-label="Copy link"
+                              appearance={Button.APPEARANCES.GHOST}
+                              size={Button.SIZES.XS}
+                              isDisabled={!isDeployed}
+                              onClick={(e: React.MouseEvent) => isDeployed && copyDemoUrl(demo.path, e)}
+                            />
+                          </span>
+                        </Tip>
+                      </HStack>
+                      {demo.category === 'template' && (
+                        <Label size={Label.SIZES.S} appearance={Label.APPEARANCES.NEUTRAL}>
+                          Template
+                        </Label>
+                      )}
+                    </CardTopBar>
                     <CardIcon theme={theme}>
                       <Icon 
                         type={demo.icon} 
@@ -469,6 +522,7 @@ const IndexPage: React.FC = () => {
                   <TableBasic.Th>Name</TableBasic.Th>
                   <TableBasic.Th>Description</TableBasic.Th>
                   <TableBasic.Th>Type</TableBasic.Th>
+                  <TableBasic.Th></TableBasic.Th>
                 </TableBasic.Tr>
               </TableBasic.THead>
               <TableBasic.TBody>
@@ -498,6 +552,32 @@ const IndexPage: React.FC = () => {
                       >
                         {demo.category === 'template' ? 'Template' : 'Prototype'}
                       </Label>
+                    </TableBasic.Td>
+                    <TableBasic.Td>
+                      <Tip
+                        content={copiedPath === demo.path ? 'Copied!' : 'Copy link'}
+                        placement={Tip.PLACEMENTS.LEFT}
+                      >
+                        <button
+                          aria-label="Copy link"
+                          onClick={(e: React.MouseEvent) => copyDemoUrl(demo.path, e)}
+                          style={{
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Icon
+                            type={copiedPath === demo.path ? Icon.TYPES.CHECK : Icon.TYPES.LINK}
+                            size={16}
+                            color={theme.colorOnSurfaceVariant}
+                          />
+                        </button>
+                      </Tip>
                     </TableBasic.Td>
                   </TableBasic.Tr>
                 ))}
