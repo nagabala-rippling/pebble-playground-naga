@@ -441,6 +441,7 @@ Reusable workflows in `agents/skills/`. Read the SKILL.md file when triggered.
 
 | Skill | Trigger | Path |
 |-------|---------|------|
+| **New Prototype** | "new prototype", "create a prototype", "create a new demo" | `agents/skills/new-prototype/SKILL.md` |
 | **Deploy Playground** | "deploy", "share", "get preview URL", "publish" | `agents/skills/deploy-playground/SKILL.md` |
 
 ## Deeper Reference

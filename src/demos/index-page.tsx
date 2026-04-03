@@ -8,9 +8,9 @@ import Status from '@rippling/pebble/Status';
 import Button from '@rippling/pebble/Button';
 import Drawer from '@rippling/pebble/Drawer';
 import TableBasic from '@rippling/pebble/TableBasic';
-import Label from '@rippling/pebble/Label';
 import Tabs from '@rippling/pebble/Tabs';
 import Tip from '@rippling/pebble/Tip';
+import ActionCard from '@rippling/pebble/ActionCard';
 import { HStack } from '@rippling/pebble/Layout/Stack';
 
 /**
@@ -49,11 +49,6 @@ const ALL_DEMOS: DemoCard[] = [
   },
 ];
 
-// Filter helpers
-const getFilteredDemos = (filter: 'all' | DemoCategory): DemoCard[] => {
-  if (filter === 'all') return ALL_DEMOS;
-  return ALL_DEMOS.filter(demo => demo.category === filter);
-};
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -139,49 +134,6 @@ const ViewToggleButton = styled.button<{ isActive: boolean }>`
   }
 `;
 
-const GuidesSection = styled.section`
-  margin-top: ${({ theme }) => (theme as StyledTheme).space1200};
-  padding-top: ${({ theme }) => (theme as StyledTheme).space1000};
-  border-top: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-`;
-
-const GuidesTitle = styled.h2`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleLarge};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  margin: 0 0 ${({ theme }) => (theme as StyledTheme).space800} 0;
-`;
-
-const CodePath = styled.code`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2CodeSmall};
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  padding: ${({ theme }) => (theme as StyledTheme).space100} ${({ theme }) => (theme as StyledTheme).space200};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
-  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
-`;
-
-const BulletList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space600};
-`;
-
-const BulletItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space100};
-`;
-
-const BulletTitle = styled.span`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-`;
-
-const BulletText = styled.span`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  line-height: 1.6;
-  max-width: 680px;
-`;
 
 const DemoGrid = styled.div`
   display: grid;
@@ -256,48 +208,6 @@ const CardDescription = styled.p`
   line-height: 1.5;
 `;
 
-const AddCardWrapper = styled.div`
-  cursor: pointer;
-`;
-
-const AddCardContent = styled.div`
-  background-color: transparent;
-  border: 2px dashed ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner3xl};
-  padding: 44px 24px;
-  display: flex;
-  flex-direction: column;
-  transition: border-color 150ms ease, background-color 150ms ease;
-  
-  &:hover {
-    border-color: ${({ theme }) => (theme as StyledTheme).colorOutline};
-    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  }
-`;
-
-const AddCardIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto ${({ theme }) => (theme as StyledTheme).space400};
-`;
-
-const AddCardTitle = styled.h2`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  margin: 0 0 ${({ theme }) => (theme as StyledTheme).space200} 0;
-  text-align: center;
-`;
-
-const AddCardDescription = styled.p`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  margin: 0;
-  line-height: 1.5;
-  text-align: center;
-`;
 
 const DrawerContent = styled.div``;
 
@@ -332,13 +242,6 @@ const CodeSnippet = styled.code`
   margin: ${({ theme }) => (theme as StyledTheme).space200} 0;
 `;
 
-const CodeSnippetInline = styled.code`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2CodeMedium};
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  padding: 2px ${({ theme }) => (theme as StyledTheme).space100};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerSm};
-  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
-`;
 
 const StepNumber = styled.span`
   ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
@@ -347,18 +250,125 @@ const StepNumber = styled.span`
   margin-right: ${({ theme }) => (theme as StyledTheme).space200};
 `;
 
-const CardTopBar = styled.div`
+
+const CreateNewCard = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  margin-top: -${({ theme }) => (theme as StyledTheme).space200};
-  margin-bottom: ${({ theme }) => (theme as StyledTheme).space400};
+  justify-content: center;
+  text-align: center;
+  padding: ${({ theme }) => (theme as StyledTheme).space800};
+  border: 2px dashed ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner2xl};
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+
+  &:hover {
+    border-color: ${({ theme }) => (theme as StyledTheme).colorOutline};
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
 `;
+
+const CreateNewTitle = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  margin-top: ${({ theme }) => (theme as StyledTheme).space400};
+`;
+
+const CreateNewCaption = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  margin-top: ${({ theme }) => (theme as StyledTheme).space100};
+`;
+
+const GuidesSection = styled.div`
+  margin-top: ${({ theme }) => (theme as StyledTheme).space800};
+  padding-top: ${({ theme }) => (theme as StyledTheme).space600};
+  border-top: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+`;
+
+const GuidesTitle = styled.h3`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleSmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  margin: 0 0 ${({ theme }) => (theme as StyledTheme).space300} 0;
+`;
+
+const GuidesList = styled.ul`
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const SkillsSection = styled.div`
+  margin-top: ${({ theme }) => (theme as StyledTheme).space600};
+`;
+
+const SkillsList = styled.ul`
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+`;
+
+const GuideLink = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const DemoTableView: React.FC<{ demos: DemoCard[]; navigate: (path: string) => void; theme: any }> = ({ demos, navigate, theme }) => (
+  <DemoTableWrapper>
+    <TableBasic>
+      <TableBasic.THead>
+        <TableBasic.Tr>
+          <TableBasic.Th>Name</TableBasic.Th>
+          <TableBasic.Th>Description</TableBasic.Th>
+        </TableBasic.Tr>
+      </TableBasic.THead>
+      <TableBasic.TBody>
+        {demos.map((demo) => (
+          <TableBasic.Tr
+            key={demo.path}
+            onClick={() => navigate(demo.path)}
+            style={{ cursor: 'pointer' }}
+          >
+            <TableBasic.Td>
+              <HStack gap="0.5rem">
+                <Icon type={demo.icon} size={16} color={theme.colorPrimary} />
+                <DemoTableName theme={theme}>{demo.title}</DemoTableName>
+              </HStack>
+            </TableBasic.Td>
+            <TableBasic.Td>
+              <DemoTableDescription theme={theme}>{demo.description}</DemoTableDescription>
+            </TableBasic.Td>
+          </TableBasic.Tr>
+        ))}
+      </TableBasic.TBody>
+    </TableBasic>
+  </DemoTableWrapper>
+);
 
 const IndexPage: React.FC = () => {
   const { theme } = usePebbleTheme();
   const navigate = useNavigate();
+  const [isGettingStartedOpen, setIsGettingStartedOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDeployDrawerOpen, setIsDeployDrawerOpen] = useState(false);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [copied, setCopied] = useState(false);
@@ -374,10 +384,12 @@ const IndexPage: React.FC = () => {
     });
   }, [shareableUrl]);
 
-  // Tab configuration
-  const tabFilters: Array<'all' | DemoCategory> = ['all', 'prototype', 'template'];
-  const activeFilter = tabFilters[activeTabIndex];
-  const filteredDemos = getFilteredDemos(activeFilter);
+  // Tab configuration: Prototypes (default), Templates, Design System
+  type TabKey = 'prototype' | 'template' | 'design-system';
+  const tabKeys: TabKey[] = ['prototype', 'template', 'design-system'];
+  const activeTab = tabKeys[activeTabIndex];
+  const prototypes = ALL_DEMOS.filter(d => d.category === 'prototype');
+  const templates = ALL_DEMOS.filter(d => d.category === 'template');
 
   // Get user preferences from environment (with safe fallbacks)
   const userName = import.meta.env.VITE_USER_NAME;
@@ -444,246 +456,367 @@ const IndexPage: React.FC = () => {
             activeIndex={activeTabIndex} 
             onChange={(index) => setActiveTabIndex(Number(index))}
           >
-            <Tabs.Tab title="All" />
             <Tabs.Tab title="Prototypes" />
             <Tabs.Tab title="Templates" />
+            <Tabs.Tab title="Design System" />
           </Tabs.SWITCH>
           
-          <HStack gap="0.25rem">
-            <Tip content="Grid view" placement={Tip.PLACEMENTS.BOTTOM}>
-              <ViewToggleButton 
-                theme={theme} 
-                isActive={viewMode === 'grid'}
-                onClick={() => setViewMode('grid')}
-                aria-label="Grid view"
-              >
-                <Icon type={Icon.TYPES.BENTO_BOX} size={16} />
-              </ViewToggleButton>
-            </Tip>
-            <Tip content="Table view" placement={Tip.PLACEMENTS.BOTTOM}>
-              <ViewToggleButton 
-                theme={theme} 
-                isActive={viewMode === 'table'}
-                onClick={() => setViewMode('table')}
-                aria-label="Table view"
-              >
-                <Icon type={Icon.TYPES.LIST_OUTLINE} size={16} />
-              </ViewToggleButton>
-            </Tip>
-          </HStack>
+          {(activeTab === 'prototype' || activeTab === 'template') && (
+            <HStack gap="0.25rem">
+              <Tip content="Grid view" placement={Tip.PLACEMENTS.BOTTOM}>
+                <ViewToggleButton 
+                  theme={theme} 
+                  isActive={viewMode === 'grid'}
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Grid view"
+                >
+                  <Icon type={Icon.TYPES.BENTO_BOX} size={16} />
+                </ViewToggleButton>
+              </Tip>
+              <Tip content="Table view" placement={Tip.PLACEMENTS.BOTTOM}>
+                <ViewToggleButton 
+                  theme={theme} 
+                  isActive={viewMode === 'table'}
+                  onClick={() => setViewMode('table')}
+                  aria-label="Table view"
+                >
+                  <Icon type={Icon.TYPES.LIST_OUTLINE} size={16} />
+                </ViewToggleButton>
+              </Tip>
+            </HStack>
+          )}
         </SectionHeader>
 
-        {viewMode === 'grid' ? (
-          <DemoGrid theme={theme}>
-            {filteredDemos.map((demo) => (
-              <DemoCardWrapper
-                key={demo.path}
-                onClick={() => navigate(demo.path)}
-              >
-                <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
-                  <CardContent>
-                    {demo.category === 'template' && (
-                      <CardTopBar theme={theme}>
-                        <div />
-                        <Label size={Label.SIZES.S} appearance={Label.APPEARANCES.NEUTRAL}>
-                          Template
-                        </Label>
-                      </CardTopBar>
-                    )}
-                    <CardIcon theme={theme}>
-                      <Icon 
-                        type={demo.icon} 
-                        size={24} 
-                        color={theme.colorPrimary}
-                      />
-                    </CardIcon>
-                    <CardTitle theme={theme}>{demo.title}</CardTitle>
-                    <CardDescription theme={theme}>
-                      {demo.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card.Layout>
-              </DemoCardWrapper>
-            ))}
-            
-            {/* Create New Demo Card - only show on All or Templates tab */}
-            {(activeFilter === 'all' || activeFilter === 'template') && (
-              <AddCardWrapper onClick={() => setIsDrawerOpen(true)}>
-                <AddCardContent theme={theme}>
-                  <AddCardIcon theme={theme}>
-                    <Icon 
-                      type={Icon.TYPES.ADD_CIRCLE_OUTLINE} 
-                      size={24} 
-                      color={theme.colorOnSurface} 
-                    />
-                  </AddCardIcon>
-                  <AddCardTitle theme={theme}>Create a New Demo</AddCardTitle>
-                  <AddCardDescription theme={theme}>
-                    Copy the template to start building
-                  </AddCardDescription>
-                </AddCardContent>
-              </AddCardWrapper>
-            )}
-          </DemoGrid>
-        ) : (
-          <DemoTableWrapper>
-            <TableBasic>
-              <TableBasic.THead>
-                <TableBasic.Tr>
-                  <TableBasic.Th>Name</TableBasic.Th>
-                  <TableBasic.Th>Description</TableBasic.Th>
-                  <TableBasic.Th>Type</TableBasic.Th>
-                </TableBasic.Tr>
-              </TableBasic.THead>
-              <TableBasic.TBody>
-                {filteredDemos.map((demo) => (
-                  <TableBasic.Tr 
-                    key={demo.path} 
-                    onClick={() => navigate(demo.path)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <TableBasic.Td>
-                      <HStack gap="0.5rem">
-                        <Icon 
-                          type={demo.icon} 
-                          size={16} 
-                          color={theme.colorPrimary}
-                        />
-                        <DemoTableName theme={theme}>{demo.title}</DemoTableName>
-                      </HStack>
-                    </TableBasic.Td>
-                    <TableBasic.Td>
-                      <DemoTableDescription theme={theme}>{demo.description}</DemoTableDescription>
-                    </TableBasic.Td>
-                    <TableBasic.Td>
-                      <Label 
-                        size={Label.SIZES.S} 
-                        appearance={demo.category === 'template' ? Label.APPEARANCES.NEUTRAL : Label.APPEARANCES.PRIMARY}
-                      >
-                        {demo.category === 'template' ? 'Template' : 'Prototype'}
-                      </Label>
-                    </TableBasic.Td>
-                  </TableBasic.Tr>
-                ))}
-              </TableBasic.TBody>
-            </TableBasic>
-          </DemoTableWrapper>
+        {/* Prototypes Tab */}
+        {activeTab === 'prototype' && (
+          prototypes.length === 0 ? (
+            <ActionCard
+              icon={Icon.TYPES.ADD_CIRCLE_OUTLINE}
+              title="No prototypes yet"
+              caption="Create your first prototype by copying the app shell template. Ask your AI tool: &quot;Create a new demo called My Feature&quot;"
+              primaryAction={{
+                title: 'How to create a prototype',
+                onClick: () => setIsDrawerOpen(true),
+              }}
+            />
+          ) : (
+            <>
+              {viewMode === 'grid' ? (
+                <DemoGrid theme={theme}>
+                  {prototypes.map((demo) => (
+                    <DemoCardWrapper key={demo.path} onClick={() => navigate(demo.path)}>
+                      <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+                        <CardContent>
+                          <CardIcon theme={theme}>
+                            <Icon type={demo.icon} size={24} color={theme.colorPrimary} />
+                          </CardIcon>
+                          <CardTitle theme={theme}>{demo.title}</CardTitle>
+                          <CardDescription theme={theme}>{demo.description}</CardDescription>
+                        </CardContent>
+                      </Card.Layout>
+                    </DemoCardWrapper>
+                  ))}
+                  <CreateNewCard onClick={() => setIsDrawerOpen(true)} theme={theme}>
+                    <Icon type={Icon.TYPES.ADD_CIRCLE_OUTLINE} size={24} />
+                    <CreateNewTitle theme={theme}>New prototype</CreateNewTitle>
+                    <CreateNewCaption theme={theme}>Copy the template to start building</CreateNewCaption>
+                  </CreateNewCard>
+                </DemoGrid>
+              ) : (
+                <DemoTableView demos={prototypes} navigate={navigate} theme={theme} />
+              )}
+            </>
+          )
         )}
 
-        {/* How AI Understands Pebble */}
+        {/* Templates Tab */}
+        {activeTab === 'template' && (
+          viewMode === 'grid' ? (
+            <DemoGrid theme={theme}>
+              {templates.map((demo) => (
+                <DemoCardWrapper key={demo.path} onClick={() => navigate(demo.path)}>
+                  <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+                    <CardContent>
+                      <CardIcon theme={theme}>
+                        <Icon type={demo.icon} size={24} color={theme.colorPrimary} />
+                      </CardIcon>
+                      <CardTitle theme={theme}>{demo.title}</CardTitle>
+                      <CardDescription theme={theme}>{demo.description}</CardDescription>
+                    </CardContent>
+                  </Card.Layout>
+                </DemoCardWrapper>
+              ))}
+            </DemoGrid>
+          ) : (
+            <DemoTableView demos={templates} navigate={navigate} theme={theme} />
+          )
+        )}
+
+        {/* Design System Tab */}
+        {activeTab === 'design-system' && (
+          <DemoGrid theme={theme}>
+            <DemoCardWrapper onClick={() => window.open('https://rippling.design/pebble?path=/docs/overview-design-tokens-tokens--docs', '_blank')}>
+              <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+                <CardContent>
+                  <CardIcon theme={theme}>
+                    <Icon type={Icon.TYPES.PAINT_ROLLER_OUTLINE} size={24} color={theme.colorPrimary} />
+                  </CardIcon>
+                  <CardTitle theme={theme}>Tokens</CardTitle>
+                  <CardDescription theme={theme}>
+                    Design tokens for colors, spacing, typography, and shape. The foundation of all Pebble styling.
+                  </CardDescription>
+                </CardContent>
+              </Card.Layout>
+            </DemoCardWrapper>
+
+            <DemoCardWrapper onClick={() => window.open('https://rippling.design/pebble', '_blank')}>
+              <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+                <CardContent>
+                  <CardIcon theme={theme}>
+                    <Icon type={Icon.TYPES.PUZZLE_PIECE_OUTLINE} size={24} color={theme.colorPrimary} />
+                  </CardIcon>
+                  <CardTitle theme={theme}>Web Components</CardTitle>
+                  <CardDescription theme={theme}>
+                    Browse all Pebble web components, their props, and interactive examples.
+                  </CardDescription>
+                </CardContent>
+              </Card.Layout>
+            </DemoCardWrapper>
+
+            <DemoCardWrapper onClick={() => window.open('https://rippling.design/pebble-mobile', '_blank')}>
+              <Card.Layout padding={Card.Layout.PADDINGS.PX_24}>
+                <CardContent>
+                  <CardIcon theme={theme}>
+                    <Icon type={Icon.TYPES.IPHONE_OUTLINE} size={24} color={theme.colorPrimary} />
+                  </CardIcon>
+                  <CardTitle theme={theme}>Mobile Components</CardTitle>
+                  <CardDescription theme={theme}>
+                    Pebble's mobile component library for iOS and Android.
+                  </CardDescription>
+                </CardContent>
+              </Card.Layout>
+            </DemoCardWrapper>
+          </DemoGrid>
+        )}
+
+        {/* Guides */}
         <GuidesSection theme={theme}>
-          <GuidesTitle theme={theme}>How AI Understands Pebble</GuidesTitle>
-          
-          <BulletList theme={theme}>
-            <BulletItem theme={theme}>
-              <BulletTitle theme={theme}>Pebble MCP</BulletTitle>
-              <BulletText theme={theme}>
-                Your AI coding tool has live access to all Pebble component docs, props, and Storybook examples. This is set up automatically when you run <CodePath theme={theme}>npm install</CodePath>.
-              </BulletText>
-            </BulletItem>
-            <BulletItem theme={theme}>
-              <BulletTitle theme={theme}>Built-in rules</BulletTitle>
-              <BulletText theme={theme}>
-                The project includes AI instruction files with component gotchas, design token references, and forbidden patterns — so AI avoids common mistakes out of the box.
-              </BulletText>
-            </BulletItem>
-            <BulletItem theme={theme}>
-              <BulletTitle theme={theme}>Documentation</BulletTitle>
-              <BulletText theme={theme}>
-                The <CodePath theme={theme}>docs/</CodePath> folder has a Component Catalog, Token Catalog, and guides synced from Confluence. AI references these automatically when building your prototypes.
-              </BulletText>
-            </BulletItem>
-            <BulletItem theme={theme}>
-              <BulletTitle theme={theme}>Your code</BulletTitle>
-              <BulletText theme={theme}>
-                AI learns patterns from existing demo files in <CodePath theme={theme}>src/demos/</CodePath>, so the more you build, the better it gets at following your conventions.
-              </BulletText>
-            </BulletItem>
-          </BulletList>
+          <GuidesTitle theme={theme}>Guides</GuidesTitle>
+          <GuidesList>
+            <li><GuideLink onClick={() => setIsGettingStartedOpen(true)}>Getting started</GuideLink></li>
+            <li><GuideLink onClick={() => setIsDrawerOpen(true)}>Creating a prototype</GuideLink></li>
+            <li><GuideLink onClick={() => setIsDeployDrawerOpen(true)}>Deploying &amp; sharing</GuideLink></li>
+          </GuidesList>
         </GuidesSection>
+
+        <SkillsSection theme={theme}>
+          <GuidesTitle theme={theme}>Skills</GuidesTitle>
+          <SkillsList theme={theme}>
+            <li>New prototype — say <strong>"create a new prototype"</strong> to your AI tool</li>
+            <li>Deploy playground — say <strong>"deploy my playground"</strong> to your AI tool</li>
+          </SkillsList>
+        </SkillsSection>
       </ContentWrapper>
 
-      {/* Instructions Drawer */}
+      {/* Getting Started Drawer */}
+      <Drawer
+        isVisible={isGettingStartedOpen}
+        onCancel={() => setIsGettingStartedOpen(false)}
+        title="Getting Started"
+        width={600}
+      >
+        <DrawerContent theme={theme}>
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              What is the Playground?
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              The Playground is a space where anyone can build interactive prototypes using real Rippling components. You describe what you want in plain English, and an AI assistant builds it for you — no coding experience required.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              What you need
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              • <strong>Cursor</strong> or <strong>Claude Code</strong> — your AI-powered editor<br/>
+              • This project cloned to your computer (ask your team if you need help)<br/>
+              • That's it. The AI handles everything else.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              Your first 5 minutes
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              <strong>1.</strong> Open this project in Cursor or Claude Code.<br/><br/>
+              <strong>2.</strong> Start a conversation with the AI and say something like:<br/>
+            </InstructionText>
+            <CodeSnippet theme={theme}>
+              Create a new prototype called "Benefits Dashboard"
+            </CodeSnippet>
+            <InstructionText theme={theme}>
+              <strong>3.</strong> The AI sets everything up for you. You'll see a new page appear with Rippling's navigation, sidebar, and a content area ready to customize.<br/><br/>
+              <strong>4.</strong> Now just describe what you want to see:
+            </InstructionText>
+            <CodeSnippet theme={theme}>
+              Show a dashboard with cards for medical, dental, and vision plans
+            </CodeSnippet>
+            <InstructionText theme={theme}>
+              <strong>5.</strong> Keep iterating. Change layouts, add interactions, swap out content — all by describing what you want.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              Tips for great prompts
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              • <strong>Be specific:</strong> "Show a table of employees with name, department, and start date" works better than "add a table"<br/>
+              • <strong>Reference real features:</strong> "Make it look like Rippling's time-off request page" gives the AI helpful context<br/>
+              • <strong>Iterate freely:</strong> You can always say "undo that" or "try a different approach"<br/>
+              • <strong>Share a screenshot:</strong> Paste a Figma screenshot and say "build this" — the AI can work from visual references
+            </InstructionText>
+          </InstructionSection>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Create Prototype Drawer */}
       <Drawer
         isVisible={isDrawerOpen}
         onCancel={() => setIsDrawerOpen(false)}
-        title="Create a New Demo"
+        title="Creating a Prototype"
         width={600}
       >
         <DrawerContent theme={theme}>
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 1:</StepNumber>
-              Start a Conversation
+              Open a conversation
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Open this project in your AI coding tool. In <strong>Claude Code</strong>, run <CodeSnippetInline theme={theme}>claude</CodeSnippetInline> from the <CodeSnippetInline theme={theme}>pebble-playground</CodeSnippetInline> folder. In <strong>Cursor</strong>, open the folder with File → Open Folder.
+              Open this project in Cursor or Claude Code and start chatting with the AI. It already knows about all of Rippling's components and design patterns.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 2:</StepNumber>
-              Create Your Demo
+              Ask the AI to create your prototype
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Paste this prompt (replace "My Feature" with your demo name):
+              Tell the AI what you're building. Just say something like:
             </InstructionText>
             <CodeSnippet theme={theme}>
-              Create a new demo called "My Feature" by copying app-shell-template.tsx
+              Create a new prototype called "Employee Onboarding Flow"
             </CodeSnippet>
             <InstructionText theme={theme}>
-              AI will create the file, wire it up in main.tsx, and add a card to the index page.
+              The AI handles everything — it creates a branch for your work, builds the page with Rippling's app shell (navigation, sidebar, content area), and wires it all up. Your branch will be named something like <strong>proto/yourname/onboarding-flow</strong>, which keeps everyone's work organized.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 3:</StepNumber>
-              Describe What You Want
+              Describe what you want to see
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Tell AI what to build. Use simple, direct commands:
+              Now the fun part — just describe the UI you're imagining:
             </InstructionText>
             <CodeSnippet theme={theme}>
-              Replace the main content with a data table showing employee records with search and filters
+              Add a stepper at the top showing 4 steps: Personal Info, Documents, Benefits, Review
             </CodeSnippet>
             <CodeSnippet theme={theme}>
-              Update the content area to show a dashboard with 4 metric cards and a chart
+              Show a form for the first step with fields for name, email, and department
             </CodeSnippet>
-            <CodeSnippet theme={theme}>
-              Add a multi-step form wizard in the main content section
-            </CodeSnippet>
+            <InstructionText theme={theme}>
+              You can paste Figma screenshots, reference existing Rippling pages, or just describe the experience you're going for.
+            </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 4:</StepNumber>
-              Refine and Iterate
+              Keep iterating
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Keep going with natural language to polish your demo:
+              Prototyping is all about iteration. Refine the layout, swap components, add interactions — just keep the conversation going:
             </InstructionText>
             <CodeSnippet theme={theme}>
-              Update the sidebar navigation items
+              Make the sidebar collapsible
             </CodeSnippet>
             <CodeSnippet theme={theme}>
-              Adjust spacing to match the design system
+              Add a success confirmation when the form is submitted
             </CodeSnippet>
-            <CodeSnippet theme={theme}>
-              Add a loading state to the table
-            </CodeSnippet>
+            <InstructionText theme={theme}>
+              Each change takes seconds. Experiment freely — nothing here affects production.
+            </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
-              <StepNumber theme={theme}>💡 Tips:</StepNumber>
+              How branches work
             </InstructionTitle>
             <InstructionText theme={theme}>
-              • AI has access to all Pebble component docs automatically via MCP<br/>
-              • The app shell gives you navigation, sidebar, and content areas<br/>
-              • Focus on customizing the main content — keep the shell structure<br/>
-              • Be specific: "Add a Pebble TableBasic with sortable columns" works better than "add a table"
+              Each prototype lives on its own branch, named <strong>proto/yourname/prototype-name</strong>. This means your work is isolated — you won't affect anyone else's prototypes, and they won't affect yours. When you're ready to share, just say "deploy my playground" and the AI handles the rest.
+            </InstructionText>
+          </InstructionSection>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Deploy & Share Drawer */}
+      <Drawer
+        isVisible={isDeployDrawerOpen}
+        onCancel={() => setIsDeployDrawerOpen(false)}
+        title="Deploying & Sharing"
+        width={600}
+      >
+        <DrawerContent theme={theme}>
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              Why deploy?
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              Deploying gives you a shareable link that anyone can open in their browser — no setup needed on their end. Perfect for design reviews, stakeholder feedback, or async collaboration across timezones.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              <StepNumber theme={theme}>Step 1:</StepNumber>
+              Save your work
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              Ask the AI to deploy for you — it handles the technical details:
+            </InstructionText>
+            <CodeSnippet theme={theme}>
+              Deploy my playground
+            </CodeSnippet>
+            <InstructionText theme={theme}>
+              The AI will save your changes, push them to GitHub, and kick off an automatic deploy. You can also do this manually by committing and pushing your branch.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              <StepNumber theme={theme}>Step 2:</StepNumber>
+              Wait a couple of minutes
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              The deploy takes about 2 minutes. The AI will let you know when it's done and give you the link. You'll also see "Preview URL ready" appear at the top of this page.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
+              <StepNumber theme={theme}>Step 3:</StepNumber>
+              Share the link
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              Copy the preview URL from the top of this page and share it anywhere — Slack, email, a design doc, or a presentation. The link is public, so anyone with it can view your prototype.<br/><br/>
+              Every time you push new changes, the link automatically updates with your latest version.
             </InstructionText>
           </InstructionSection>
         </DrawerContent>
