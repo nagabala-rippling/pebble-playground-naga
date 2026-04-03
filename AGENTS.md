@@ -435,6 +435,14 @@ When you need to customize a Pebble component beyond what props allow:
 | Colors/spacing look wrong in dark mode              | Hardcoded colors instead of theme tokens          | Replace all hardcoded values with theme tokens                        |
 | Component looks different from Rippling product     | Missing theme tokens or incorrect component usage | Check `docs/guides/components/` for official patterns                 |
 
+## Skills
+
+Reusable workflows in `agents/skills/`. Read the SKILL.md file when triggered.
+
+| Skill | Trigger | Path |
+|-------|---------|------|
+| **Deploy Playground** | "deploy", "share", "get preview URL", "publish" | `agents/skills/deploy-playground/SKILL.md` |
+
 ## Deeper Reference
 
 For complex component APIs or unfamiliar components, consult:
