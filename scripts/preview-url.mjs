@@ -8,7 +8,7 @@
  * Usage: npm run preview-url
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -18,10 +18,6 @@ const quiet = process.argv.includes('--quiet');
 
 function log(...args) {
   if (!quiet) console.log(...args);
-}
-
-function run(cmd) {
-  return execSync(cmd, { encoding: 'utf-8' }).trim();
 }
 
 function readCurrentUrl() {
@@ -47,7 +43,7 @@ function writeUrlToEnv(url) {
 
 function ghAvailable() {
   try {
-    execSync('which gh', { encoding: 'utf-8' });
+    execFileSync('which', ['gh'], { encoding: 'utf-8' });
     return true;
   } catch {
     return false;
@@ -65,7 +61,7 @@ try {
     process.exit(1);
   }
 
-  const branch = run('git branch --show-current');
+  const branch = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf-8' }).trim();
   if (!branch) {
     if (!quiet) console.error('Could not determine current branch.');
     process.exit(quiet ? 0 : 1);
@@ -81,13 +77,18 @@ try {
   log(`\n  Branch: ${branch}`);
   log('  Checking latest deploy...\n');
 
-  const runJson = run(
-    `gh run list --workflow=preview.yml --branch="${branch}" -L1 --json databaseId,status,conclusion -q '.[0]'`
-  );
+  const runJson = execFileSync('gh', [
+    'run', 'list',
+    '--workflow=preview.yml',
+    `--branch`, branch,
+    '-L1',
+    '--json', 'databaseId,status,conclusion',
+    '-q', '.[0]',
+  ], { encoding: 'utf-8' }).trim();
 
   if (!runJson) {
     log('  No deployments found for this branch.');
-    log('  Push your branch to trigger a deploy: git push -u origin ' + branch + '\n');
+    log(`  Push your branch to trigger a deploy: git push -u origin HEAD\n`);
     process.exit(0);
   }
 
@@ -105,7 +106,9 @@ try {
     process.exit(quiet ? 0 : 1);
   }
 
-  const logs = run(`gh run view ${databaseId} --log 2>/dev/null`);
+  const logs = execFileSync('gh', [
+    'run', 'view', String(databaseId), '--log',
+  ], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
   const match = logs.match(/Preview: (https:\/\/prototyping-playground-[^\s]+)/);
 
   if (match) {
