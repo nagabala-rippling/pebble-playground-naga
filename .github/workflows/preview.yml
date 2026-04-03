@@ -35,11 +35,6 @@ jobs:
           SAFE_BRANCH=$(echo "$BRANCH" | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c1-60)
           echo "deploy_url=https://prototyping-playground-${SAFE_BRANCH}.vercel.app" >> "$GITHUB_OUTPUT"
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_DEPLOY_URL: ${{ steps.url.outputs.deploy_url }}
-
       - name: Install Vercel CLI
         run: npm install -g vercel
 
@@ -53,6 +48,13 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VITE_DEPLOY_URL: ${{ steps.url.outputs.deploy_url }}
 
       - name: Deploy to Vercel
         id: deploy
