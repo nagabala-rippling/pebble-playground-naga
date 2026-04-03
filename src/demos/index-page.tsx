@@ -39,6 +39,14 @@ const ALL_DEMOS: DemoCard[] = [
     icon: Icon.TYPES.HIERARCHY_HORIZONTAL_OUTLINE,
     category: 'template',
   },
+  // Prototypes
+  {
+    title: 'Deploy Test',
+    description: 'End-to-end test of the deploy workflow. Created to validate GitHub Actions + Vercel preview URLs.',
+    path: '/deploy-test',
+    icon: Icon.TYPES.CHECK_CIRCLE_OUTLINE,
+    category: 'prototype',
+  },
 ];
 
 // Filter helpers
