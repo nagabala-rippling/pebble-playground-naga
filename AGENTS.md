@@ -385,11 +385,13 @@ Before considering code complete:
 - No hardcoded spacing (use `theme.space*`)
 - No hardcoded typography (use `theme.typestyle*`)
 - Icon sizes are numbers (`size={20}`, not `Icon.SIZES.M`)
+- Icon type names exist — verify against `Icon.constants.d.ts` (e.g. `PEOPLE_HEART_OUTLINE` not `PEOPLE_OUTLINE`)
 - Input sub-components use their own SIZES (`Input.Text.SIZES.M`)
 - Using `Tip` not `Tooltip`
 - Using `Button.Icon` not `IconButton`
 - Using `@/` alias for shared imports
 - All interactive icons have `aria-label`
+- Run `npm run typecheck` before committing — Vite dev skips type-checking, so errors only show in CI
 - Works in both light and dark modes
 
 ## Commands
@@ -397,9 +399,11 @@ Before considering code complete:
 **IMPORTANT: Always use `npm run` instead of `yarn` to run scripts.** Yarn fails with `Failed to replace env in config: ${NPM_TOKEN}` because `.npmrc` uses `${NPM_TOKEN}` for the Rippling GitHub Packages registry and yarn can't resolve it. `npm run` handles this fine.
 
 ```bash
-npm run dev           # Start dev server (port 4201)
+npm run dev           # Start dev server (port 4201) — auto-fetches preview URL
 npm run build         # TypeScript check + Vite build
+npm run typecheck     # TypeScript check only (fast, no build)
 npm run lint          # ESLint
+npm run preview-url   # Fetch deployed preview URL and save to .env.local
 npm run new:demo      # Scaffold a new demo
 npm run override      # Override a Pebble component
 ```
@@ -430,6 +434,15 @@ When you need to customize a Pebble component beyond what props allow:
 | `Module not found: @rippling/pebble/Tooltip`        | Component is called `Tip`, not `Tooltip`          | `import Tip from '@rippling/pebble/Tip';`                             |
 | Colors/spacing look wrong in dark mode              | Hardcoded colors instead of theme tokens          | Replace all hardcoded values with theme tokens                        |
 | Component looks different from Rippling product     | Missing theme tokens or incorrect component usage | Check `docs/guides/components/` for official patterns                 |
+
+## Skills
+
+Reusable workflows in `agents/skills/`. Read the SKILL.md file when triggered.
+
+| Skill | Trigger | Path |
+|-------|---------|------|
+| **New Prototype** | "new prototype", "create a prototype", "create a new demo" | `agents/skills/new-prototype/SKILL.md` |
+| **Deploy Playground** | "deploy", "share", "get preview URL", "publish" | `agents/skills/deploy-playground/SKILL.md` |
 
 ## Deeper Reference
 

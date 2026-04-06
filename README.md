@@ -21,8 +21,8 @@ Build interactive mockups (modals, forms, dashboards), test micro-interactions, 
 ### 2. Clone the repo
 
 ```bash
-git clone https://github.com/Rippling/pebble-playground.git
-cd pebble-playground
+git clone https://github.com/Rippling/prototyping-playground.git
+cd prototyping-playground
 ```
 
 ### 3. Install and run
@@ -224,7 +224,7 @@ You need an `NPM_TOKEN` (a GitHub Personal Access Token with `read:packages` sco
 **To set it up:**
 
 1. Go to [github.com/settings/tokens](https://github.com/settings/tokens) → **Generate new token (classic)**
-2. Give it a name (e.g., "pebble-playground") and select the **`read:packages`** scope
+2. Give it a name (e.g., "prototyping-playground") and select the **`read:packages`** scope
 3. Copy the token and add it to your shell profile (`~/.zshrc` or `~/.bashrc`):
 
 ```bash

@@ -6,7 +6,7 @@ How to work with the Pebble Playground — solo, with teammates, and across the 
 
 ## How We Work: Branches, Not Forks
 
-Everyone works in the same repo (`Rippling/pebble-playground`) using branches. This keeps things simple — no fork management, no upstream syncing, and Vercel preview deployments work automatically for every branch.
+Everyone works in the same repo (`Rippling/prototyping-playground`) using branches. This keeps things simple — no fork management, no upstream syncing, and Vercel preview deployments work automatically for every branch.
 
 ### Branch convention
 
