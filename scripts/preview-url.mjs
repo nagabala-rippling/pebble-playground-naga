@@ -4,6 +4,13 @@
  * Fetches the preview deployment URL for the current branch and saves it
  * to .env.local so the local dev server can display it.
  *
+ * Strategy:
+ * 1. Find the latest successful "Deploy Preview" workflow run for this branch
+ * 2. Extract the actual deployed URL from:
+ *    a. The PR comment (workflow posts it with a <!-- vercel-preview --> marker)
+ *    b. The workflow run logs (fallback — parses the `vercel deploy` output)
+ * 3. Save to .env.local as VITE_DEPLOY_URL
+ *
  * Requires: gh (GitHub CLI) authenticated.
  * Usage: npm run preview-url
  */
@@ -14,6 +21,7 @@ import { resolve } from 'path';
 
 const ENV_FILE = resolve(import.meta.dirname, '..', '.env.local');
 const ENV_KEY = 'VITE_DEPLOY_URL';
+const REPO = 'Rippling/prototyping-playground';
 const quiet = process.argv.includes('--quiet');
 
 function log(...args) {
@@ -50,6 +58,56 @@ function ghAvailable() {
   }
 }
 
+/**
+ * Extract the deploy URL from the PR comment left by the workflow.
+ * The workflow posts a comment with marker `<!-- vercel-preview -->` containing
+ * the actual hash-based Vercel URL.
+ */
+function getUrlFromPrComment(branch) {
+  try {
+    const output = execFileSync('gh', [
+      'pr', 'view', branch,
+      '--repo', REPO,
+      '--json', 'comments',
+    ], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+
+    const { comments } = JSON.parse(output);
+    for (const comment of (comments || [])) {
+      if (comment.body?.includes('<!-- vercel-preview -->')) {
+        const match = comment.body.match(/https:\/\/[a-z0-9-]+\.vercel\.app/);
+        if (match) return match[0];
+      }
+    }
+  } catch {
+    // No PR found for this branch, or gh command failed
+  }
+  return null;
+}
+
+/**
+ * Extract the deploy URL from the workflow run logs.
+ * The deploy step captures the `vercel deploy --prebuilt` output which is the
+ * hash-based deployment URL.
+ */
+function getUrlFromRunLogs(runId) {
+  try {
+    const logs = execFileSync('gh', [
+      'run', 'view', String(runId),
+      '--repo', REPO,
+      '--log',
+    ], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+
+    // Match hash-based preview URLs (e.g. prototyping-playground-7w5gtta6b-rippling.vercel.app)
+    // Exclude production URLs (-two.vercel.app) and bare project URLs
+    const urlPattern = /https:\/\/prototyping-playground-[a-z0-9]+-rippling\.vercel\.app/g;
+    const matches = [...new Set(logs.match(urlPattern) || [])];
+
+    // Prefer the hash-based URL (from `vercel deploy`) over the branch alias
+    return matches.find(u => !u.includes('-git-')) || matches[0] || null;
+  } catch {}
+  return null;
+}
+
 try {
   if (!ghAvailable()) {
     if (quiet) {
@@ -81,6 +139,7 @@ try {
     'run', 'list',
     '--workflow=preview.yml',
     `--branch`, branch,
+    '--repo', REPO,
     '-L1',
     '--json', 'databaseId,status,conclusion',
     '-q', '.[0]',
@@ -96,18 +155,36 @@ try {
 
   if (status === 'in_progress' || status === 'queued') {
     log('  ⏳ Deploy in progress...');
-    log(`  Watch it: https://github.com/Rippling/prototyping-playground/actions/runs/${databaseId}\n`);
+    log(`  Watch it: https://github.com/${REPO}/actions/runs/${databaseId}\n`);
     process.exit(0);
   }
 
   if (conclusion !== 'success') {
     log(`  ❌ Last deploy failed (${conclusion}).`);
-    log(`  Check logs: https://github.com/Rippling/prototyping-playground/actions/runs/${databaseId}\n`);
+    log(`  Check logs: https://github.com/${REPO}/actions/runs/${databaseId}\n`);
     process.exit(quiet ? 0 : 1);
   }
 
-  const safeBranch = branch.replace(/\//g, '-').slice(0, 60);
-  const url = `https://prototyping-playground-git-${safeBranch}-rippling.vercel.app`;
+  log('  Fetching deploy URL...');
+
+  // Strategy 1: Extract from PR comment (fastest — no log download)
+  let url = getUrlFromPrComment(branch);
+  if (url) {
+    log('  (found in PR comment)');
+  }
+
+  // Strategy 2: Extract from workflow run logs
+  if (!url) {
+    log('  No PR comment found, checking run logs...');
+    url = getUrlFromRunLogs(databaseId);
+  }
+
+  if (!url) {
+    log(`  ⚠️  Could not extract deploy URL.`);
+    log(`  Check the run: https://github.com/${REPO}/actions/runs/${databaseId}\n`);
+    process.exit(quiet ? 0 : 1);
+  }
+
   writeUrlToEnv(url);
   log(`  🔗 Preview URL: ${url}\n`);
 } catch (err) {

@@ -10,8 +10,14 @@ import Tip from '@rippling/pebble/Tip';
 import useOutsideClick from '@rippling/pebble/hooks/useOutsideClick';
 import RipplingLogoBlack from '@/assets/rippling-logo-black.svg';
 import RipplingLogoWhite from '@/assets/rippling-logo-white.svg';
+import RipplingMarkBlack from '@/assets/rippling-mark-black.svg';
+import RipplingMarkWhite from '@/assets/rippling-mark-white.svg';
 import { SearchBar } from './SearchBar';
 import { ProfileDropdown } from './ProfileDropdown';
+
+const BERRY_BG = '#4a0039';
+const BERRY_HOVER = 'rgba(255, 255, 255, 0.1)';
+const BERRY_ACTIVE = 'rgba(255, 255, 255, 0.15)';
 
 interface TopNavBarProps {
   companyName: string;
@@ -19,6 +25,7 @@ interface TopNavBarProps {
   adminMode: boolean;
   currentMode: 'light' | 'dark';
   searchPlaceholder?: string;
+  superAppName?: string;
   onAdminModeToggle: () => void;
   onLogoClick?: () => void;
   showNotificationBadge?: boolean;
@@ -36,32 +43,50 @@ const TopNav = styled.nav<{ adminMode: boolean }>`
   right: 0;
   height: 56px;
   background-color: ${({ theme, adminMode }) =>
-    adminMode ? 'rgb(74, 0, 57)' : (theme as StyledTheme).colorSurfaceBright};
+    adminMode ? BERRY_BG : (theme as StyledTheme).colorSurfaceBright};
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   display: flex;
   align-items: center;
   padding: 0;
   z-index: 100;
-  gap: ${({ theme }) => (theme as StyledTheme).space500};
   transition: background-color 200ms ease;
 `;
 
-const LeftSection = styled.div`
+const LeftSection = styled.div<{ adminMode?: boolean }>`
   display: flex;
   align-items: center;
+  box-sizing: border-box;
+  gap: ${({ theme }) => (theme as StyledTheme).space300};
   width: 266px;
+  height: 24px;
+  padding: 0 ${({ theme }) => (theme as StyledTheme).space400};
+  border-right: 1px solid
+    ${({ theme, adminMode }) => {
+      const color = adminMode ? 'white' : (theme as StyledTheme).colorOnSurface;
+      const opacity = adminMode ? 0.3 : 0.2;
+      return color === 'white'
+        ? `rgba(255, 255, 255, ${opacity})`
+        : `color-mix(in srgb, ${color} ${opacity * 100}%, transparent)`;
+    }};
 `;
 
-const LogoContainer = styled.div`
+const LogoContainer = styled.div<{ hasSuperApp?: boolean; adminMode?: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => (theme as StyledTheme).space400};
-  height: 56px;
-  padding: 0 ${({ theme }) => (theme as StyledTheme).space400};
-  flex: 1;
+  height: 100%;
+  border-right: ${({ hasSuperApp, adminMode, theme }) => {
+    if (!hasSuperApp) return 'none';
+    const color = adminMode ? 'white' : (theme as StyledTheme).colorOnSurface;
+    const opacity = adminMode ? 0.3 : 0.2;
+    return color === 'white'
+      ? `1px solid rgba(255, 255, 255, ${opacity})`
+      : `1px solid color-mix(in srgb, ${color} ${opacity * 100}%, transparent)`;
+  }};
+  padding-right: ${({ hasSuperApp, theme }) =>
+    hasSuperApp ? (theme as StyledTheme).space400 : '0'};
 `;
 
-const Logo = styled.img`
+const Logo = styled.img<{ adminMode?: boolean }>`
   width: 127px;
   height: auto;
   display: block;
@@ -72,14 +97,67 @@ const Logo = styled.img`
   transition: background-color 150ms ease;
 
   &:hover {
-    background-color: ${({ theme }) =>
-      getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
+    background-color: ${({ theme, adminMode }) =>
+      adminMode ? BERRY_HOVER : getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
   }
 
   &:active {
-    background-color: ${({ theme }) =>
-      getStateColor((theme as StyledTheme).colorSurfaceBright, 'active')};
+    background-color: ${({ theme, adminMode }) =>
+      adminMode
+        ? BERRY_ACTIVE
+        : getStateColor((theme as StyledTheme).colorSurfaceBright, 'active')};
   }
+`;
+
+const LogoMark = styled.img<{ adminMode?: boolean }>`
+  width: 24px;
+  height: 24px;
+  display: block;
+  cursor: pointer;
+  padding: ${({ theme }) => (theme as StyledTheme).space200};
+  margin: -${({ theme }) => (theme as StyledTheme).space200};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: ${({ theme, adminMode }) =>
+      adminMode ? BERRY_HOVER : getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
+  }
+
+  &:active {
+    background-color: ${({ theme, adminMode }) =>
+      adminMode
+        ? BERRY_ACTIVE
+        : getStateColor((theme as StyledTheme).colorSurfaceBright, 'active')};
+  }
+`;
+
+const SuperAppSelector = styled.button<{ adminMode?: boolean }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: ${({ theme }) => (theme as StyledTheme).space300};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: ${({ theme }) =>
+    `${(theme as StyledTheme).space200} ${(theme as StyledTheme).space300}`};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: ${({ theme, adminMode }) =>
+      adminMode ? BERRY_HOVER : getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
+  }
+`;
+
+const SuperAppName = styled.span<{ adminMode?: boolean }>`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+  font-weight: 600;
+  color: ${({ theme, adminMode }) => (adminMode ? 'white' : (theme as StyledTheme).colorOnSurface)};
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
 `;
 
 const VerticalDivider = styled.div<{ adminMode?: boolean }>`
@@ -94,14 +172,15 @@ const RightSection = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  padding-left: ${({ theme }) => (theme as StyledTheme).space1000};
   height: 100%;
 `;
 
 const SearchBarWrapper = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 0 ${({ theme }) => (theme as StyledTheme).space400};
 `;
@@ -215,13 +294,14 @@ const NotificationIcon = styled.div`
   width: 40px;
   height: 40px;
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  background: linear-gradient(135deg, #7B2D5B 0%, #5B1D4B 100%);
+  background: linear-gradient(135deg, #7b2d5b 0%, #5b1d4b 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
-  svg, i {
+  svg,
+  i {
     color: white !important;
   }
 `;
@@ -252,17 +332,68 @@ const UnreadIndicator = styled.div`
 `;
 
 const sampleNotifications = [
-  { id: '1', icon: Icon.TYPES.TASKS_OUTLINE, text: 'Action required: You have pending tasks in Rippling', time: '1 hour ago', isUnread: true },
-  { id: '2', icon: Icon.TYPES.TASKS_OUTLINE, text: 'Action required: You have pending tasks in Rippling', time: '1 day ago', isUnread: false },
-  { id: '3', icon: Icon.TYPES.BOOKS_OUTLINE, text: 'Paul, 2026 Proxy Tool Safe Use Policy Training is due tomorrow!', time: '2 days ago', isUnread: true },
-  { id: '4', icon: Icon.TYPES.TASKS_OUTLINE, text: 'Action required: You have pending tasks in Rippling', time: '2 days ago', isUnread: true },
-  { id: '5', icon: Icon.TYPES.BOOKS_OUTLINE, text: 'Rippling has enrolled you in Regulated Complaints: Module 2', time: '3 days ago', isUnread: true },
-  { id: '6', icon: Icon.TYPES.TASKS_OUTLINE, text: 'Action required: You have pending tasks in Rippling', time: '3 days ago', isUnread: true },
-  { id: '7', icon: Icon.TYPES.TASKS_OUTLINE, text: 'Action required: You have pending tasks in Rippling', time: '4 days ago', isUnread: true },
-  { id: '8', icon: Icon.TYPES.USERS_OUTLINE, text: "Paul, you've been nominated as a peer reviewer", time: '4 days ago', isUnread: false },
+  {
+    id: '1',
+    icon: Icon.TYPES.TASKS_OUTLINE,
+    text: 'Action required: You have pending tasks in Rippling',
+    time: '1 hour ago',
+    isUnread: true,
+  },
+  {
+    id: '2',
+    icon: Icon.TYPES.TASKS_OUTLINE,
+    text: 'Action required: You have pending tasks in Rippling',
+    time: '1 day ago',
+    isUnread: false,
+  },
+  {
+    id: '3',
+    icon: Icon.TYPES.BOOKS_OUTLINE,
+    text: 'Paul, 2026 Proxy Tool Safe Use Policy Training is due tomorrow!',
+    time: '2 days ago',
+    isUnread: true,
+  },
+  {
+    id: '4',
+    icon: Icon.TYPES.TASKS_OUTLINE,
+    text: 'Action required: You have pending tasks in Rippling',
+    time: '2 days ago',
+    isUnread: true,
+  },
+  {
+    id: '5',
+    icon: Icon.TYPES.BOOKS_OUTLINE,
+    text: 'Rippling has enrolled you in Regulated Complaints: Module 2',
+    time: '3 days ago',
+    isUnread: true,
+  },
+  {
+    id: '6',
+    icon: Icon.TYPES.TASKS_OUTLINE,
+    text: 'Action required: You have pending tasks in Rippling',
+    time: '3 days ago',
+    isUnread: true,
+  },
+  {
+    id: '7',
+    icon: Icon.TYPES.TASKS_OUTLINE,
+    text: 'Action required: You have pending tasks in Rippling',
+    time: '4 days ago',
+    isUnread: true,
+  },
+  {
+    id: '8',
+    icon: Icon.TYPES.USERS_OUTLINE,
+    text: "Paul, you've been nominated as a peer reviewer",
+    time: '4 days ago',
+    isUnread: false,
+  },
 ];
 
-const NotificationsDropdown: React.FC<{ theme: StyledTheme; notificationCount: number }> = ({ theme, notificationCount }) => {
+const NotificationsDropdown: React.FC<{ theme: StyledTheme; notificationCount: number }> = ({
+  theme,
+  notificationCount,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const popperRef = useRef<HTMLDivElement>(null);
@@ -289,7 +420,7 @@ const NotificationsDropdown: React.FC<{ theme: StyledTheme; notificationCount: n
             </NotificationsHeaderActions>
           </NotificationsHeader>
           <NotificationsList theme={theme}>
-            {sampleNotifications.map((notification) => (
+            {sampleNotifications.map(notification => (
               <NotificationItem key={notification.id} theme={theme}>
                 <NotificationIcon theme={theme}>
                   <Icon type={notification.icon} size={20} color="white" />
@@ -376,7 +507,9 @@ const SupportContent = styled.div`
 
 const SupportSection = styled.div`
   margin-bottom: ${({ theme }) => (theme as StyledTheme).space300};
-  &:last-child { margin-bottom: 0; }
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const SupportSectionLabel = styled.div`
@@ -396,7 +529,9 @@ const SupportItem = styled.div`
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
   cursor: pointer;
   transition: background-color 150ms ease;
-  &:hover { background: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow}; }
+  &:hover {
+    background: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
 `;
 
 const SupportItemIcon = styled.div<{ variant?: 'default' | 'primary' }>`
@@ -437,7 +572,9 @@ const AdminContactItem = styled.div`
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
   cursor: pointer;
   transition: background-color 150ms ease;
-  &:hover { background: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow}; }
+  &:hover {
+    background: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
 `;
 
 const AdminAvatar = styled.img`
@@ -466,13 +603,15 @@ const SupportFooter = styled.div`
 const DEFAULT_CONTACTS: CompanyContact[] = [
   {
     name: 'Sarah Chen',
-    avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face',
     role: 'Benefits Administrator',
     email: 'sarah.chen@company.com',
   },
   {
     name: 'Marcus Johnson',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
     role: 'HR Manager',
     email: 'marcus.johnson@company.com',
   },
@@ -509,7 +648,10 @@ const SupportDropdown: React.FC<{
 
           <SupportContent theme={theme}>
             <SupportSection theme={theme}>
-              <SupportItem theme={theme} onClick={() => window.open('https://help.rippling.com', '_blank')}>
+              <SupportItem
+                theme={theme}
+                onClick={() => window.open('https://help.rippling.com', '_blank')}
+              >
                 <SupportItemIcon theme={theme} variant="primary">
                   <Icon
                     type={Icon.TYPES.HEART_FILLED}
@@ -542,7 +684,11 @@ const SupportDropdown: React.FC<{
                     <SupportItemDescription theme={theme}>{contact.role}</SupportItemDescription>
                   </SupportItemContent>
                   <AdminContactActions theme={theme}>
-                    <Tip content="Send a direct message" placement={Tip.PLACEMENTS.TOP} isPositionFixed>
+                    <Tip
+                      content="Send a direct message"
+                      placement={Tip.PLACEMENTS.TOP}
+                      isPositionFixed
+                    >
                       <span>
                         <Button.Icon
                           icon={Icon.TYPES.COMMENTS_OUTLINE}
@@ -569,12 +715,19 @@ const SupportDropdown: React.FC<{
           </SupportContent>
 
           <SupportFooter theme={theme}>
-            <Tip content="Connect with a support agent" placement={Tip.PLACEMENTS.TOP} isPositionFixed>
+            <Tip
+              content="Connect with a support agent"
+              placement={Tip.PLACEMENTS.TOP}
+              isPositionFixed
+            >
               <div style={{ flex: 1 }}>
                 <Button
                   appearance={Button.APPEARANCES.OUTLINE}
                   size={Button.SIZES.S}
-                  icon={{ type: Icon.TYPES.MESSAGE_OUTLINE, alignment: Button.ICON_ALIGNMENTS.LEFT }}
+                  icon={{
+                    type: Icon.TYPES.MESSAGE_OUTLINE,
+                    alignment: Button.ICON_ALIGNMENTS.LEFT,
+                  }}
                   isFluid
                   onClick={() => {
                     setIsOpen(false);
@@ -585,7 +738,11 @@ const SupportDropdown: React.FC<{
                 </Button>
               </div>
             </Tip>
-            <Tip content="Get instant answers from Rippling AI" placement={Tip.PLACEMENTS.TOP} isPositionFixed>
+            <Tip
+              content="Get instant answers from Rippling AI"
+              placement={Tip.PLACEMENTS.TOP}
+              isPositionFixed
+            >
               <div style={{ flex: 1 }}>
                 <Button
                   appearance={Button.APPEARANCES.PRIMARY}
@@ -635,6 +792,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   adminMode,
   currentMode,
   searchPlaceholder,
+  superAppName,
   onAdminModeToggle,
   onLogoClick,
   showNotificationBadge = false,
@@ -643,26 +801,53 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenSupportChat,
   theme,
 }) => {
+  const hasSuperApp = !!superAppName && superAppName !== 'Home';
+
   return (
     <TopNav theme={theme} adminMode={adminMode}>
-      <LeftSection theme={theme}>
-        <LogoContainer theme={theme}>
-          <Logo
-            src={adminMode || currentMode === 'dark' ? RipplingLogoWhite : RipplingLogoBlack}
-            alt="Rippling"
-            onClick={onLogoClick}
-          />
+      <LeftSection theme={theme} adminMode={adminMode}>
+        <LogoContainer theme={theme} hasSuperApp={hasSuperApp} adminMode={adminMode}>
+          {hasSuperApp ? (
+            <LogoMark
+              src={adminMode || currentMode === 'dark' ? RipplingMarkWhite : RipplingMarkBlack}
+              alt="Rippling home"
+              role="button"
+              tabIndex={0}
+              onClick={onLogoClick}
+              adminMode={adminMode}
+            />
+          ) : (
+            <Logo
+              src={adminMode || currentMode === 'dark' ? RipplingLogoWhite : RipplingLogoBlack}
+              alt="Rippling home"
+              role="button"
+              tabIndex={0}
+              onClick={onLogoClick}
+              adminMode={adminMode}
+            />
+          )}
         </LogoContainer>
-        <VerticalDivider theme={theme} adminMode={adminMode} />
+        {hasSuperApp && (
+          <SuperAppSelector
+            theme={theme}
+            adminMode={adminMode}
+            aria-label={`Switch from ${superAppName}`}
+          >
+            <SuperAppName theme={theme} adminMode={adminMode}>
+              {superAppName}
+            </SuperAppName>
+            <Icon
+              type={Icon.TYPES.CHEVRON_DOWN}
+              size={16}
+              color={adminMode ? 'white' : theme.colorOnSurface}
+            />
+          </SuperAppSelector>
+        )}
       </LeftSection>
 
       <RightSection theme={theme}>
         <SearchBarWrapper theme={theme}>
-          <SearchBar
-            placeholder={searchPlaceholder}
-            adminMode={adminMode}
-            theme={theme}
-          />
+          <SearchBar placeholder={searchPlaceholder} adminMode={adminMode} theme={theme} />
         </SearchBarWrapper>
 
         <ActionsContainer theme={theme}>
@@ -683,10 +868,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               </span>
             </Tip>
             {showNotificationBadge && (
-              <NotificationsDropdown
-                theme={theme}
-                notificationCount={notificationCount}
-              />
+              <NotificationsDropdown theme={theme} notificationCount={notificationCount} />
             )}
             <Tip content="AI Assistant" placement={Tip.PLACEMENTS.BOTTOM} isPositionFixed>
               <span>

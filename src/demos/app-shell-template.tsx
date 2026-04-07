@@ -1,21 +1,42 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { StyledTheme } from '@/utils/theme';
-import Icon from '@rippling/pebble/Icon';
 import Button from '@rippling/pebble/Button';
-import { AppShellLayout, NavSectionData } from '@/components/app-shell';
+import { AppShellLayout } from '@/components/app-shell';
 
 /**
  * App Shell Demo
  *
  * Recreates Rippling's main application shell with:
  * - Top navigation bar
- * - Left sidebar navigation
+ * - Left sidebar navigation (self-managed — auto-switches per super app)
  * - Main content area
  *
  * Based on the actual Rippling product UI structure.
- * 
- * Now uses the extracted AppShellLayout component for DRY code reuse.
+ *
+ * ─── Quick customisation guide ─────────────────────────────────────────────
+ *
+ * THEMING (top nav color)
+ *   defaultAdminMode       → true = berry/admin theme, false = standard theme
+ *                            Users can toggle at runtime via the profile dropdown.
+ *
+ * NAVIGATION
+ *   Navigation is now self-managed by AppShellLayout:
+ *   - Home view shows all super apps with correct icons
+ *   - Clicking a super app switches the sidebar to that app's nav
+ *   - Clicking the Rippling logo returns to Home
+ *   - Active items display FILLED icon variants
+ *
+ *   To override the self-managed nav, pass mainNavSections / platformNavSection.
+ *
+ * PAGE HEADER
+ *   pageTitle              → Main heading shown at the top of the content area
+ *   pageTabs               → Array of tab labels (e.g. ['Overview', 'Settings'])
+ *   pageActions            → ReactNode rendered in the header's action slot
+ *
+ * COMPANY / USER
+ *   companyName            → Displayed next to the profile avatar
+ *   userInitial            → Single character shown inside the avatar circle
  */
 
 const ContentSlot = styled.div`
@@ -50,38 +71,7 @@ const SlotText = styled.div`
 `;
 
 const AppShellDemo: React.FC = () => {
-  // Main navigation items (Org Chart + Apps)
-  const orgChartSection: NavSectionData = {
-    items: [
-      { id: 'org-chart', label: 'Org Chart', icon: Icon.TYPES.HIERARCHY_HORIZONTAL_OUTLINE },
-    ],
-  };
-
-  const appsSection: NavSectionData = {
-    items: [
-      { id: 'favorites', label: 'Favorites', icon: Icon.TYPES.STAR_OUTLINE, hasSubmenu: true },
-      { id: 'time', label: 'Time', icon: Icon.TYPES.TIME_OUTLINE, hasSubmenu: true },
-      { id: 'benefits', label: 'Benefits', icon: Icon.TYPES.HEART_OUTLINE, hasSubmenu: true },
-      { id: 'payroll', label: 'Payroll', icon: Icon.TYPES.DOLLAR_CIRCLE_OUTLINE, hasSubmenu: true },
-      { id: 'finance', label: 'Finance', icon: Icon.TYPES.CREDIT_CARD_OUTLINE, hasSubmenu: true },
-      { id: 'talent', label: 'Talent', icon: Icon.TYPES.TALENT_OUTLINE, hasSubmenu: true },
-      { id: 'it', label: 'IT', icon: Icon.TYPES.LAPTOP_OUTLINE, hasSubmenu: true },
-      { id: 'data', label: 'Data', icon: Icon.TYPES.BAR_CHART_OUTLINE, hasSubmenu: true },
-      { id: 'custom-apps', label: 'Custom Apps', icon: Icon.TYPES.CUSTOM_APPS_OUTLINE, hasSubmenu: true },
-    ],
-  };
-
-  // Platform navigation section
-  const platformSection: NavSectionData = {
-    label: 'Platform',
-    items: [
-      { id: 'tools', label: 'Tools', icon: Icon.TYPES.WRENCH_OUTLINE, hasSubmenu: true },
-      { id: 'company-settings', label: 'Company settings', icon: Icon.TYPES.SETTINGS_OUTLINE, hasSubmenu: true },
-      { id: 'app-shop', label: 'App Shop', icon: Icon.TYPES.INTEGRATED_APPS_OUTLINE },
-      { id: 'help', label: 'Help', icon: Icon.TYPES.QUESTION_CIRCLE_OUTLINE },
-    ],
-  };
-
+  // ─── Page header actions (top-right of the content area) ───────────────────
   const pageActions = (
     <Button appearance={Button.APPEARANCES.PRIMARY} size={Button.SIZES.M}>
       Button
@@ -90,17 +80,24 @@ const AppShellDemo: React.FC = () => {
 
   return (
     <AppShellLayout
+      // ─── Page ────────────────────────────────────────────────────────────
       pageTitle="App Shell"
       pageTabs={['Overview', 'Current Benefits', 'Plans & Providers', 'Dependents', 'Life Events']}
       defaultActiveTab={0}
       pageActions={pageActions}
-      mainNavSections={[orgChartSection, appsSection]}
-      platformNavSection={platformSection}
+      // ─── Top nav theming ─────────────────────────────────────────────────
+      defaultAdminMode
+      // ─── Company / user ──────────────────────────────────────────────────
       companyName="Acme, Inc."
       userInitial="A"
       showNotificationBadge
       notificationCount={5}
     >
+      {/* ─── YOUR CONTENT GOES HERE ──────────────────────────────────────
+          Replace these placeholder slots with your prototype content.
+          Everything inside <AppShellLayout> renders in the main content area
+          (right of the sidebar, below the page header / tabs).
+      ──────────────────────────────────────────────────────────────────── */}
       <ContentSlot>
         <SlotText>
           <p>Section</p>

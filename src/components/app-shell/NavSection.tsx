@@ -21,7 +21,8 @@ const StyledNavSection = styled.div`
 
 const NavSectionLabel = styled.div<{ isCollapsed: boolean }>`
   ${({ theme }) => (theme as StyledTheme).typestyleLabelMedium700};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  color: ${({ theme, isCollapsed }) =>
+    isCollapsed ? 'transparent' : (theme as StyledTheme).colorOnSurfaceVariant};
   padding: ${({ theme }) =>
     `0 ${(theme as StyledTheme).space200} ${(theme as StyledTheme).space100}`};
   text-transform: uppercase;
@@ -30,18 +31,17 @@ const NavSectionLabel = styled.div<{ isCollapsed: boolean }>`
   height: 31px;
   display: flex;
   align-items: flex-end;
-  opacity: ${({ isCollapsed }) => (isCollapsed ? 0 : 1)};
-  transition: opacity 200ms ease;
+  transition: color 200ms ease;
   white-space: nowrap;
   overflow: hidden;
 `;
 
-export const NavSection: React.FC<NavSectionProps> = ({ 
-  section, 
-  isCollapsed, 
+export const NavSection: React.FC<NavSectionProps> = ({
+  section,
+  isCollapsed,
   theme,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  showDividerBefore: _showDividerBefore = false 
+  showDividerBefore: _showDividerBefore = false,
 }) => {
   return (
     <StyledNavSection theme={theme}>
@@ -56,4 +56,3 @@ export const NavSection: React.FC<NavSectionProps> = ({
     </StyledNavSection>
   );
 };
-

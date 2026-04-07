@@ -1,50 +1,49 @@
 ---
 name: new-prototype
 description: >-
-  Create a new prototype in the playground. Use when the user says "new
-  prototype", "create a prototype", "create a new demo", "start a new demo",
-  or wants to build something new.
+  Add a new prototype to the current playground. Use when the user says "new
+  prototype", "create a prototype", "add a demo", "build me a...", or describes
+  a UI they want to build.
 ---
 
 # New Prototype
 
-Creates a new prototype with proper branching, file scaffolding, routing, and
-index page registration.
+Scaffolds a new prototype (demo page) on the current branch — creates the
+file, wires routing, and registers it on the index page.
+
+This skill does NOT create a branch. If the user needs a new playground
+(branch), use the **new-playground** skill first.
 
 ## Prerequisites
 
 - Must be in the `prototyping-playground` project directory
 - Node modules installed (`npm install`)
+- Should be on a `proto/` branch (warn if on `main`, but don't block)
 
 ## Workflow
 
-### Step 1: Determine prototype name and branch
+### Step 1: Determine prototype name
 
 Ask the user what they want to build if they haven't said. Derive:
 
 - **Display name:** e.g. "Benefits Dashboard"
 - **Kebab slug:** e.g. `benefits-dashboard`
 - **PascalCase component:** e.g. `BenefitsDashboardDemo`
-- **Branch name:** `proto/<user>/<slug>`
 
-For the `<user>` segment, use the git user's first name (lowercase):
+### Step 2: Check branch
 
-```bash
-git config user.name
-```
-
-Take the first name, lowercase it. Example: "Paul Best" → `paul`.
-
-Branch name example: `proto/paul/benefits-dashboard`
-
-### Step 2: Create the branch
-
-Check current branch. If already on a `proto/` branch for this user, you can
-continue on it. Otherwise, create a new branch from the current branch:
+Check the current branch:
 
 ```bash
-git checkout -b proto/<user>/<slug>
+git branch --show-current
 ```
+
+- **On a `proto/` branch:** Good, continue.
+- **On `main`:** Warn the user: "You're on main — want me to create a
+  playground branch first?" If yes, hand off to the **new-playground** skill.
+  If they want to continue on main anyway, proceed.
+- **On another branch:** Proceed (they may be adding to an existing feature
+  branch).
 
 ### Step 3: Create the demo file
 
@@ -119,31 +118,11 @@ http://localhost:4201/<slug>
 Tell the user their prototype is ready:
 
 ```
-Your prototype "<Display Name>" is set up on branch proto/<user>/<slug>.
-
-Open http://localhost:4201/<slug> to see it.
+Your prototype "<Display Name>" is ready at http://localhost:4201/<slug>.
 
 Describe what you want to see and I'll build it out. When you're ready to
-share, just say "deploy my playground" to get a shareable link.
+share, just say "deploy" to get a shareable link.
 ```
-
-## Branch naming convention
-
-All prototypes live on branches prefixed with `proto/`:
-
-```
-proto/<user>/<slug>
-```
-
-- `<user>` — first name of the creator, lowercase (e.g. `paul`, `sarah`)
-- `<slug>` — kebab-case short name for the prototype (e.g. `benefits-dashboard`, `onboarding-flow`)
-
-Examples:
-- `proto/paul/benefits-dashboard`
-- `proto/sarah/onboarding-flow`
-- `proto/alex/spend-recipes`
-
-This keeps branches organized and makes it clear who owns each prototype.
 
 ## Troubleshooting
 
@@ -152,4 +131,4 @@ This keeps branches organized and makes it clear who owns each prototype.
 | Icon not found in build | Verify with `grep` in `Icon.constants.d.ts` before using |
 | Route not loading | Check `main.tsx` — import, enum, DEMO_ROUTES, and Route must all be added |
 | Page shows but is blank | Check browser console for errors; likely a missing import in the demo file |
-| Branch name conflict | If branch exists, either check it out or pick a different slug |
+| On `main` branch | Suggest creating a playground first with the new-playground skill |

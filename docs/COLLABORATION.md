@@ -4,20 +4,129 @@ How to work with the Pebble Playground — solo, with teammates, and across the 
 
 ---
 
+## Quick Start: AI-Assisted Workflow
+
+The fastest way to get started is with your AI coding tool (Cursor, Claude Code, etc.). Three commands cover the full lifecycle:
+
+| What you want | What to say | What happens |
+| --- | --- | --- |
+| **Start a new playground** | "new playground" or "new workspace" | Creates a `proto/<you>/<name>` branch from main |
+| **Add a prototype** | "new prototype" or "build me a benefits dashboard" | Scaffolds a demo file, wires routing, registers on index page |
+| **Deploy and share** | "deploy" or "share my playground" | Pushes, triggers CI, returns a shareable Vercel URL |
+
+### Example session
+
+```
+You: "Start a new playground for Q2 explorations"
+AI:  → Creates branch proto/paul/q2-explorations
+
+You: "Build me a benefits dashboard"
+AI:  → Scaffolds benefits-dashboard-demo.tsx, wires routing
+     → http://localhost:4201/benefits-dashboard
+
+You: "Add an onboarding flow prototype too"
+AI:  → Scaffolds onboarding-flow-demo.tsx on the same branch
+     → http://localhost:4201/onboarding-flow
+
+You: "Deploy"
+AI:  → Pushes, waits for CI, returns URL
+     → https://prototyping-playground-a1b2c3d4-rippling.vercel.app
+```
+
+One branch, multiple prototypes, one deploy URL. Share it with anyone.
+
+---
+
 ## How We Work: Branches, Not Forks
 
 Everyone works in the same repo (`Rippling/prototyping-playground`) using branches. This keeps things simple — no fork management, no upstream syncing, and Vercel preview deployments work automatically for every branch.
 
 ### Branch convention
 
-| Branch                    | Purpose                                        | Merges to main? |
-| ------------------------- | ---------------------------------------------- | --------------- |
-| `main`                    | Stable, reviewed                               | —               |
-| `feature/<name>`          | Playground infrastructure/tooling improvements | Yes, via PR     |
-| `docs/<name>`             | Documentation updates                          | Yes, via PR     |
-| `proto/<username>/<name>` | Personal prototyping                           | No              |
+| Branch | Purpose | Merges to main? |
+| --- | --- | --- |
+| `main` | Stable, reviewed | — |
+| `feature/<name>` | Playground infrastructure/tooling improvements | Yes, via PR |
+| `docs/<name>` | Documentation updates | Yes, via PR |
+| `proto/<user>/<name>` | Personal playground (one or more prototypes) | No |
 
 **Proto branches are your sandbox.** Create as many as you want. They don't need review, they don't merge to main, and you can delete them when you're done.
+
+### Playground vs. Prototype
+
+- A **playground** is a branch (`proto/paul/q2-explorations`). It gets its own deploy URL.
+- A **prototype** is a demo file within that branch (`benefits-dashboard-demo.tsx`). Multiple prototypes can live in the same playground.
+
+---
+
+## Creating a Playground
+
+### With AI (recommended)
+
+Say "new playground" or "new workspace". The AI will:
+1. Ask what to call it
+2. Create a `proto/<you>/<name>` branch from main
+3. Optionally scaffold your first prototype
+
+### Manually
+
+```bash
+git checkout main && git pull
+git checkout -b proto/yourname/my-playground
+```
+
+---
+
+## Adding Prototypes
+
+### With AI (recommended)
+
+Say "new prototype" or describe what you want ("build me a benefits dashboard"). The AI will:
+1. Scaffold the demo file from the app shell template
+2. Wire up routing in `main.tsx`
+3. Register it on the index page
+4. Typecheck and verify it loads
+
+### Manually
+
+1. Copy `src/demos/app-shell-template.tsx` → `src/demos/<slug>-demo.tsx`
+2. Rename the component, update the description
+3. Add the route in `src/main.tsx` (import, enum, DEMO_ROUTES, Route)
+4. Add the card in `src/demos/index-page.tsx`
+5. Run `npm run typecheck`
+
+### With the scaffolding script
+
+```bash
+npm run new:demo
+```
+
+---
+
+## Deploying and Sharing
+
+### With AI (recommended)
+
+Say "deploy" or "share my playground". The AI will:
+1. Typecheck your code
+2. Commit and push
+3. Wait for the GitHub Actions deploy (~90 seconds)
+4. Fetch the real Vercel URL and save it to `.env.local`
+5. Give you the shareable link
+
+### Manually
+
+```bash
+# Push to trigger the deploy
+git push -u origin HEAD
+
+# Wait for the GitHub Actions workflow to complete, then:
+npm run preview-url
+
+# The URL is saved to .env.local and printed to the console
+```
+
+The deploy workflow (`preview.yml`) runs on every push to a non-main branch. It builds and deploys to Vercel, then posts the URL as a PR comment if one exists.
 
 ---
 
@@ -26,16 +135,16 @@ Everyone works in the same repo (`Rippling/prototyping-playground`) using branch
 ### Daily workflow
 
 ```bash
-# Create a branch for your work
-git checkout main && git pull
-git checkout -b proto/yourname/my-experiment
+# Start a new playground (or switch to an existing one)
+git checkout proto/yourname/my-playground
 
 # Build demos, iterate, commit as you go
 git add .
 git commit -m "Add employee directory demo"
-git push -u origin proto/yourname/my-experiment
+git push
 
-# Vercel gives you a preview URL automatically
+# Get the preview URL
+npm run preview-url
 ```
 
 ### Getting updates from main
@@ -43,7 +152,7 @@ git push -u origin proto/yourname/my-experiment
 When the playground gets improvements (new templates, fixes, docs):
 
 ```bash
-git checkout proto/yourname/my-demo
+git checkout proto/yourname/my-playground
 git merge main
 # Resolve any conflicts, continue working
 ```
@@ -51,7 +160,6 @@ git merge main
 ### Cleaning up old branches
 
 ```bash
-# Delete a branch you're done with
 git push origin --delete proto/yourname/old-experiment
 git branch -d proto/yourname/old-experiment
 ```
@@ -60,12 +168,12 @@ git branch -d proto/yourname/old-experiment
 
 ## Working With Your Team
 
-### Option A: Shared proto branch
+### Option A: Shared playground branch
 
-For close collaboration on a single prototype:
+For close collaboration on a set of prototypes:
 
 ```bash
-# One person creates the branch
+# One person creates the playground
 git checkout -b proto/team-name/dashboard-redesign
 git push -u origin proto/team-name/dashboard-redesign
 
@@ -75,33 +183,15 @@ git checkout proto/team-name/dashboard-redesign
 
 Coordinate pushes to avoid conflicts, or use short-lived sub-branches if needed.
 
-### Option B: Separate branches, share locally
+### Option B: Separate playgrounds, share links
 
-Each person works in their own `proto/` branch. Share by having teammates check out your branch and run `npm run dev`. Copy ideas you like into your own branch.
+Each person works in their own `proto/` branch. Share via deploy URLs. Copy ideas you like into your own playground.
 
 ### Sharing demos
 
 - **Locally:** Have teammates `git checkout` your branch and run `npm run dev`
-- **Via URL:** Deploy to Vercel (see below) and share the link
+- **Via URL:** Deploy and share the Vercel link (say "deploy" to your AI tool)
 - **Permanently:** Open a PR to promote your demo to `main`
-
----
-
-## Deploying to Vercel
-
-To share a working prototype with anyone via URL, deploy to Vercel. Ask your AI coding tool:
-
-> _"Build this project locally and deploy it to Vercel as a prebuilt deployment. Give me the shareable URL."_
-
-Or run it yourself:
-
-```bash
-npx vercel build && npx vercel deploy --prebuilt
-```
-
-First time only: you'll be asked to log in to Vercel (free account works) and link the project. After that, it's one command to get a URL.
-
-> **Note:** This is a temporary workflow. We're working toward automatic preview URLs for every branch push — so eventually you'll just push your branch and get a link without any extra steps.
 
 ---
 

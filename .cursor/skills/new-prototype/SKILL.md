@@ -1,9 +1,9 @@
 ---
 name: new-prototype
 description: >-
-  Create a new prototype in the playground. Use when the user says "new
-  prototype", "create a prototype", "create a new demo", "start a new demo",
-  or wants to build something new.
+  Add a new prototype to the current playground. Use when the user says "new
+  prototype", "create a prototype", "add a demo", "build me a...", or describes
+  a UI they want to build.
 ---
 
 Read and follow the instructions in [agents/skills/new-prototype/SKILL.md](../../../agents/skills/new-prototype/SKILL.md).

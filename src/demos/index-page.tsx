@@ -39,14 +39,6 @@ const ALL_DEMOS: DemoCard[] = [
     icon: Icon.TYPES.HIERARCHY_HORIZONTAL_OUTLINE,
     category: 'template',
   },
-  // Prototypes
-  {
-    title: 'Deploy Test',
-    description: 'End-to-end test of the deploy workflow. Created to validate GitHub Actions + Vercel preview URLs.',
-    path: '/deploy-test',
-    icon: Icon.TYPES.CHECK_CIRCLE_OUTLINE,
-    category: 'prototype',
-  },
 ];
 
 
@@ -251,6 +243,13 @@ const StepNumber = styled.span`
 `;
 
 
+const EmptyStateWrapper = styled.div`
+  border: 2px dashed ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner2xl};
+  padding: ${({ theme }) => (theme as StyledTheme).space400};
+  overflow: hidden;
+`;
+
 const CreateNewCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -443,9 +442,9 @@ const IndexPage: React.FC = () => {
             A prototyping environment for exploring and building with Rippling's Pebble Design System. 
             Experiment with components, tokens, and patterns in an interactive sandbox.
             {' '}
-            <a href="/getting-started" onClick={(e) => { e.preventDefault(); navigate('/getting-started'); }}>
+            <GuideLink onClick={() => setIsGettingStartedOpen(true)}>
               Learn how to get started
-            </a>
+            </GuideLink>
             {' '}creating your own demos.
           </Description>
         </Header>
@@ -490,15 +489,17 @@ const IndexPage: React.FC = () => {
         {/* Prototypes Tab */}
         {activeTab === 'prototype' && (
           prototypes.length === 0 ? (
-            <ActionCard
-              icon={Icon.TYPES.ADD_CIRCLE_OUTLINE}
-              title="No prototypes yet"
-              caption="Create your first prototype by copying the app shell template. Ask your AI tool: &quot;Create a new demo called My Feature&quot;"
-              primaryAction={{
-                title: 'How to create a prototype',
-                onClick: () => setIsDrawerOpen(true),
-              }}
-            />
+            <EmptyStateWrapper theme={theme}>
+              <ActionCard
+                icon={Icon.TYPES.ADD_CIRCLE_OUTLINE}
+                title="No prototypes yet"
+                caption="Create your first prototype by copying the app shell template. Ask your AI tool: &quot;Create a new demo called My Feature&quot;"
+                primaryAction={{
+                  title: 'How to create a prototype',
+                  onClick: () => setIsDrawerOpen(true),
+                }}
+              />
+            </EmptyStateWrapper>
           ) : (
             <>
               {viewMode === 'grid' ? (
@@ -612,8 +613,9 @@ const IndexPage: React.FC = () => {
         <SkillsSection theme={theme}>
           <GuidesTitle theme={theme}>Skills</GuidesTitle>
           <SkillsList theme={theme}>
-            <li>New prototype — say <strong>"create a new prototype"</strong> to your AI tool</li>
-            <li>Deploy playground — say <strong>"deploy my playground"</strong> to your AI tool</li>
+            <li>New playground — <strong>"Start a new playground for Q2 explorations"</strong> or <strong>"Create a workspace for the Benefits Redesign"</strong></li>
+            <li>New prototype — <strong>"Add a prototype called Employee Onboarding"</strong> or <strong>"Build me a benefits dashboard"</strong></li>
+            <li>Deploy — <strong>"Deploy my playground"</strong> or <strong>"Share my workspace"</strong></li>
           </SkillsList>
         </SkillsSection>
       </ContentWrapper>
@@ -637,6 +639,17 @@ const IndexPage: React.FC = () => {
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
+              Playgrounds and prototypes
+            </InstructionTitle>
+            <InstructionText theme={theme}>
+              Two concepts to know:<br/><br/>
+              A <strong>playground</strong> (also called a workspace) is your personal space for a project or theme — like "Q2 Explorations" or "Benefits Redesign". It's a branch that gets its own shareable URL when deployed.<br/><br/>
+              A <strong>prototype</strong> is a single demo page within your playground — like "Employee Onboarding" or "Time-Off Dashboard". You can have many prototypes in one playground, and they all share the same deploy URL.
+            </InstructionText>
+          </InstructionSection>
+
+          <InstructionSection theme={theme}>
+            <InstructionTitle theme={theme}>
               What you need
             </InstructionTitle>
             <InstructionText theme={theme}>
@@ -652,21 +665,29 @@ const IndexPage: React.FC = () => {
             </InstructionTitle>
             <InstructionText theme={theme}>
               <strong>1.</strong> Open this project in Cursor or Claude Code.<br/><br/>
-              <strong>2.</strong> Start a conversation with the AI and say something like:<br/>
+              <strong>2.</strong> Create a playground for your project:<br/>
             </InstructionText>
             <CodeSnippet theme={theme}>
-              Create a new prototype called "Benefits Dashboard"
+              Create a workspace for the Benefits Redesign
             </CodeSnippet>
             <InstructionText theme={theme}>
-              <strong>3.</strong> The AI sets everything up for you. You'll see a new page appear with Rippling's navigation, sidebar, and a content area ready to customize.<br/><br/>
-              <strong>4.</strong> Now just describe what you want to see:
+              <strong>3.</strong> Add your first prototype:<br/>
+            </InstructionText>
+            <CodeSnippet theme={theme}>
+              Build me a prototype called "Plan Comparison Dashboard"
+            </CodeSnippet>
+            <InstructionText theme={theme}>
+              <strong>4.</strong> The AI scaffolds a page with Rippling's navigation, sidebar, and content area. Now describe what you want to see:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Show a dashboard with cards for medical, dental, and vision plans
             </CodeSnippet>
             <InstructionText theme={theme}>
-              <strong>5.</strong> Keep iterating. Change layouts, add interactions, swap out content — all by describing what you want.
+              <strong>5.</strong> Keep iterating. Add more prototypes to the same playground anytime:
             </InstructionText>
+            <CodeSnippet theme={theme}>
+              Add another prototype called "Enrollment Flow"
+            </CodeSnippet>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
@@ -694,26 +715,35 @@ const IndexPage: React.FC = () => {
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 1:</StepNumber>
-              Open a conversation
+              Start a playground
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Open this project in Cursor or Claude Code and start chatting with the AI. It already knows about all of Rippling's components and design patterns.
+              A playground (or workspace) is your personal space for a project — a branch where you can build one or more prototypes. Start by telling the AI:
+            </InstructionText>
+            <CodeSnippet theme={theme}>
+              Start a new playground for Q2 explorations
+            </CodeSnippet>
+            <CodeSnippet theme={theme}>
+              Create a workspace for the Onboarding Redesign
+            </CodeSnippet>
+            <InstructionText theme={theme}>
+              The AI creates a branch like <strong>proto/yourname/q2-explorations</strong> and you're ready to go. If you already have a playground, skip this step — just keep building on it.
             </InstructionText>
           </InstructionSection>
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
               <StepNumber theme={theme}>Step 2:</StepNumber>
-              Ask the AI to create your prototype
+              Add a prototype
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Tell the AI what you're building. Just say something like:
+              Tell the AI what you want to build:
             </InstructionText>
             <CodeSnippet theme={theme}>
               Create a new prototype called "Employee Onboarding Flow"
             </CodeSnippet>
             <InstructionText theme={theme}>
-              The AI handles everything — it creates a branch for your work, builds the page with Rippling's app shell (navigation, sidebar, content area), and wires it all up. Your branch will be named something like <strong>proto/yourname/onboarding-flow</strong>, which keeps everyone's work organized.
+              The AI scaffolds a new page with Rippling's app shell (navigation, sidebar, content area) and wires it up. You can add as many prototypes as you want to the same playground.
             </InstructionText>
           </InstructionSection>
 
@@ -757,10 +787,11 @@ const IndexPage: React.FC = () => {
 
           <InstructionSection theme={theme}>
             <InstructionTitle theme={theme}>
-              How branches work
+              Playgrounds vs. prototypes
             </InstructionTitle>
             <InstructionText theme={theme}>
-              Each prototype lives on its own branch, named <strong>proto/yourname/prototype-name</strong>. This means your work is isolated — you won't affect anyone else's prototypes, and they won't affect yours. When you're ready to share, just say "deploy my playground" and the AI handles the rest.
+              A <strong>playground</strong> is a branch — your personal workspace that gets its own deploy URL. A <strong>prototype</strong> is a demo page within that branch. One playground can hold many prototypes, all sharing the same shareable link.<br/><br/>
+              When you're ready to share, just say "deploy my playground" and the AI handles the rest.
             </InstructionText>
           </InstructionSection>
         </DrawerContent>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { usePebbleTheme, StyledTheme } from '@/utils/theme';
 import Page from '@rippling/pebble/Page';
@@ -8,11 +8,18 @@ import { Sidebar } from './Sidebar';
 import { ExpansionPanel, ExpansionPanelType } from './ExpansionPanel';
 import { DecagonChatWidget } from './DecagonChatWidget';
 import { NavSectionData } from './types';
+import {
+  HOME_TOP_SECTION,
+  HOME_MAIN_SECTION,
+  HOME_PLATFORM_SECTION,
+  PLATFORM_FOOTER_SECTION,
+  SUPER_APP_NAV_CONFIGS,
+} from './superAppNavConfigs';
 
 interface AppShellLayoutProps {
   children: React.ReactNode;
 
-  // Page config
+  // ─── Page config ─────────────────────────────────────────────────────────
   pageTitle: string;
   pageTabs?: string[];
   defaultActiveTab?: number;
@@ -22,14 +29,21 @@ interface AppShellLayoutProps {
   /** Replace the entire header (Page.Header + tabs) with custom content */
   headerContent?: React.ReactNode;
 
-  // Navigation config
-  mainNavSections: NavSectionData[];
+  // ─── Navigation config (optional overrides) ─────────────────────────────
+  /** Override the auto-generated main nav sections */
+  mainNavSections?: NavSectionData[];
+  /** Override the auto-generated platform/footer section */
   platformNavSection?: NavSectionData;
 
-  // Top nav config
+  // ─── Top nav / theming ───────────────────────────────────────────────────
   companyName?: string;
   userInitial?: string;
   searchPlaceholder?: string;
+  /**
+   * Initial super-app context. Defaults to "Home".
+   * Internally managed after first render — clicking nav items updates this.
+   */
+  superAppName?: string;
   onLogoClick?: () => void;
   showNotificationBadge?: boolean;
   notificationCount?: number;
@@ -44,13 +58,18 @@ const AppContainer = styled.div`
   overflow: hidden;
 `;
 
-const MainContent = styled.main<{ sidebarCollapsed: boolean; expansionPanelWidth: number; isResizing: boolean }>`
+const MainContent = styled.main<{
+  sidebarCollapsed: boolean;
+  expansionPanelWidth: number;
+  isResizing: boolean;
+}>`
   position: fixed;
-  left: ${({ sidebarCollapsed }) => (sidebarCollapsed ? '60px' : '266px')};
+  left: ${({ sidebarCollapsed }) => (sidebarCollapsed ? '56px' : '266px')};
   top: 56px;
   right: ${({ expansionPanelWidth }) => expansionPanelWidth}px;
   bottom: 0;
-  transition: ${({ isResizing }) => isResizing ? 'left 200ms ease' : 'left 200ms ease, right 250ms ease-out'};
+  transition: ${({ isResizing }) =>
+    isResizing ? 'left 200ms ease' : 'left 200ms ease, right 250ms ease-out'};
   overflow-y: auto;
   overflow-x: hidden;
 `;
@@ -124,21 +143,96 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
   pageActions,
   pageBreadcrumbs,
   headerContent,
-  mainNavSections,
-  platformNavSection,
+  mainNavSections: mainNavSectionsOverride,
+  platformNavSection: platformNavSectionOverride,
   companyName = 'Acme, Inc.',
   userInitial = 'A',
   searchPlaceholder = 'Search or jump to...',
+  superAppName: initialSuperApp = 'Home',
   onLogoClick,
   showNotificationBadge = false,
   notificationCount = 0,
-  defaultAdminMode = false,
+  defaultAdminMode = true,
   defaultSidebarCollapsed = false,
 }) => {
   const { theme, mode: currentMode } = usePebbleTheme();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(defaultSidebarCollapsed);
+  const [sidebarPinned, setSidebarPinned] = useState(defaultSidebarCollapsed === false);
   const [activeTab, setActiveTab] = useState(defaultActiveTab);
   const [adminMode, setAdminMode] = useState(defaultAdminMode);
+
+  // ─── Super app & active nav state ──────────────────────────────────────────
+  const [currentSuperApp, setCurrentSuperApp] = useState(initialSuperApp);
+  const [activeNavItemId, setActiveNavItemId] = useState<string | null>(null);
+
+  const isHome = currentSuperApp === 'Home';
+  const superAppConfig = !isHome ? SUPER_APP_NAV_CONFIGS[currentSuperApp] : null;
+
+  // Derive nav sections — use overrides if provided, otherwise build from configs
+  const { resolvedMainSections, resolvedPlatformSection } = useMemo(() => {
+    if (mainNavSectionsOverride) {
+      return {
+        resolvedMainSections: mainNavSectionsOverride,
+        resolvedPlatformSection: platformNavSectionOverride,
+      };
+    }
+
+    if (isHome) {
+      const ADMIN_ONLY_IDS = ['hire', 'offboard'];
+      const topSection = adminMode
+        ? HOME_TOP_SECTION
+        : {
+            ...HOME_TOP_SECTION,
+            items: HOME_TOP_SECTION.items.filter(item => !ADMIN_ONLY_IDS.includes(item.id)),
+          };
+      return {
+        resolvedMainSections: [topSection, HOME_MAIN_SECTION],
+        resolvedPlatformSection: HOME_PLATFORM_SECTION,
+      };
+    }
+
+    if (superAppConfig) {
+      const sections: NavSectionData[] = [];
+      if (superAppConfig.topSection.items.length > 0) {
+        sections.push(superAppConfig.topSection);
+      }
+      sections.push(superAppConfig.mainSection);
+      return {
+        resolvedMainSections: sections,
+        resolvedPlatformSection: PLATFORM_FOOTER_SECTION,
+      };
+    }
+
+    return {
+      resolvedMainSections: [HOME_TOP_SECTION, HOME_MAIN_SECTION],
+      resolvedPlatformSection: HOME_PLATFORM_SECTION,
+    };
+  }, [isHome, adminMode, superAppConfig, mainNavSectionsOverride, platformNavSectionOverride]);
+
+  // Set first item active when entering a super app
+  useEffect(() => {
+    if (!isHome && superAppConfig && !mainNavSectionsOverride) {
+      const firstItem = superAppConfig.topSection.items[0] ?? superAppConfig.mainSection.items[0];
+      if (firstItem) {
+        setActiveNavItemId(firstItem.id);
+      }
+    } else if (isHome) {
+      setActiveNavItemId(null);
+    }
+  }, [currentSuperApp, isHome, superAppConfig, mainNavSectionsOverride]);
+
+  const handleSuperAppChange = useCallback((appName: string) => {
+    setCurrentSuperApp(appName);
+  }, []);
+
+  const handleNavItemClick = useCallback((itemId: string) => {
+    setActiveNavItemId(itemId);
+  }, []);
+
+  const handleLogoClick = useCallback(() => {
+    setCurrentSuperApp('Home');
+    setActiveNavItemId(null);
+    onLogoClick?.();
+  }, [onLogoClick]);
 
   useEffect(() => {
     if (pageTabs?.length) {
@@ -211,8 +305,9 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
         adminMode={adminMode}
         currentMode={currentMode as 'light' | 'dark'}
         searchPlaceholder={searchPlaceholder}
+        superAppName={currentSuperApp}
         onAdminModeToggle={() => setAdminMode(!adminMode)}
-        onLogoClick={onLogoClick}
+        onLogoClick={handleLogoClick}
         showNotificationBadge={showNotificationBadge}
         notificationCount={notificationCount}
         onOpenAIPanel={() => handleToggleExpansionPanel('ai')}
@@ -225,25 +320,28 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
 
       {/* Left Sidebar */}
       <Sidebar
-        mainSections={mainNavSections}
-        platformSection={platformNavSection}
-        isCollapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mainSections={resolvedMainSections}
+        platformSection={resolvedPlatformSection}
+        isPinned={sidebarPinned}
+        onTogglePin={() => setSidebarPinned(!sidebarPinned)}
+        isHome={isHome}
+        activeNavItemId={activeNavItemId}
+        onSuperAppChange={handleSuperAppChange}
+        onNavItemClick={handleNavItemClick}
+        countrySelector={superAppConfig?.countrySelector}
         theme={theme}
       />
 
       {/* Main Content Area */}
       <MainContent
         theme={theme}
-        sidebarCollapsed={sidebarCollapsed}
+        sidebarCollapsed={!sidebarPinned}
         expansionPanelWidth={expansionPanelWidth}
         isResizing={isExpansionPanelResizing}
       >
         <PageContentContainer theme={theme}>
           {headerContent ? (
-            <PageHeaderContainer theme={theme}>
-              {headerContent}
-            </PageHeaderContainer>
+            <PageHeaderContainer theme={theme}>{headerContent}</PageHeaderContainer>
           ) : (
             (pageTitle || (pageTabs && pageTabs.length > 0)) && (
               <PageHeaderContainer theme={theme}>

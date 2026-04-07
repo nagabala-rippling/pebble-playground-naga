@@ -5,6 +5,9 @@ import { StyledTheme } from '@/utils/theme';
 import Icon from '@rippling/pebble/Icon';
 import Dropdown from '@rippling/pebble/Dropdown';
 
+const BERRY_HOVER = 'rgba(255, 255, 255, 0.1)';
+const BERRY_ACTIVE = 'rgba(255, 255, 255, 0.15)';
+
 interface ProfileDropdownProps {
   companyName: string;
   userInitial: string;
@@ -14,7 +17,7 @@ interface ProfileDropdownProps {
   theme: StyledTheme;
 }
 
-const ProfileSection = styled.div`
+const ProfileSection = styled.div<{ adminMode?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => (theme as StyledTheme).space300};
@@ -24,13 +27,17 @@ const ProfileSection = styled.div`
   transition: background-color 150ms ease;
 
   &:hover {
-    background-color: ${({ theme }) =>
-      getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
+    background-color: ${({ theme, adminMode }) =>
+      adminMode
+        ? BERRY_HOVER
+        : getStateColor((theme as StyledTheme).colorSurfaceBright, 'hover')};
   }
 
   &:active {
-    background-color: ${({ theme }) =>
-      getStateColor((theme as StyledTheme).colorSurfaceBright, 'active')};
+    background-color: ${({ theme, adminMode }) =>
+      adminMode
+        ? BERRY_ACTIVE
+        : getStateColor((theme as StyledTheme).colorSurfaceBright, 'active')};
   }
 `;
 
@@ -90,14 +97,14 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           isSeparator: true,
         },
         {
-          label: adminMode ? 'Turn off Admin Mode' : 'Turn on Admin Mode',
+          label: adminMode ? 'Switch to employee view' : 'Switch to admin view',
           leftIconType: Icon.TYPES.LOCK_OUTLINE,
-          value: 'admin',
+          value: 'toggle-view',
         },
       ]}
       maxHeight={400}
       onChange={value => {
-        if (value === 'admin') {
+        if (value === 'toggle-view') {
           onAdminModeToggle();
         } else if (value === 'light' || value === 'dark') {
           changeMode(value);
@@ -106,7 +113,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       placement="bottom-end"
       shouldAutoClose
     >
-      <ProfileSection theme={theme} style={{ cursor: 'pointer' }}>
+      <ProfileSection theme={theme} adminMode={adminMode} style={{ cursor: 'pointer' }}>
         <CompanyName theme={theme} adminMode={adminMode}>
           {companyName}
         </CompanyName>
@@ -122,4 +129,3 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     </Dropdown>
   );
 };
-
