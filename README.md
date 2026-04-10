@@ -1,4 +1,4 @@
-# Pebble Playground
+# Prototyping Playground
 
 **A shared sandbox for prototyping with AI and Rippling's design system.**
 
