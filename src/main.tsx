@@ -11,6 +11,7 @@ import AppShellTemplate from './demos/app-shell-template';
 import IndexPage from './demos/index-page';
 import GettingStartedPage from './demos/getting-started-page';
 import DocViewerPage from './demos/doc-viewer-page';
+import GlobalPayrollOverviewDemo from './demos/global-payroll-overview-demo';
 
 oneUiService.init({} as any);
 
@@ -54,6 +55,7 @@ init().then(() => {
             <Route path="/getting-started" element={<GettingStartedPage />} />
             <Route path="/docs" element={<DocViewerPage />} />
             <Route path="/app-shell-template" element={<AppShellTemplate />} />
+            <Route path="/global-payroll-overview" element={<GlobalPayrollOverviewDemo />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ThemeProvider>
