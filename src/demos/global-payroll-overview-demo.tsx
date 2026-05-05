@@ -3,9 +3,8 @@ import styled from '@emotion/styled';
 import Atoms from '@rippling/pebble/Atoms';
 import Button from '@rippling/pebble/Button';
 import Icon from '@rippling/pebble/Icon';
-import Notice from '@rippling/pebble/Notice';
 import { VStack, HStack } from '@rippling/pebble/Layout/Stack';
-import Tip from '@rippling/pebble/Tip';
+import TextInput from '@rippling/pebble/Inputs/Text';
 import { StyledTheme } from '@/utils/theme';
 import { AppShellLayout } from '@/components/app-shell';
 import {
@@ -14,111 +13,211 @@ import {
   RunStatusTone,
   Tab,
   TAB_LABELS,
+  TAB_ORDER,
+  TAB_TITLES,
   runsForTab,
 } from './global-payroll-overview/data';
 
-const TABS: Tab[] = [
-  'upcomingAndDraft',
-  'failed',
-  'submitted',
-  'completed',
-  'corrections',
-  'archived',
-];
+// ─── Sub-tab strip with vertical separators ────────────────────────
 
-// ─── Layout primitives ─────────────────────────────────────────────
+const SubTabStrip = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const SubTab = styled.button<{ active: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  color: ${({ active, theme }) =>
+    active ? (theme as StyledTheme).colorOnSurface : (theme as StyledTheme).colorOnSurfaceVariant};
+  background-color: ${({ active, theme }) =>
+    active ? (theme as StyledTheme).colorSurfaceContainerHigh : 'transparent'};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+  font-weight: ${({ active }) => (active ? '535' : '430')};
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    background-color: ${({ active, theme }) =>
+      active
+        ? (theme as StyledTheme).colorSurfaceContainerHigh
+        : (theme as StyledTheme).colorSurfaceContainerLow};
+  }
+`;
+
+const TabSeparator = styled.span`
+  width: 1px;
+  height: 16px;
+  background-color: ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  margin: 0 4px;
+`;
+
+const CountBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background-color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
+  color: white;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  font-weight: 535;
+  font-size: 11px;
+`;
+
+// ─── Surface card ──────────────────────────────────────────────────
 
 const Surface = styled.div`
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
-  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   min-width: 0;
 `;
 
-const TableScroll = styled.div`
-  overflow-x: auto;
-  overflow-y: visible;
-`;
-
-// ─── Grid header (mirrors app/blocks/Grid/GridHeader/GridHeader.styles.ts) ───
+// ─── Grid header — 3 rows ─────────────────────────────────────────
 
 const HeaderContainer = styled.div`
-  padding: 16px 20px 12px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  gap: 16px;
 `;
 
 const HeaderTopRow = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 32px;
 `;
 
 const HeaderTitle = styled.h2`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   margin: 0;
+  font-weight: 535;
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const TitleCount = styled.span`
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  font-weight: 430;
+  &::before {
+    content: '·';
+    margin: 0 6px;
+  }
 `;
 
 const HeaderActions = styled.div`
   display: flex;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
-  align-items: center;
-`;
-
-const HeaderBottomRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
-  flex-wrap: wrap;
-`;
-
-const SearchBox = styled.div`
-  display: flex;
-  align-items: center;
   gap: 8px;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
-  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
-  padding: 4px 10px;
-  height: 32px;
-  width: 280px;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  align-items: center;
 `;
 
-const FilterChip = styled.button`
+const IconButton = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
-  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerFull};
-  padding: 4px 10px;
+  justify-content: center;
+  width: 32px;
   height: 32px;
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
   cursor: pointer;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   &:hover {
     background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
   }
 `;
 
-const RowCount = styled.span`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+// Search row
+const SearchRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const SearchWrapper = styled.div`
+  width: 320px;
+  & > div {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
+`;
+
+const GroupByButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   margin-left: auto;
+  padding: 6px 8px;
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
+  &:hover {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
+`;
+
+// Filter row
+const FiltersRow = styled.div`
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const FilterField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+`;
+
+const FilterLabel = styled.label`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  font-weight: 535;
+`;
+
+const FilterDropdown = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 36px;
+  padding: 6px 12px;
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
+  cursor: pointer;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  &:hover {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
 `;
 
 // ─── Table ─────────────────────────────────────────────────────────
+
+const TableScroll = styled.div`
+  overflow-x: auto;
+  overflow-y: visible;
+  border-top: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+`;
 
 const Table = styled.table`
   width: 100%;
@@ -127,12 +226,10 @@ const Table = styled.table`
 `;
 
 const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   text-align: ${({ align }) => align ?? 'left'};
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   font-weight: 535;
@@ -141,11 +238,11 @@ const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
 `;
 
 const Td = styled.td<{ align?: 'left' | 'right' }>`
-  padding: 10px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  vertical-align: middle;
+  vertical-align: top;
   text-align: ${({ align }) => align ?? 'left'};
   white-space: nowrap;
 `;
@@ -159,57 +256,76 @@ const Tr = styled.tr`
   }
 `;
 
+const ColumnHeader = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+// Pay run cell — title (link) + subtitle
 const PayRunLink = styled.a`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
   text-decoration: none;
   cursor: pointer;
   font-weight: 535;
+  display: block;
   &:hover {
     text-decoration: underline;
   }
 `;
 
-const SubText = styled.div`
+const PayRunSub = styled.div`
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   margin-top: 2px;
 `;
 
-const Checkbox = styled.input`
+// People count — clickable underlined link
+const PeopleLink = styled.a`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  text-decoration: underline;
   cursor: pointer;
 `;
 
-// ─── Status pill (mirrors Grid CELL_STATUS_TYPES) ─────────────────
+// Take action by — date + red overdue caption
+const TakeActionContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
 
-const StatusPill = styled.span<{ tone: RunStatusTone }>`
+const OverdueCaption = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorError ?? '#A50E0E'};
+`;
+
+// Status — dot + colored text (NOT a pill)
+const StatusContent = styled.span<{ tone: RunStatusTone }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 10px;
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerFull};
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
-  font-weight: 535;
-  white-space: nowrap;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   ${({ tone, theme }) => {
     const t = theme as StyledTheme;
     switch (tone) {
       case 'POSITIVE':
-        return `background-color: ${t.colorSuccessVariant ?? '#E6F4EA'}; color: ${t.colorSuccess ?? '#137333'};`;
+        return `color: ${t.colorSuccess ?? '#137333'};`;
       case 'NEGATIVE':
-        return `background-color: ${t.colorErrorVariant ?? '#FCE8E6'}; color: ${t.colorError ?? '#A50E0E'};`;
+        return `color: ${t.colorError ?? '#A50E0E'};`;
       case 'WARNING':
-        return `background-color: ${t.colorWarningVariant ?? '#FEF7E0'}; color: ${t.colorWarning ?? '#7A4F01'};`;
+        return `color: ${t.colorWarning ?? '#7A4F01'};`;
       case 'NEUTRAL':
       default:
-        return `background-color: ${t.colorSurfaceContainerHigh ?? '#E8EAED'}; color: ${t.colorOnSurfaceVariant ?? '#5F6368'};`;
+        return `color: ${t.colorPrimary ?? '#1A56A2'};`;
     }
   }}
 `;
 
 const StatusDot = styled.span<{ tone: RunStatusTone }>`
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   ${({ tone, theme }) => {
     const t = theme as StyledTheme;
@@ -222,19 +338,33 @@ const StatusDot = styled.span<{ tone: RunStatusTone }>`
         return `background-color: ${t.colorWarning ?? '#B27300'};`;
       case 'NEUTRAL':
       default:
-        return `background-color: ${t.colorOnSurfaceVariant ?? '#5F6368'};`;
+        return `background-color: ${t.colorPrimary ?? '#1A56A2'};`;
     }
   }}
 `;
 
-// ─── Empty state ───────────────────────────────────────────────────
+const Checkbox = styled.input`
+  cursor: pointer;
+`;
 
 const EmptyBox = styled.div`
   padding: 64px 16px;
   text-align: center;
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
 `;
+
+// ─── Country cell — flag + name ───────────────────────────────────
+
+const CountryCell: React.FC<{ countryCode: string; countryName: string }> = ({
+  countryCode,
+  countryName,
+}) => (
+  <HStack gap="0.5rem">
+    <Atoms.Country countryCode={countryCode} size={Atoms.Country.SIZES.S} onlyFlag />
+    <span>{countryName}</span>
+  </HStack>
+);
 
 // ─── Run list grid ─────────────────────────────────────────────────
 
@@ -244,11 +374,12 @@ interface RunListGridProps {
   showStatus: boolean;
   showChangedBy: boolean;
   showAction: boolean;
-  actionText: string;
-  emptyText: string;
-  searchPlaceholder: string;
-  onPrimaryAction?: () => void;
   primaryActionLabel?: string;
+  onPrimaryAction?: () => void;
+  isPrimaryDisabled?: boolean;
+  searchPlaceholder: string;
+  emptyText: string;
+  payDateRangeLabel: string;
 }
 
 const RunListGrid: React.FC<RunListGridProps> = ({
@@ -257,18 +388,32 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   showStatus,
   showChangedBy,
   showAction,
-  emptyText,
-  searchPlaceholder,
-  onPrimaryAction,
   primaryActionLabel,
+  onPrimaryAction,
+  isPrimaryDisabled,
+  searchPlaceholder,
+  emptyText,
+  payDateRangeLabel,
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return runs;
+    return runs.filter(
+      r =>
+        r.displayName.toLowerCase().includes(s) ||
+        r.entityDisplayName.toLowerCase().includes(s) ||
+        r.countryName.toLowerCase().includes(s),
+    );
+  }, [runs, search]);
 
   const toggleAll = () => {
-    if (selectedIds.size === runs.length) {
+    if (selectedIds.size === filtered.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(runs.map(r => r.runId)));
+      setSelectedIds(new Set(filtered.map(r => r.runId)));
     }
   };
   const toggleOne = (id: string) => {
@@ -283,47 +428,82 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   return (
     <Surface>
       <HeaderContainer>
+        {/* Row 1: Title + actions */}
         <HeaderTopRow>
-          <HeaderTitle>{title}</HeaderTitle>
+          <HeaderTitle>
+            {title}
+            <TitleCount>{runs.length}</TitleCount>
+          </HeaderTitle>
           <HeaderActions>
-            <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.S}>
-              Off-cycle run
-            </Button>
+            {showAction && (
+              <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.S}>
+                Create an off-cycle run
+              </Button>
+            )}
             {primaryActionLabel && (
               <Button
                 appearance={Button.APPEARANCES.PRIMARY}
                 size={Button.SIZES.S}
                 onClick={onPrimaryAction}
+                isDisabled={isPrimaryDisabled}
               >
                 {primaryActionLabel}
               </Button>
             )}
+            <IconButton aria-label="Customize columns">
+              <Icon type={Icon.TYPES.TABLE_COLUMN_OUTLINE} size={16} />
+            </IconButton>
+            <IconButton aria-label="Expand">
+              <Icon type={Icon.TYPES.EXPAND_PANEL_OUTLINE} size={16} />
+            </IconButton>
           </HeaderActions>
         </HeaderTopRow>
-        <HeaderBottomRow>
-          <SearchBox>
-            <Icon type={Icon.TYPES.SEARCH_OUTLINE} size={16} />
-            <span>{searchPlaceholder}</span>
-          </SearchBox>
-          <FilterChip>
-            Country
-            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-          </FilterChip>
-          <FilterChip>
-            Entity
-            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-          </FilterChip>
-          <FilterChip>
-            Pay schedule
-            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-          </FilterChip>
-          <RowCount>
-            {runs.length} {runs.length === 1 ? 'run' : 'runs'}
-          </RowCount>
-        </HeaderBottomRow>
+
+        {/* Row 2: Search + Group by */}
+        <SearchRow>
+          <SearchWrapper>
+            <TextInput
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={v => setSearch(v ?? '')}
+              prefix={<Icon type={Icon.TYPES.SEARCH_OUTLINE} size={14} />}
+              size={TextInput.SIZES.S}
+              canClear
+            />
+          </SearchWrapper>
+          <GroupByButton>
+            <Icon type={Icon.TYPES.LIST_OUTLINE} size={14} />
+            Group by
+          </GroupByButton>
+        </SearchRow>
+
+        {/* Row 3: Named filter dropdowns */}
+        <FiltersRow>
+          <FilterField>
+            <FilterLabel>Entity</FilterLabel>
+            <FilterDropdown>
+              <span>All entities</span>
+              <Icon type={Icon.TYPES.CHEVRON_DOWN} size={14} />
+            </FilterDropdown>
+          </FilterField>
+          <FilterField>
+            <FilterLabel>Pay run type</FilterLabel>
+            <FilterDropdown>
+              <span>All types</span>
+              <Icon type={Icon.TYPES.CHEVRON_DOWN} size={14} />
+            </FilterDropdown>
+          </FilterField>
+          <FilterField>
+            <FilterLabel>Pay date range</FilterLabel>
+            <FilterDropdown>
+              <span>{payDateRangeLabel}</span>
+              <Icon type={Icon.TYPES.CHEVRON_DOWN} size={14} />
+            </FilterDropdown>
+          </FilterField>
+        </FiltersRow>
       </HeaderContainer>
 
-      {runs.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyBox>{emptyText}</EmptyBox>
       ) : (
         <TableScroll>
@@ -333,26 +513,67 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                 <Th width={40}>
                   <Checkbox
                     type="checkbox"
-                    checked={selectedIds.size === runs.length}
+                    checked={selectedIds.size === filtered.length && filtered.length > 0}
                     onChange={toggleAll}
                     aria-label="Select all runs"
                   />
                 </Th>
-                <Th width={220}>Pay run</Th>
-                <Th width={140}>Country</Th>
-                <Th width={200}>Entity</Th>
-                <Th width={80} align="right">
-                  People
+                <Th width={220}>
+                  <ColumnHeader>
+                    Pay Run
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
                 </Th>
-                <Th width={210}>Take action by</Th>
-                <Th width={150}>Pay date</Th>
-                {showStatus && <Th width={140}>Status</Th>}
-                {showChangedBy && <Th width={140}>Archived by</Th>}
-                {showAction && <Th width={56} />}
+                <Th width={140}>
+                  <ColumnHeader>
+                    Country
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
+                </Th>
+                <Th width={200}>
+                  <ColumnHeader>
+                    Entity
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
+                </Th>
+                <Th width={80}>
+                  <ColumnHeader>
+                    People
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
+                </Th>
+                <Th width={210}>
+                  <ColumnHeader>
+                    Take action by
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
+                </Th>
+                <Th width={150}>
+                  <ColumnHeader>
+                    Pay date
+                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeader>
+                </Th>
+                {showStatus && (
+                  <Th width={130}>
+                    <ColumnHeader>
+                      Status
+                      <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                    </ColumnHeader>
+                  </Th>
+                )}
+                {showChangedBy && (
+                  <Th width={140}>
+                    <ColumnHeader>
+                      Archived by
+                      <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                    </ColumnHeader>
+                  </Th>
+                )}
               </tr>
             </thead>
             <tbody>
-              {runs.map(run => (
+              {filtered.map(run => (
                 <Tr key={run.runId}>
                   <Td>
                     <Checkbox
@@ -363,66 +584,47 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                     />
                   </Td>
                   <Td>
-                    <PayRunLink>
-                      <HStack gap="0.4rem">
-                        <span>{run.displayName}</span>
-                        {run.isPreviewPayrun && (
-                          <Tip content="Entity not activated yet" placement={Tip.PLACEMENTS.TOP}>
-                            <span>
-                              <Icon
-                                type={Icon.TYPES.WARNING_TRIANGLE_FILLED}
-                                size={12}
-                                color="#B27300"
-                              />
-                            </span>
-                          </Tip>
-                        )}
-                      </HStack>
-                    </PayRunLink>
-                    {run.subTitle && <SubText>{run.subTitle}</SubText>}
+                    <PayRunLink>{run.displayName}</PayRunLink>
+                    {run.subTitle && <PayRunSub>{run.subTitle}</PayRunSub>}
                   </Td>
                   <Td>
-                    <Atoms.Country countryCode={run.countryCode} size={Atoms.Country.SIZES.S} />
+                    <CountryCell countryCode={run.countryCode} countryName={run.countryName} />
                   </Td>
                   <Td>
-                    <Atoms.TitleCaption
-                      title={run.entityDisplayName}
-                      caption={run.entityIdentifier}
-                    />
+                    {run.entityIdentifier ? (
+                      <Atoms.TitleCaption
+                        title={run.entityDisplayName}
+                        caption={run.entityIdentifier}
+                      />
+                    ) : (
+                      <span>{run.entityDisplayName}</span>
+                    )}
                   </Td>
-                  <Td align="right">{run.numberOfEmployeesInvolved}</Td>
+                  <Td>
+                    <PeopleLink>{run.numberOfEmployeesInvolved}</PeopleLink>
+                  </Td>
                   <Td>
                     {run.takeActionBy ? (
-                      <Atoms.TitleCaption
-                        title={run.takeActionBy}
-                        caption={run.takeActionByCaption}
-                      />
+                      <TakeActionContent>
+                        <span>{run.takeActionBy}</span>
+                        {run.overdueCaption && (
+                          <OverdueCaption>{run.overdueCaption}</OverdueCaption>
+                        )}
+                      </TakeActionContent>
                     ) : (
                       '—'
                     )}
                   </Td>
-                  <Td>
-                    <Atoms.TitleCaption title={run.payDate} caption={run.payDateCaption} />
-                  </Td>
+                  <Td>{run.payDate}</Td>
                   {showStatus && (
                     <Td>
-                      <StatusPill tone={run.statusTone}>
+                      <StatusContent tone={run.statusTone}>
                         <StatusDot tone={run.statusTone} />
                         {run.status}
-                      </StatusPill>
+                      </StatusContent>
                     </Td>
                   )}
                   {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
-                  {showAction && (
-                    <Td align="right">
-                      <Button.Icon
-                        icon={Icon.TYPES.MORE_HORIZONTAL}
-                        aria-label="Run actions"
-                        appearance={Button.APPEARANCES.GHOST}
-                        size={Button.SIZES.S}
-                      />
-                    </Td>
-                  )}
                 </Tr>
               ))}
             </tbody>
@@ -435,126 +637,147 @@ const RunListGrid: React.FC<RunListGridProps> = ({
 
 // ─── Page ──────────────────────────────────────────────────────────
 
+const PRIMARY_TABS = [
+  'Overview',
+  'People',
+  'Settings',
+  'Entities',
+  'Accounting',
+  'Balances',
+  'Reports',
+  'Earnings',
+  'Deductions',
+  'Garnishments',
+  'Filings',
+];
+
 const tabConfig: Record<
   Tab,
   {
-    title: string;
-    actionText: string;
     primaryActionLabel?: string;
+    isPrimaryDisabled?: boolean;
     showChangedBy: boolean;
     emptyText: string;
     searchPlaceholder: string;
+    payDateRangeLabel: string;
   }
 > = {
   upcomingAndDraft: {
-    title: 'Upcoming & Draft',
-    actionText: 'Run payroll',
-    primaryActionLabel: 'Run payroll',
+    primaryActionLabel: 'Run Payroll',
+    isPrimaryDisabled: true,
     showChangedBy: false,
     emptyText: 'No upcoming or draft pay runs.',
-    searchPlaceholder: 'Search pay runs',
+    searchPlaceholder: 'Search for a pay run name',
+    payDateRangeLabel: 'All time',
   },
   failed: {
-    title: 'Failed',
-    actionText: 'Run payroll',
-    primaryActionLabel: 'Run payroll',
+    primaryActionLabel: 'Run Payroll',
+    isPrimaryDisabled: true,
     showChangedBy: false,
     emptyText: 'No failed pay runs. Nice.',
-    searchPlaceholder: 'Search failed runs',
+    searchPlaceholder: 'Search for a pay run name',
+    payDateRangeLabel: 'All time',
   },
   submitted: {
-    title: 'Submitted',
-    actionText: 'View payroll',
     showChangedBy: false,
     emptyText: 'Nothing currently submitted.',
-    searchPlaceholder: 'Search submitted runs',
+    searchPlaceholder: 'Search for a pay run name',
+    payDateRangeLabel: 'Last 3 months',
   },
   completed: {
-    title: 'Completed',
-    actionText: 'View payroll',
+    primaryActionLabel: 'View Payroll',
+    isPrimaryDisabled: true,
     showChangedBy: false,
     emptyText: 'No completed runs in the selected range.',
-    searchPlaceholder: 'Search completed runs',
+    searchPlaceholder: 'Search for a pay run name',
+    payDateRangeLabel: 'Last 3 months',
   },
   corrections: {
-    title: 'Corrections',
-    actionText: 'Review',
+    primaryActionLabel: 'Create a correction',
     showChangedBy: false,
     emptyText: 'No corrections to review.',
     searchPlaceholder: 'Search corrections',
+    payDateRangeLabel: 'Last 3 months',
   },
   archived: {
-    title: 'Archived',
-    actionText: 'View payroll',
     showChangedBy: true,
     emptyText: 'No archived runs.',
-    searchPlaceholder: 'Search archived runs',
+    searchPlaceholder: 'Search for a pay run name',
+    payDateRangeLabel: 'Last 3 months',
   },
 };
 
 const GlobalPayrollOverviewDemo: React.FC = () => {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const [showOnHoldBanner, setShowOnHoldBanner] = useState(true);
-  const [showYearEndBanner, setShowYearEndBanner] = useState(true);
-
-  const activeTab = TABS[activeTabIndex];
+  const [activeTab, setActiveTab] = useState<Tab>('upcomingAndDraft');
   const cfg = tabConfig[activeTab];
   const tabRuns = useMemo(() => runsForTab(activeTab, PAY_RUNS), [activeTab]);
 
+  // Counts per tab for badges
+  const counts = useMemo(() => {
+    const result: Partial<Record<Tab, number>> = {};
+    for (const tab of TAB_ORDER) {
+      result[tab] = runsForTab(tab, PAY_RUNS).length;
+    }
+    return result;
+  }, []);
+
+  // Page header actions: "Help docs" link
+  const pageActions = (
+    <a
+      href="#"
+      style={{
+        color: 'var(--color-on-surface-variant, #5F6368)',
+        textDecoration: 'none',
+        fontSize: '14px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+      }}
+    >
+      Help docs
+      <Icon type={Icon.TYPES.ARROW_UP_RIGHT_BOX} size={12} />
+    </a>
+  );
+
   return (
     <AppShellLayout
-      pageTitle="Run Payroll"
-      pageTabs={TAB_LABELS}
+      pageTitle="Payroll"
+      pageTabs={PRIMARY_TABS}
       defaultActiveTab={0}
-      onTabChange={setActiveTabIndex}
+      pageActions={pageActions}
       defaultAdminMode
-      companyName="Acme, Inc."
-      userInitial="A"
+      companyName="Carter-Ruiz"
+      userInitial="C"
       showNotificationBadge
-      notificationCount={3}
+      notificationCount={2}
     >
-      <VStack gap={16}>
-        {showOnHoldBanner && activeTab !== 'failed' && (
-          <Notice.Error
-            title="2 pay runs are on hold"
-            description="Insufficient funds detected for ACME UK Ltd and ACME Canada Inc. Resolve before pay date to avoid disruption."
-            isCloseable
-            onClose={close => {
-              setShowOnHoldBanner(false);
-              close();
-            }}
-            primaryAction={{
-              title: 'View blocked runs',
-              onClick: () => setActiveTabIndex(1),
-            }}
-          />
-        )}
-        {showYearEndBanner && (
-          <Notice.Info
-            title="Year-end checklist available"
-            description="Review your year-end tasks for US entities. 4 of 7 tasks remaining."
-            isCloseable
-            onClose={close => {
-              setShowYearEndBanner(false);
-              close();
-            }}
-            primaryAction={{
-              title: 'Open checklist',
-              onClick: () => undefined,
-            }}
-          />
-        )}
+      <VStack gap={0}>
+        {/* Sub-tab strip with vertical separators */}
+        <SubTabStrip>
+          {TAB_ORDER.map((tab, i) => (
+            <React.Fragment key={tab}>
+              {i > 0 && <TabSeparator />}
+              <SubTab active={activeTab === tab} onClick={() => setActiveTab(tab)}>
+                {TAB_LABELS[tab]}
+                {tab === 'upcomingAndDraft' && counts.upcomingAndDraft ? (
+                  <CountBadge>{counts.upcomingAndDraft}</CountBadge>
+                ) : null}
+              </SubTab>
+            </React.Fragment>
+          ))}
+        </SubTabStrip>
 
         <RunListGrid
-          title={cfg.title}
+          title={TAB_TITLES[activeTab]}
           runs={tabRuns}
           showStatus
           showChangedBy={cfg.showChangedBy}
-          showAction
-          actionText={cfg.actionText}
-          emptyText={cfg.emptyText}
-          searchPlaceholder={cfg.searchPlaceholder}
+          showAction={!cfg.showChangedBy && activeTab !== 'corrections'}
           primaryActionLabel={cfg.primaryActionLabel}
+          isPrimaryDisabled={cfg.isPrimaryDisabled}
+          searchPlaceholder={cfg.searchPlaceholder}
+          emptyText={cfg.emptyText}
+          payDateRangeLabel={cfg.payDateRangeLabel}
         />
       </VStack>
     </AppShellLayout>
