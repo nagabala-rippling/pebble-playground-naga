@@ -33,27 +33,35 @@ const Surface = styled.div`
   border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+const TableScroll = styled.div`
+  overflow-x: auto;
+  overflow-y: visible;
 `;
 
 // ─── Grid header (mirrors app/blocks/Grid/GridHeader/GridHeader.styles.ts) ───
 
 const HeaderContainer = styled.div`
-  padding: ${({ theme }) => (theme as StyledTheme).space400};
+  padding: 16px 20px 12px;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space300};
+  gap: 12px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
 `;
 
 const HeaderTopRow = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => (theme as StyledTheme).space800};
-  min-height: 40px;
+  gap: 16px;
+  min-height: 32px;
 `;
 
 const HeaderTitle = styled.h2`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleLarge};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   margin: 0;
   flex: 1;
@@ -75,26 +83,28 @@ const HeaderBottomRow = styled.div`
 const SearchBox = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
+  gap: 8px;
   background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
-  padding: 6px 12px;
-  width: 320px;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  padding: 4px 10px;
+  height: 32px;
+  width: 280px;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
 `;
 
 const FilterChip = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerFull};
-  padding: 6px 12px;
+  padding: 4px 10px;
+  height: 32px;
   cursor: pointer;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
 
   &:hover {
@@ -112,8 +122,8 @@ const RowCount = styled.span`
 
 const Table = styled.table`
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
-  table-layout: fixed;
 `;
 
 const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
@@ -122,23 +132,21 @@ const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
   text-transform: uppercase;
   letter-spacing: 0.04em;
   text-align: ${({ align }) => align ?? 'left'};
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   font-weight: 535;
   white-space: nowrap;
-  ${({ width }) => (width ? `width: ${width}px;` : '')}
+  ${({ width }) => (width ? `min-width: ${width}px;` : '')}
 `;
 
 const Td = styled.td<{ align?: 'left' | 'right' }>`
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   vertical-align: middle;
   text-align: ${({ align }) => align ?? 'left'};
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
@@ -278,13 +286,13 @@ const RunListGrid: React.FC<RunListGridProps> = ({
         <HeaderTopRow>
           <HeaderTitle>{title}</HeaderTitle>
           <HeaderActions>
-            <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.M}>
+            <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.S}>
               Off-cycle run
             </Button>
             {primaryActionLabel && (
               <Button
                 appearance={Button.APPEARANCES.PRIMARY}
-                size={Button.SIZES.M}
+                size={Button.SIZES.S}
                 onClick={onPrimaryAction}
               >
                 {primaryActionLabel}
@@ -318,106 +326,108 @@ const RunListGrid: React.FC<RunListGridProps> = ({
       {runs.length === 0 ? (
         <EmptyBox>{emptyText}</EmptyBox>
       ) : (
-        <Table>
-          <thead>
-            <tr>
-              <Th width={40}>
-                <Checkbox
-                  type="checkbox"
-                  checked={selectedIds.size === runs.length}
-                  onChange={toggleAll}
-                  aria-label="Select all runs"
-                />
-              </Th>
-              <Th width={220}>Pay run</Th>
-              <Th width={140}>Country</Th>
-              <Th width={200}>Entity</Th>
-              <Th width={80} align="right">
-                People
-              </Th>
-              <Th width={210}>Take action by</Th>
-              <Th width={150}>Pay date</Th>
-              {showStatus && <Th width={140}>Status</Th>}
-              {showChangedBy && <Th width={140}>Archived by</Th>}
-              {showAction && <Th width={56} />}
-            </tr>
-          </thead>
-          <tbody>
-            {runs.map(run => (
-              <Tr key={run.runId}>
-                <Td>
+        <TableScroll>
+          <Table>
+            <thead>
+              <tr>
+                <Th width={40}>
                   <Checkbox
                     type="checkbox"
-                    checked={selectedIds.has(run.runId)}
-                    onChange={() => toggleOne(run.runId)}
-                    aria-label={`Select ${run.displayName}`}
+                    checked={selectedIds.size === runs.length}
+                    onChange={toggleAll}
+                    aria-label="Select all runs"
                   />
-                </Td>
-                <Td>
-                  <PayRunLink>
-                    <HStack gap="0.4rem">
-                      <span>{run.displayName}</span>
-                      {run.isPreviewPayrun && (
-                        <Tip content="Entity not activated yet" placement={Tip.PLACEMENTS.TOP}>
-                          <span>
-                            <Icon
-                              type={Icon.TYPES.WARNING_TRIANGLE_FILLED}
-                              size={12}
-                              color="#B27300"
-                            />
-                          </span>
-                        </Tip>
-                      )}
-                    </HStack>
-                  </PayRunLink>
-                  {run.subTitle && <SubText>{run.subTitle}</SubText>}
-                </Td>
-                <Td>
-                  <Atoms.Country countryCode={run.countryCode} size={Atoms.Country.SIZES.S} />
-                </Td>
-                <Td>
-                  <Atoms.TitleCaption
-                    title={run.entityDisplayName}
-                    caption={run.entityIdentifier}
-                  />
-                </Td>
-                <Td align="right">{run.numberOfEmployeesInvolved}</Td>
-                <Td>
-                  {run.takeActionBy ? (
-                    <Atoms.TitleCaption
-                      title={run.takeActionBy}
-                      caption={run.takeActionByCaption}
-                    />
-                  ) : (
-                    '—'
-                  )}
-                </Td>
-                <Td>
-                  <Atoms.TitleCaption title={run.payDate} caption={run.payDateCaption} />
-                </Td>
-                {showStatus && (
+                </Th>
+                <Th width={220}>Pay run</Th>
+                <Th width={140}>Country</Th>
+                <Th width={200}>Entity</Th>
+                <Th width={80} align="right">
+                  People
+                </Th>
+                <Th width={210}>Take action by</Th>
+                <Th width={150}>Pay date</Th>
+                {showStatus && <Th width={140}>Status</Th>}
+                {showChangedBy && <Th width={140}>Archived by</Th>}
+                {showAction && <Th width={56} />}
+              </tr>
+            </thead>
+            <tbody>
+              {runs.map(run => (
+                <Tr key={run.runId}>
                   <Td>
-                    <StatusPill tone={run.statusTone}>
-                      <StatusDot tone={run.statusTone} />
-                      {run.status}
-                    </StatusPill>
-                  </Td>
-                )}
-                {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
-                {showAction && (
-                  <Td align="right">
-                    <Button.Icon
-                      icon={Icon.TYPES.MORE_HORIZONTAL}
-                      aria-label="Run actions"
-                      appearance={Button.APPEARANCES.GHOST}
-                      size={Button.SIZES.S}
+                    <Checkbox
+                      type="checkbox"
+                      checked={selectedIds.has(run.runId)}
+                      onChange={() => toggleOne(run.runId)}
+                      aria-label={`Select ${run.displayName}`}
                     />
                   </Td>
-                )}
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
+                  <Td>
+                    <PayRunLink>
+                      <HStack gap="0.4rem">
+                        <span>{run.displayName}</span>
+                        {run.isPreviewPayrun && (
+                          <Tip content="Entity not activated yet" placement={Tip.PLACEMENTS.TOP}>
+                            <span>
+                              <Icon
+                                type={Icon.TYPES.WARNING_TRIANGLE_FILLED}
+                                size={12}
+                                color="#B27300"
+                              />
+                            </span>
+                          </Tip>
+                        )}
+                      </HStack>
+                    </PayRunLink>
+                    {run.subTitle && <SubText>{run.subTitle}</SubText>}
+                  </Td>
+                  <Td>
+                    <Atoms.Country countryCode={run.countryCode} size={Atoms.Country.SIZES.S} />
+                  </Td>
+                  <Td>
+                    <Atoms.TitleCaption
+                      title={run.entityDisplayName}
+                      caption={run.entityIdentifier}
+                    />
+                  </Td>
+                  <Td align="right">{run.numberOfEmployeesInvolved}</Td>
+                  <Td>
+                    {run.takeActionBy ? (
+                      <Atoms.TitleCaption
+                        title={run.takeActionBy}
+                        caption={run.takeActionByCaption}
+                      />
+                    ) : (
+                      '—'
+                    )}
+                  </Td>
+                  <Td>
+                    <Atoms.TitleCaption title={run.payDate} caption={run.payDateCaption} />
+                  </Td>
+                  {showStatus && (
+                    <Td>
+                      <StatusPill tone={run.statusTone}>
+                        <StatusDot tone={run.statusTone} />
+                        {run.status}
+                      </StatusPill>
+                    </Td>
+                  )}
+                  {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
+                  {showAction && (
+                    <Td align="right">
+                      <Button.Icon
+                        icon={Icon.TYPES.MORE_HORIZONTAL}
+                        aria-label="Run actions"
+                        appearance={Button.APPEARANCES.GHOST}
+                        size={Button.SIZES.S}
+                      />
+                    </Td>
+                  )}
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableScroll>
       )}
     </Surface>
   );
