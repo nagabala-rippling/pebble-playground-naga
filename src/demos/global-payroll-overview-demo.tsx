@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
+import { useSearchParams } from 'react-router-dom';
 import Atoms from '@rippling/pebble/Atoms';
 import Button from '@rippling/pebble/Button';
 import Icon from '@rippling/pebble/Icon';
-import { VStack, HStack } from '@rippling/pebble/Layout/Stack';
+import { HStack } from '@rippling/pebble/Layout/Stack';
 import TextInput from '@rippling/pebble/Inputs/Text';
+import { AppNavBarNewRouter } from '@rippling/pebble/AppNavBar';
 import { StyledTheme } from '@/utils/theme';
 import { AppShellLayout } from '@/components/app-shell';
 import {
@@ -18,177 +20,127 @@ import {
   runsForTab,
 } from './global-payroll-overview/data';
 
-// ─── Sub-tab strip with vertical separators ────────────────────────
+// ─── Status mapping (matches GPStatusRenderer's STATUS_TYPE_CLASS_IDENTIFIER_MAP) ─
 
-const SubTabStrip = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const SubTab = styled.button<{ active: boolean }>`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px 14px;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
-  color: ${({ active, theme }) =>
-    active ? (theme as StyledTheme).colorOnSurface : (theme as StyledTheme).colorOnSurfaceVariant};
-  background-color: ${({ active, theme }) =>
-    active ? (theme as StyledTheme).colorSurfaceContainerHigh : 'transparent'};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  font-weight: ${({ active }) => (active ? '535' : '430')};
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  &:hover {
-    background-color: ${({ active, theme }) =>
-      active
-        ? (theme as StyledTheme).colorSurfaceContainerHigh
-        : (theme as StyledTheme).colorSurfaceContainerLow};
+const statusColorFor = (tone: RunStatusTone, theme: StyledTheme): string => {
+  switch (tone) {
+    case 'POSITIVE':
+      return theme.colorSuccess ?? '#137333';
+    case 'NEGATIVE':
+      return theme.colorError ?? '#A50E0E';
+    case 'WARNING':
+      return theme.colorWarning ?? '#7A4F01';
+    case 'NEUTRAL':
+    default:
+      // Production GP uses colorInfo (blue) for NEUTRAL → playground has colorPrimary
+      return theme.colorPrimary ?? '#1A56A2';
   }
-`;
+};
 
-const TabSeparator = styled.span`
-  width: 1px;
-  height: 16px;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  margin: 0 4px;
-`;
+// ─── GridV2 surface (matches app/blocks/Grid/Grid.module.scss) ────
 
-const CountBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 18px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
-  color: white;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
-  font-weight: 535;
-  font-size: 11px;
-`;
-
-// ─── Surface card ──────────────────────────────────────────────────
-
-const Surface = styled.div`
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 1px 3px rgba(0, 0, 0, 0.06);
+const GridSurface = styled.div`
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCorner3xl};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  background-color: ${({ theme }) =>
+    (theme as StyledTheme).colorSurfaceContainerLowest ?? (theme as StyledTheme).colorSurface};
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   min-width: 0;
 `;
 
-// ─── Grid header — 3 rows ─────────────────────────────────────────
+// ─── GridHeader (matches GridHeader.styles.ts exactly) ────────────
 
 const HeaderContainer = styled.div`
-  padding: 20px 24px;
+  margin-bottom: ${({ theme }) => (theme as StyledTheme).space300};
+  padding: ${({ theme }) => (theme as StyledTheme).space400};
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  & > * + * {
+    margin-top: ${({ theme }) => (theme as StyledTheme).space300};
+  }
 `;
 
-const HeaderTopRow = styled.div`
+const HeaderTop = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: ${({ theme }) => (theme as StyledTheme).space800};
+  align-self: stretch;
+  min-height: 56px; /* size800 */
 `;
 
-const HeaderTitle = styled.h2`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+const HeaderTitleWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${({ theme }) => (theme as StyledTheme).space100};
+  flex: 1 0 0;
+`;
+
+const HeaderTitleRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
+`;
+
+const HeaderTitleText = styled.h6`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   margin: 0;
   font-weight: 535;
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
 `;
 
-const TitleCount = styled.span`
+const RowCount = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  font-weight: 430;
   &::before {
     content: '·';
-    margin: 0 6px;
+    margin-right: 6px;
   }
 `;
 
-const HeaderActions = styled.div`
+const HeaderButtons = styled.div`
   display: flex;
-  gap: 8px;
-  align-items: center;
+  justify-content: flex-end;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
+  align-self: stretch;
 `;
 
-const IconButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
-  cursor: pointer;
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  &:hover {
-    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  }
-`;
-
-// Search row
-const SearchRow = styled.div`
+const HeaderBottom = styled.div`
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-end;
+  align-self: stretch;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
 `;
 
-const SearchWrapper = styled.div`
-  width: 320px;
-  & > div {
-    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  }
+const SearchContainer = styled.div`
+  width: 360px; /* size5600 */
 `;
 
-const GroupByButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  margin-left: auto;
-  padding: 6px 8px;
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
-  &:hover {
-    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  }
-`;
+// ─── Filter dropdown row (matches GP RunFilters) ──────────────────
 
-// Filter row
 const FiltersRow = styled.div`
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  width: 100%;
 `;
 
 const FilterField = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 180px;
+  gap: ${({ theme }) => (theme as StyledTheme).space100};
+  min-width: 200px;
 `;
 
 const FilterLabel = styled.label`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   font-weight: 535;
 `;
@@ -200,9 +152,10 @@ const FilterDropdown = styled.button`
   width: 100%;
   height: 36px;
   padding: 6px 12px;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  background-color: ${({ theme }) =>
+    (theme as StyledTheme).colorSurfaceContainerLowest ?? (theme as StyledTheme).colorSurface};
   border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
   cursor: pointer;
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
@@ -211,25 +164,44 @@ const FilterDropdown = styled.button`
   }
 `;
 
-// ─── Table ─────────────────────────────────────────────────────────
+// ─── Group by + filter button row ─────────────────────────────────
+
+const GroupByButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  padding: 6px 8px;
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
+  &:hover {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
+`;
+
+// ─── Table (matches GridV2 + CellV2 module.scss) ──────────────────
 
 const TableScroll = styled.div`
   overflow-x: auto;
   overflow-y: visible;
-  border-top: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  flex: 1;
 `;
 
 const Table = styled.table`
   width: 100%;
-  min-width: 1200px;
+  min-width: 1280px;
   border-collapse: collapse;
 `;
 
 const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   text-align: ${({ align }) => align ?? 'left'};
   padding: 12px 16px;
+  border-top: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   font-weight: 535;
@@ -240,7 +212,7 @@ const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
 const Td = styled.td<{ align?: 'left' | 'right' }>`
   padding: 14px 16px;
   border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   vertical-align: top;
   text-align: ${({ align }) => align ?? 'left'};
@@ -248,7 +220,7 @@ const Td = styled.td<{ align?: 'left' | 'right' }>`
 `;
 
 const Tr = styled.tr`
-  &:hover {
+  &:hover td {
     background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
   }
   &:last-child td {
@@ -256,15 +228,15 @@ const Tr = styled.tr`
   }
 `;
 
-const ColumnHeader = styled.span`
+const ColumnHeaderInner = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
 `;
 
-// Pay run cell — title (link) + subtitle
+// Pay run name + sub-text
 const PayRunLink = styled.a`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
   text-decoration: none;
   cursor: pointer;
@@ -281,9 +253,9 @@ const PayRunSub = styled.div`
   margin-top: 2px;
 `;
 
-// People count — clickable underlined link
+// People count = underlined number link
 const PeopleLink = styled.a`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   text-decoration: underline;
   cursor: pointer;
@@ -301,46 +273,16 @@ const OverdueCaption = styled.span`
   color: ${({ theme }) => (theme as StyledTheme).colorError ?? '#A50E0E'};
 `;
 
-// Status — dot + colored text (NOT a pill)
-const StatusContent = styled.span<{ tone: RunStatusTone }>`
+// Status cell — Atoms.Circle + Text (matches GPStatusRenderer exactly)
+const StatusInner = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
-  ${({ tone, theme }) => {
-    const t = theme as StyledTheme;
-    switch (tone) {
-      case 'POSITIVE':
-        return `color: ${t.colorSuccess ?? '#137333'};`;
-      case 'NEGATIVE':
-        return `color: ${t.colorError ?? '#A50E0E'};`;
-      case 'WARNING':
-        return `color: ${t.colorWarning ?? '#7A4F01'};`;
-      case 'NEUTRAL':
-      default:
-        return `color: ${t.colorPrimary ?? '#1A56A2'};`;
-    }
-  }}
+  gap: 4px;
 `;
 
-const StatusDot = styled.span<{ tone: RunStatusTone }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  ${({ tone, theme }) => {
-    const t = theme as StyledTheme;
-    switch (tone) {
-      case 'POSITIVE':
-        return `background-color: ${t.colorSuccess ?? '#137333'};`;
-      case 'NEGATIVE':
-        return `background-color: ${t.colorError ?? '#A50E0E'};`;
-      case 'WARNING':
-        return `background-color: ${t.colorWarning ?? '#B27300'};`;
-      case 'NEUTRAL':
-      default:
-        return `background-color: ${t.colorPrimary ?? '#1A56A2'};`;
-    }
-  }}
+const StatusText = styled.span<{ tone: RunStatusTone }>`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+  color: ${({ tone, theme }) => statusColorFor(tone, theme as StyledTheme)};
 `;
 
 const Checkbox = styled.input`
@@ -366,6 +308,27 @@ const CountryCell: React.FC<{ countryCode: string; countryName: string }> = ({
   </HStack>
 );
 
+// ─── Status cell — exactly matches GPStatusCellRenderer ───────────
+
+const StatusCell: React.FC<{ status: string; tone: RunStatusTone }> = ({ status, tone }) => {
+  // Resolve the dot color from theme via a CSS var trick: read from the StatusText computed style.
+  // Simpler: just compute it inline via theme accessor in styled component below.
+  return (
+    <StatusInner>
+      <StatusDot tone={tone} />
+      <StatusText tone={tone}>{status}</StatusText>
+    </StatusInner>
+  );
+};
+
+const StatusDot = styled.span<{ tone: RunStatusTone }>`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${({ tone, theme }) => statusColorFor(tone, theme as StyledTheme)};
+`;
+
 // ─── Run list grid ─────────────────────────────────────────────────
 
 interface RunListGridProps {
@@ -373,10 +336,9 @@ interface RunListGridProps {
   runs: PayRun[];
   showStatus: boolean;
   showChangedBy: boolean;
-  showAction: boolean;
   primaryActionLabel?: string;
-  onPrimaryAction?: () => void;
   isPrimaryDisabled?: boolean;
+  showOffCycle?: boolean;
   searchPlaceholder: string;
   emptyText: string;
   payDateRangeLabel: string;
@@ -387,10 +349,9 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   runs,
   showStatus,
   showChangedBy,
-  showAction,
   primaryActionLabel,
-  onPrimaryAction,
   isPrimaryDisabled,
+  showOffCycle,
   searchPlaceholder,
   emptyText,
   payDateRangeLabel,
@@ -410,11 +371,8 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   }, [runs, search]);
 
   const toggleAll = () => {
-    if (selectedIds.size === filtered.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filtered.map(r => r.runId)));
-    }
+    if (selectedIds.size === filtered.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filtered.map(r => r.runId)));
   };
   const toggleOne = (id: string) => {
     setSelectedIds(prev => {
@@ -426,16 +384,18 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   };
 
   return (
-    <Surface>
+    <GridSurface>
       <HeaderContainer>
-        {/* Row 1: Title + actions */}
-        <HeaderTopRow>
-          <HeaderTitle>
-            {title}
-            <TitleCount>{runs.length}</TitleCount>
-          </HeaderTitle>
-          <HeaderActions>
-            {showAction && (
+        {/* Top row: Title + Action Buttons */}
+        <HeaderTop>
+          <HeaderTitleWrap>
+            <HeaderTitleRow>
+              <HeaderTitleText>{title}</HeaderTitleText>
+              <RowCount>{runs.length}</RowCount>
+            </HeaderTitleRow>
+          </HeaderTitleWrap>
+          <HeaderButtons>
+            {showOffCycle && (
               <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.S}>
                 Create an off-cycle run
               </Button>
@@ -444,24 +404,29 @@ const RunListGrid: React.FC<RunListGridProps> = ({
               <Button
                 appearance={Button.APPEARANCES.PRIMARY}
                 size={Button.SIZES.S}
-                onClick={onPrimaryAction}
                 isDisabled={isPrimaryDisabled}
               >
                 {primaryActionLabel}
               </Button>
             )}
-            <IconButton aria-label="Customize columns">
-              <Icon type={Icon.TYPES.TABLE_COLUMN_OUTLINE} size={16} />
-            </IconButton>
-            <IconButton aria-label="Expand">
-              <Icon type={Icon.TYPES.EXPAND_PANEL_OUTLINE} size={16} />
-            </IconButton>
-          </HeaderActions>
-        </HeaderTopRow>
+            <Button.Icon
+              icon={Icon.TYPES.TABLE_COLUMN_OUTLINE}
+              appearance={Button.APPEARANCES.OUTLINE}
+              size={Button.SIZES.S}
+              aria-label="Customize columns"
+            />
+            <Button.Icon
+              icon={Icon.TYPES.EXPAND_PANEL_OUTLINE}
+              appearance={Button.APPEARANCES.OUTLINE}
+              size={Button.SIZES.S}
+              aria-label="Expand"
+            />
+          </HeaderButtons>
+        </HeaderTop>
 
-        {/* Row 2: Search + Group by */}
-        <SearchRow>
-          <SearchWrapper>
+        {/* Bottom row 1: Search + Group by */}
+        <HeaderBottom>
+          <SearchContainer>
             <TextInput
               placeholder={searchPlaceholder}
               value={search}
@@ -470,14 +435,14 @@ const RunListGrid: React.FC<RunListGridProps> = ({
               size={TextInput.SIZES.S}
               canClear
             />
-          </SearchWrapper>
-          <GroupByButton>
+          </SearchContainer>
+          <GroupByButton style={{ marginLeft: 'auto' }}>
             <Icon type={Icon.TYPES.LIST_OUTLINE} size={14} />
             Group by
           </GroupByButton>
-        </SearchRow>
+        </HeaderBottom>
 
-        {/* Row 3: Named filter dropdowns */}
+        {/* Bottom row 2: Filter dropdowns */}
         <FiltersRow>
           <FilterField>
             <FilterLabel>Entity</FilterLabel>
@@ -519,55 +484,47 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                   />
                 </Th>
                 <Th width={220}>
-                  <ColumnHeader>
-                    Pay Run
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    Pay Run <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 <Th width={140}>
-                  <ColumnHeader>
-                    Country
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    Country <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 <Th width={200}>
-                  <ColumnHeader>
-                    Entity
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    Entity <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 <Th width={80}>
-                  <ColumnHeader>
-                    People
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    People <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 <Th width={210}>
-                  <ColumnHeader>
-                    Take action by
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    Take action by <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 <Th width={150}>
-                  <ColumnHeader>
-                    Pay date
-                    <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                  </ColumnHeader>
+                  <ColumnHeaderInner>
+                    Pay date <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                  </ColumnHeaderInner>
                 </Th>
                 {showStatus && (
                   <Th width={130}>
-                    <ColumnHeader>
-                      Status
-                      <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                    </ColumnHeader>
+                    <ColumnHeaderInner>
+                      Status <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                    </ColumnHeaderInner>
                   </Th>
                 )}
                 {showChangedBy && (
                   <Th width={140}>
-                    <ColumnHeader>
-                      Archived by
-                      <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
-                    </ColumnHeader>
+                    <ColumnHeaderInner>
+                      Archived by <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+                    </ColumnHeaderInner>
                   </Th>
                 )}
               </tr>
@@ -618,10 +575,7 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                   <Td>{run.payDate}</Td>
                   {showStatus && (
                     <Td>
-                      <StatusContent tone={run.statusTone}>
-                        <StatusDot tone={run.statusTone} />
-                        {run.status}
-                      </StatusContent>
+                      <StatusCell status={run.status} tone={run.statusTone} />
                     </Td>
                   )}
                   {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
@@ -631,31 +585,18 @@ const RunListGrid: React.FC<RunListGridProps> = ({
           </Table>
         </TableScroll>
       )}
-    </Surface>
+    </GridSurface>
   );
 };
 
 // ─── Page ──────────────────────────────────────────────────────────
-
-const PRIMARY_TABS = [
-  'Overview',
-  'People',
-  'Settings',
-  'Entities',
-  'Accounting',
-  'Balances',
-  'Reports',
-  'Earnings',
-  'Deductions',
-  'Garnishments',
-  'Filings',
-];
 
 const tabConfig: Record<
   Tab,
   {
     primaryActionLabel?: string;
     isPrimaryDisabled?: boolean;
+    showOffCycle?: boolean;
     showChangedBy: boolean;
     emptyText: string;
     searchPlaceholder: string;
@@ -665,6 +606,7 @@ const tabConfig: Record<
   upcomingAndDraft: {
     primaryActionLabel: 'Run Payroll',
     isPrimaryDisabled: true,
+    showOffCycle: true,
     showChangedBy: false,
     emptyText: 'No upcoming or draft pay runs.',
     searchPlaceholder: 'Search for a pay run name',
@@ -673,12 +615,14 @@ const tabConfig: Record<
   failed: {
     primaryActionLabel: 'Run Payroll',
     isPrimaryDisabled: true,
+    showOffCycle: true,
     showChangedBy: false,
     emptyText: 'No failed pay runs. Nice.',
     searchPlaceholder: 'Search for a pay run name',
     payDateRangeLabel: 'All time',
   },
   submitted: {
+    showOffCycle: true,
     showChangedBy: false,
     emptyText: 'Nothing currently submitted.',
     searchPlaceholder: 'Search for a pay run name',
@@ -687,6 +631,7 @@ const tabConfig: Record<
   completed: {
     primaryActionLabel: 'View Payroll',
     isPrimaryDisabled: true,
+    showOffCycle: true,
     showChangedBy: false,
     emptyText: 'No completed runs in the selected range.',
     searchPlaceholder: 'Search for a pay run name',
@@ -700,6 +645,7 @@ const tabConfig: Record<
     payDateRangeLabel: 'Last 3 months',
   },
   archived: {
+    showOffCycle: false,
     showChangedBy: true,
     emptyText: 'No archived runs.',
     searchPlaceholder: 'Search for a pay run name',
@@ -707,79 +653,120 @@ const tabConfig: Record<
   },
 };
 
+const SUB_TAB_PATHS: Record<Tab, string> = {
+  upcomingAndDraft: '?section=upcomingAndDraft',
+  failed: '?section=failed',
+  submitted: '?section=submitted',
+  completed: '?section=completed',
+  corrections: '?section=corrections',
+  archived: '?section=archived',
+};
+
+const PAGE_PADDING = '24px 32px';
+
+const Page = styled.div`
+  padding: ${PAGE_PADDING};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
+  min-height: 100%;
+`;
+
 const GlobalPayrollOverviewDemo: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('upcomingAndDraft');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sectionParam = searchParams.get('section') as Tab | null;
+  const activeTab: Tab =
+    sectionParam && TAB_ORDER.includes(sectionParam) ? sectionParam : 'upcomingAndDraft';
   const cfg = tabConfig[activeTab];
   const tabRuns = useMemo(() => runsForTab(activeTab, PAY_RUNS), [activeTab]);
 
-  // Counts per tab for badges
   const counts = useMemo(() => {
-    const result: Partial<Record<Tab, number>> = {};
-    for (const tab of TAB_ORDER) {
-      result[tab] = runsForTab(tab, PAY_RUNS).length;
-    }
-    return result;
+    const r: Partial<Record<Tab, number>> = {};
+    for (const t of TAB_ORDER) r[t] = runsForTab(t, PAY_RUNS).length;
+    return r;
   }, []);
 
-  // Page header actions: "Help docs" link
-  const pageActions = (
-    <a
-      href="#"
-      style={{
-        color: 'var(--color-on-surface-variant, #5F6368)',
-        textDecoration: 'none',
-        fontSize: '14px',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-      }}
-    >
-      Help docs
-      <Icon type={Icon.TYPES.ARROW_UP_RIGHT_BOX} size={12} />
-    </a>
+  // AppNavBar links — primary tabs with nested sub-tabs under "Overview"
+  const navLinks = useMemo(
+    () => [
+      {
+        path: '/global-payroll-overview',
+        title: 'Overview',
+        links: TAB_ORDER.map(tab => ({
+          title: TAB_LABELS[tab],
+          path: SUB_TAB_PATHS[tab],
+          ...(tab === 'upcomingAndDraft' && counts.upcomingAndDraft
+            ? { badge: { text: String(counts.upcomingAndDraft) } }
+            : {}),
+        })),
+      },
+      { path: '/people', title: 'People' },
+      { path: '/settings', title: 'Settings' },
+      { path: '/entities', title: 'Entities' },
+      { path: '/accounting', title: 'Accounting' },
+      { path: '/balances', title: 'Balances' },
+      { path: '/reports', title: 'Reports' },
+      { path: '/earnings', title: 'Earnings' },
+      { path: '/deductions', title: 'Deductions' },
+      { path: '/garnishments', title: 'Garnishments' },
+      { path: '/filings', title: 'Filings' },
+    ],
+    [counts.upcomingAndDraft],
   );
+
+  // We need to set sub-tab via custom click handler since the sub-tab "paths" are query params, not real routes
+  const handleNavInterception = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
+    if (!link) return;
+    const href = link.getAttribute('href') || '';
+    // Sub-tab clicks: convert to query param updates
+    for (const t of TAB_ORDER) {
+      if (href.endsWith(SUB_TAB_PATHS[t])) {
+        e.preventDefault();
+        setSearchParams({ section: t });
+        return;
+      }
+    }
+    // Primary tab clicks (other than overview): prevent navigation in this prototype
+    const allowed = ['/global-payroll-overview'];
+    const matched = navLinks.find(n => href.endsWith(n.path) || href.includes(n.path));
+    if (matched && !allowed.includes(matched.path)) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <AppShellLayout
-      pageTitle="Payroll"
-      pageTabs={PRIMARY_TABS}
-      defaultActiveTab={0}
-      pageActions={pageActions}
+      pageTitle=""
       defaultAdminMode
       companyName="Carter-Ruiz"
       userInitial="C"
+      superAppName="Payroll"
       showNotificationBadge
       notificationCount={2}
     >
-      <VStack gap={0}>
-        {/* Sub-tab strip with vertical separators */}
-        <SubTabStrip>
-          {TAB_ORDER.map((tab, i) => (
-            <React.Fragment key={tab}>
-              {i > 0 && <TabSeparator />}
-              <SubTab active={activeTab === tab} onClick={() => setActiveTab(tab)}>
-                {TAB_LABELS[tab]}
-                {tab === 'upcomingAndDraft' && counts.upcomingAndDraft ? (
-                  <CountBadge>{counts.upcomingAndDraft}</CountBadge>
-                ) : null}
-              </SubTab>
-            </React.Fragment>
-          ))}
-        </SubTabStrip>
-
-        <RunListGrid
-          title={TAB_TITLES[activeTab]}
-          runs={tabRuns}
-          showStatus
-          showChangedBy={cfg.showChangedBy}
-          showAction={!cfg.showChangedBy && activeTab !== 'corrections'}
-          primaryActionLabel={cfg.primaryActionLabel}
-          isPrimaryDisabled={cfg.isPrimaryDisabled}
-          searchPlaceholder={cfg.searchPlaceholder}
-          emptyText={cfg.emptyText}
-          payDateRangeLabel={cfg.payDateRangeLabel}
-        />
-      </VStack>
+      <div onClickCapture={handleNavInterception}>
+        <AppNavBarNewRouter
+          title="Payroll"
+          logoUrl="https://static-assets.ripplingcdn.com/global-payroll/global-payroll-logo.png"
+          supportLink="https://help.rippling.com/s/article/13108698638"
+          links={navLinks}
+        >
+          <Page>
+            <RunListGrid
+              title={TAB_TITLES[activeTab]}
+              runs={tabRuns}
+              showStatus
+              showChangedBy={cfg.showChangedBy}
+              showOffCycle={cfg.showOffCycle}
+              primaryActionLabel={cfg.primaryActionLabel}
+              isPrimaryDisabled={cfg.isPrimaryDisabled}
+              searchPlaceholder={cfg.searchPlaceholder}
+              emptyText={cfg.emptyText}
+              payDateRangeLabel={cfg.payDateRangeLabel}
+            />
+          </Page>
+        </AppNavBarNewRouter>
+      </div>
     </AppShellLayout>
   );
 };
