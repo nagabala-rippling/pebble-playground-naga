@@ -1,15 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
+import Atoms from '@rippling/pebble/Atoms';
 import Button from '@rippling/pebble/Button';
+import Icon from '@rippling/pebble/Icon';
 import Notice from '@rippling/pebble/Notice';
-import Status from '@rippling/pebble/Status';
-import TableBasic from '@rippling/pebble/TableBasic';
 import { VStack, HStack } from '@rippling/pebble/Layout/Stack';
-
-type StatusAppearance = (typeof Status.APPEARANCES)[keyof typeof Status.APPEARANCES];
+import Tip from '@rippling/pebble/Tip';
 import { StyledTheme } from '@/utils/theme';
 import { AppShellLayout } from '@/components/app-shell';
-import { PAYROLL_RUNS, RunRecord, Tab, TAB_LABELS } from './global-payroll-overview/data';
+import {
+  PAY_RUNS,
+  PayRun,
+  RunStatusTone,
+  Tab,
+  TAB_LABELS,
+  runsForTab,
+} from './global-payroll-overview/data';
 
 const TABS: Tab[] = [
   'upcomingAndDraft',
@@ -20,115 +26,460 @@ const TABS: Tab[] = [
   'archived',
 ];
 
-const TableSection = styled.div`
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+// ─── Layout primitives ─────────────────────────────────────────────
+
+const Surface = styled.div`
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  padding: ${({ theme }) => (theme as StyledTheme).space600};
+  overflow: hidden;
 `;
 
-const SectionTitle = styled.h2`
+// ─── Grid header (mirrors app/blocks/Grid/GridHeader/GridHeader.styles.ts) ───
+
+const HeaderContainer = styled.div`
+  padding: ${({ theme }) => (theme as StyledTheme).space400};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => (theme as StyledTheme).space300};
+  border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+`;
+
+const HeaderTopRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => (theme as StyledTheme).space800};
+  min-height: 40px;
+`;
+
+const HeaderTitle = styled.h2`
   ${({ theme }) => (theme as StyledTheme).typestyleV2TitleLarge};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  margin: 0 0 ${({ theme }) => (theme as StyledTheme).space400} 0;
+  margin: 0;
+  flex: 1;
 `;
 
-const EmptyStateBox = styled.div`
+const HeaderActions = styled.div`
   display: flex;
-  flex-direction: column;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
   align-items: center;
-  justify-content: center;
-  padding: ${({ theme }) => (theme as StyledTheme).space1000};
-  text-align: center;
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
 `;
 
-const FlagEmoji = styled.span`
-  font-size: 18px;
-  line-height: 1;
-`;
-
-const EntityCell = styled.div`
+const HeaderBottomRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
+  flex-wrap: wrap;
 `;
 
-const EntityName = styled.span`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelLarge};
+const SearchBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => (theme as StyledTheme).space200};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerM};
+  padding: 6px 12px;
+  width: 320px;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+`;
+
+const FilterChip = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerFull};
+  padding: 6px 12px;
+  cursor: pointer;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+
+  &:hover {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  }
 `;
 
-const EntityCountry = styled.span`
+const RowCount = styled.span`
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  margin-left: auto;
 `;
 
-const STATUS_APPEARANCE: Record<RunRecord['status'], StatusAppearance> = {
-  Draft: Status.APPEARANCES.TERTIARY,
-  Upcoming: Status.APPEARANCES.PRIMARY,
-  Submitted: Status.APPEARANCES.PRIMARY,
-  Approved: Status.APPEARANCES.SUCCESS,
-  Paid: Status.APPEARANCES.SUCCESS,
-  'On hold': Status.APPEARANCES.ERROR,
-  Failed: Status.APPEARANCES.ERROR,
-  Archived: Status.APPEARANCES.DISABLED,
-  'Needs review': Status.APPEARANCES.WARNING,
+// ─── Table ─────────────────────────────────────────────────────────
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+`;
+
+const Th = styled.th<{ width?: number; align?: 'left' | 'right' }>`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: ${({ align }) => align ?? 'left'};
+  padding: 12px 16px;
+  border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  font-weight: 535;
+  white-space: nowrap;
+  ${({ width }) => (width ? `width: ${width}px;` : '')}
+`;
+
+const Td = styled.td<{ align?: 'left' | 'right' }>`
+  padding: 12px 16px;
+  border-bottom: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  vertical-align: middle;
+  text-align: ${({ align }) => align ?? 'left'};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Tr = styled.tr`
+  &:hover {
+    background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+  }
+  &:last-child td {
+    border-bottom: none;
+  }
+`;
+
+const PayRunLink = styled.a`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+  color: ${({ theme }) => (theme as StyledTheme).colorPrimary};
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 535;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const SubText = styled.div`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  margin-top: 2px;
+`;
+
+const Checkbox = styled.input`
+  cursor: pointer;
+`;
+
+// ─── Status pill (mirrors Grid CELL_STATUS_TYPES) ─────────────────
+
+const StatusPill = styled.span<{ tone: RunStatusTone }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerFull};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  font-weight: 535;
+  white-space: nowrap;
+  ${({ tone, theme }) => {
+    const t = theme as StyledTheme;
+    switch (tone) {
+      case 'POSITIVE':
+        return `background-color: ${t.colorSuccessVariant ?? '#E6F4EA'}; color: ${t.colorSuccess ?? '#137333'};`;
+      case 'NEGATIVE':
+        return `background-color: ${t.colorErrorVariant ?? '#FCE8E6'}; color: ${t.colorError ?? '#A50E0E'};`;
+      case 'WARNING':
+        return `background-color: ${t.colorWarningVariant ?? '#FEF7E0'}; color: ${t.colorWarning ?? '#7A4F01'};`;
+      case 'NEUTRAL':
+      default:
+        return `background-color: ${t.colorSurfaceContainerHigh ?? '#E8EAED'}; color: ${t.colorOnSurfaceVariant ?? '#5F6368'};`;
+    }
+  }}
+`;
+
+const StatusDot = styled.span<{ tone: RunStatusTone }>`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  ${({ tone, theme }) => {
+    const t = theme as StyledTheme;
+    switch (tone) {
+      case 'POSITIVE':
+        return `background-color: ${t.colorSuccess ?? '#137333'};`;
+      case 'NEGATIVE':
+        return `background-color: ${t.colorError ?? '#A50E0E'};`;
+      case 'WARNING':
+        return `background-color: ${t.colorWarning ?? '#B27300'};`;
+      case 'NEUTRAL':
+      default:
+        return `background-color: ${t.colorOnSurfaceVariant ?? '#5F6368'};`;
+    }
+  }}
+`;
+
+// ─── Empty state ───────────────────────────────────────────────────
+
+const EmptyBox = styled.div`
+  padding: 64px 16px;
+  text-align: center;
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
+`;
+
+// ─── Run list grid ─────────────────────────────────────────────────
+
+interface RunListGridProps {
+  title: string;
+  runs: PayRun[];
+  showStatus: boolean;
+  showChangedBy: boolean;
+  showAction: boolean;
+  actionText: string;
+  emptyText: string;
+  searchPlaceholder: string;
+  onPrimaryAction?: () => void;
+  primaryActionLabel?: string;
+}
+
+const RunListGrid: React.FC<RunListGridProps> = ({
+  title,
+  runs,
+  showStatus,
+  showChangedBy,
+  showAction,
+  emptyText,
+  searchPlaceholder,
+  onPrimaryAction,
+  primaryActionLabel,
+}) => {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleAll = () => {
+    if (selectedIds.size === runs.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(runs.map(r => r.runId)));
+    }
+  };
+  const toggleOne = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  return (
+    <Surface>
+      <HeaderContainer>
+        <HeaderTopRow>
+          <HeaderTitle>{title}</HeaderTitle>
+          <HeaderActions>
+            <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.M}>
+              Off-cycle run
+            </Button>
+            {primaryActionLabel && (
+              <Button
+                appearance={Button.APPEARANCES.PRIMARY}
+                size={Button.SIZES.M}
+                onClick={onPrimaryAction}
+              >
+                {primaryActionLabel}
+              </Button>
+            )}
+          </HeaderActions>
+        </HeaderTopRow>
+        <HeaderBottomRow>
+          <SearchBox>
+            <Icon type={Icon.TYPES.SEARCH_OUTLINE} size={16} />
+            <span>{searchPlaceholder}</span>
+          </SearchBox>
+          <FilterChip>
+            Country
+            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+          </FilterChip>
+          <FilterChip>
+            Entity
+            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+          </FilterChip>
+          <FilterChip>
+            Pay schedule
+            <Icon type={Icon.TYPES.CHEVRON_DOWN} size={12} />
+          </FilterChip>
+          <RowCount>
+            {runs.length} {runs.length === 1 ? 'run' : 'runs'}
+          </RowCount>
+        </HeaderBottomRow>
+      </HeaderContainer>
+
+      {runs.length === 0 ? (
+        <EmptyBox>{emptyText}</EmptyBox>
+      ) : (
+        <Table>
+          <thead>
+            <tr>
+              <Th width={40}>
+                <Checkbox
+                  type="checkbox"
+                  checked={selectedIds.size === runs.length}
+                  onChange={toggleAll}
+                  aria-label="Select all runs"
+                />
+              </Th>
+              <Th width={220}>Pay run</Th>
+              <Th width={140}>Country</Th>
+              <Th width={200}>Entity</Th>
+              <Th width={80} align="right">
+                People
+              </Th>
+              <Th width={210}>Take action by</Th>
+              <Th width={150}>Pay date</Th>
+              {showStatus && <Th width={140}>Status</Th>}
+              {showChangedBy && <Th width={140}>Archived by</Th>}
+              {showAction && <Th width={56} />}
+            </tr>
+          </thead>
+          <tbody>
+            {runs.map(run => (
+              <Tr key={run.runId}>
+                <Td>
+                  <Checkbox
+                    type="checkbox"
+                    checked={selectedIds.has(run.runId)}
+                    onChange={() => toggleOne(run.runId)}
+                    aria-label={`Select ${run.displayName}`}
+                  />
+                </Td>
+                <Td>
+                  <PayRunLink>
+                    <HStack gap="0.4rem">
+                      <span>{run.displayName}</span>
+                      {run.isPreviewPayrun && (
+                        <Tip content="Entity not activated yet" placement={Tip.PLACEMENTS.TOP}>
+                          <span>
+                            <Icon
+                              type={Icon.TYPES.WARNING_TRIANGLE_FILLED}
+                              size={12}
+                              color="#B27300"
+                            />
+                          </span>
+                        </Tip>
+                      )}
+                    </HStack>
+                  </PayRunLink>
+                  {run.subTitle && <SubText>{run.subTitle}</SubText>}
+                </Td>
+                <Td>
+                  <Atoms.Country countryCode={run.countryCode} size={Atoms.Country.SIZES.S} />
+                </Td>
+                <Td>
+                  <Atoms.TitleCaption
+                    title={run.entityDisplayName}
+                    caption={run.entityIdentifier}
+                  />
+                </Td>
+                <Td align="right">{run.numberOfEmployeesInvolved}</Td>
+                <Td>
+                  {run.takeActionBy ? (
+                    <Atoms.TitleCaption
+                      title={run.takeActionBy}
+                      caption={run.takeActionByCaption}
+                    />
+                  ) : (
+                    '—'
+                  )}
+                </Td>
+                <Td>
+                  <Atoms.TitleCaption title={run.payDate} caption={run.payDateCaption} />
+                </Td>
+                {showStatus && (
+                  <Td>
+                    <StatusPill tone={run.statusTone}>
+                      <StatusDot tone={run.statusTone} />
+                      {run.status}
+                    </StatusPill>
+                  </Td>
+                )}
+                {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
+                {showAction && (
+                  <Td align="right">
+                    <Button.Icon
+                      icon={Icon.TYPES.MORE_HORIZONTAL}
+                      aria-label="Run actions"
+                      appearance={Button.APPEARANCES.GHOST}
+                      size={Button.SIZES.S}
+                    />
+                  </Td>
+                )}
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+    </Surface>
+  );
 };
 
-const RunListTable: React.FC<{
-  runs: RunRecord[];
-  showChangedBy?: boolean;
-  emptyText: string;
-  actionText: string;
-}> = ({ runs, showChangedBy, emptyText, actionText }) => {
-  if (runs.length === 0) {
-    return <EmptyStateBox>{emptyText}</EmptyStateBox>;
+// ─── Page ──────────────────────────────────────────────────────────
+
+const tabConfig: Record<
+  Tab,
+  {
+    title: string;
+    actionText: string;
+    primaryActionLabel?: string;
+    showChangedBy: boolean;
+    emptyText: string;
+    searchPlaceholder: string;
   }
-  return (
-    <TableBasic>
-      <TableBasic.THead>
-        <TableBasic.Tr>
-          <TableBasic.Th>Entity</TableBasic.Th>
-          <TableBasic.Th>Take action by</TableBasic.Th>
-          <TableBasic.Th>Pay date</TableBasic.Th>
-          <TableBasic.Th>Status</TableBasic.Th>
-          {showChangedBy && <TableBasic.Th>Changed by</TableBasic.Th>}
-          <TableBasic.Th />
-        </TableBasic.Tr>
-      </TableBasic.THead>
-      <TableBasic.TBody>
-        {runs.map(run => (
-          <TableBasic.Tr key={run.id}>
-            <TableBasic.Td>
-              <HStack gap="0.75rem">
-                <FlagEmoji>{run.flag}</FlagEmoji>
-                <EntityCell>
-                  <EntityName>{run.entityName}</EntityName>
-                  <EntityCountry>{run.country}</EntityCountry>
-                </EntityCell>
-              </HStack>
-            </TableBasic.Td>
-            <TableBasic.Td>{run.takeActionBy ?? '—'}</TableBasic.Td>
-            <TableBasic.Td>{run.payDate}</TableBasic.Td>
-            <TableBasic.Td>
-              <Status
-                appearance={STATUS_APPEARANCE[run.status]}
-                text={run.status}
-                size={Status.SIZES.M}
-              />
-            </TableBasic.Td>
-            {showChangedBy && <TableBasic.Td>{run.changedBy ?? '—'}</TableBasic.Td>}
-            <TableBasic.Td>
-              <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.S}>
-                {actionText}
-              </Button>
-            </TableBasic.Td>
-          </TableBasic.Tr>
-        ))}
-      </TableBasic.TBody>
-    </TableBasic>
-  );
+> = {
+  upcomingAndDraft: {
+    title: 'Upcoming & Draft',
+    actionText: 'Run payroll',
+    primaryActionLabel: 'Run payroll',
+    showChangedBy: false,
+    emptyText: 'No upcoming or draft pay runs.',
+    searchPlaceholder: 'Search pay runs',
+  },
+  failed: {
+    title: 'Failed',
+    actionText: 'Run payroll',
+    primaryActionLabel: 'Run payroll',
+    showChangedBy: false,
+    emptyText: 'No failed pay runs. Nice.',
+    searchPlaceholder: 'Search failed runs',
+  },
+  submitted: {
+    title: 'Submitted',
+    actionText: 'View payroll',
+    showChangedBy: false,
+    emptyText: 'Nothing currently submitted.',
+    searchPlaceholder: 'Search submitted runs',
+  },
+  completed: {
+    title: 'Completed',
+    actionText: 'View payroll',
+    showChangedBy: false,
+    emptyText: 'No completed runs in the selected range.',
+    searchPlaceholder: 'Search completed runs',
+  },
+  corrections: {
+    title: 'Corrections',
+    actionText: 'Review',
+    showChangedBy: false,
+    emptyText: 'No corrections to review.',
+    searchPlaceholder: 'Search corrections',
+  },
+  archived: {
+    title: 'Archived',
+    actionText: 'View payroll',
+    showChangedBy: true,
+    emptyText: 'No archived runs.',
+    searchPlaceholder: 'Search archived runs',
+  },
 };
 
 const GlobalPayrollOverviewDemo: React.FC = () => {
@@ -137,76 +488,15 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
   const [showYearEndBanner, setShowYearEndBanner] = useState(true);
 
   const activeTab = TABS[activeTabIndex];
-
-  const tabRuns = useMemo(() => {
-    const inTab = (run: RunRecord, tab: Tab) => {
-      switch (tab) {
-        case 'upcomingAndDraft':
-          return run.status === 'Draft' || run.status === 'Upcoming';
-        case 'failed':
-          return run.status === 'On hold' || run.status === 'Failed';
-        case 'submitted':
-          return run.status === 'Submitted';
-        case 'completed':
-          return run.status === 'Approved' || run.status === 'Paid';
-        case 'corrections':
-          return run.status === 'Needs review';
-        case 'archived':
-          return run.status === 'Archived';
-      }
-    };
-    return PAYROLL_RUNS.filter(r => inTab(r, activeTab));
-  }, [activeTab]);
-
-  const pageActions = (
-    <HStack gap="0.5rem">
-      <Button appearance={Button.APPEARANCES.OUTLINE} size={Button.SIZES.M}>
-        Off-cycle run
-      </Button>
-      <Button appearance={Button.APPEARANCES.PRIMARY} size={Button.SIZES.M}>
-        Run payroll
-      </Button>
-    </HStack>
-  );
-
-  const tabConfig: Record<Tab, { actionText: string; showChangedBy?: boolean; emptyText: string }> =
-    {
-      upcomingAndDraft: {
-        actionText: 'Run payroll',
-        emptyText: 'No upcoming or draft pay runs.',
-      },
-      failed: {
-        actionText: 'Run payroll',
-        emptyText: 'No failed pay runs. Nice.',
-      },
-      submitted: {
-        actionText: 'View payroll',
-        emptyText: 'Nothing currently submitted.',
-      },
-      completed: {
-        actionText: 'View payroll',
-        emptyText: 'No completed runs in the selected range.',
-      },
-      corrections: {
-        actionText: 'Review',
-        emptyText: 'No corrections to review.',
-      },
-      archived: {
-        actionText: 'View payroll',
-        showChangedBy: true,
-        emptyText: 'No archived runs.',
-      },
-    };
-
   const cfg = tabConfig[activeTab];
+  const tabRuns = useMemo(() => runsForTab(activeTab, PAY_RUNS), [activeTab]);
 
   return (
     <AppShellLayout
-      pageTitle="Global Payroll"
+      pageTitle="Run Payroll"
       pageTabs={TAB_LABELS}
       defaultActiveTab={0}
       onTabChange={setActiveTabIndex}
-      pageActions={pageActions}
       defaultAdminMode
       companyName="Acme, Inc."
       userInitial="A"
@@ -214,7 +504,7 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
       notificationCount={3}
     >
       <VStack gap={16}>
-        {showOnHoldBanner && (
+        {showOnHoldBanner && activeTab !== 'failed' && (
           <Notice.Error
             title="2 pay runs are on hold"
             description="Insufficient funds detected for ACME UK Ltd and ACME Canada Inc. Resolve before pay date to avoid disruption."
@@ -245,15 +535,17 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
           />
         )}
 
-        <TableSection>
-          <SectionTitle>{TAB_LABELS[activeTabIndex]}</SectionTitle>
-          <RunListTable
-            runs={tabRuns}
-            showChangedBy={cfg.showChangedBy}
-            actionText={cfg.actionText}
-            emptyText={cfg.emptyText}
-          />
-        </TableSection>
+        <RunListGrid
+          title={cfg.title}
+          runs={tabRuns}
+          showStatus
+          showChangedBy={cfg.showChangedBy}
+          showAction
+          actionText={cfg.actionText}
+          emptyText={cfg.emptyText}
+          searchPlaceholder={cfg.searchPlaceholder}
+          primaryActionLabel={cfg.primaryActionLabel}
+        />
       </VStack>
     </AppShellLayout>
   );
