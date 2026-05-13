@@ -1,260 +1,182 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import Button from '@rippling/pebble/Button';
-import Atoms from '@rippling/pebble/Atoms';
 import Tabs from '@rippling/pebble/Tabs';
 import { StyledTheme } from '@/utils/theme';
 import { AppShellLayout } from '@/components/app-shell';
 import {
   GP_CHAIN,
   US_CHAIN,
-  CorrectionChain,
   CorrectionModel,
   Variation,
+  VARIATION_KIND,
   VARIATION_LABELS,
   VARIATION_DESCRIPTIONS,
+  VARIATION_TAGLINES,
+  VARIATION_ORDER,
 } from './correction-on-correction/data';
-import { VariationRenderer } from './correction-on-correction/variations';
+import { VariationScene } from './correction-on-correction/variations';
 
-const VARIATIONS: Variation[] = ['v1', 'v2', 'v3'];
 const MODELS: CorrectionModel[] = ['GP', 'US'];
 
 // ─── Page layout ──────────────────────────────────────────────────
 
-const PageRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space800};
-  padding: ${({ theme }) => (theme as StyledTheme).space800};
+const Page = styled.div`
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  padding: 24px 32px;
+  min-height: 100%;
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurface};
 `;
 
-const Section = styled.section`
+// Sidebar ──────────────────────────────────────────────────────────
+
+const Sidebar = styled.nav`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space400};
+  gap: 4px;
+  position: sticky;
+  top: 24px;
+  align-self: start;
 `;
 
-const SectionTitle = styled.h2`
+const SidebarHeading = styled.div`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+`;
+
+const SidebarItem = styled.button<{ active: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
+  border: 1px solid
+    ${({ active, theme }) => (active ? (theme as StyledTheme).colorPrimary : 'transparent')};
+  background-color: ${({ active, theme }) =>
+    active
+      ? ((theme as StyledTheme).colorPrimaryContainer ??
+        (theme as StyledTheme).colorSurfaceContainerHigh)
+      : 'transparent'};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ active, theme }) =>
+      active
+        ? ((theme as StyledTheme).colorPrimaryContainer ??
+          (theme as StyledTheme).colorSurfaceContainerHigh)
+        : (theme as StyledTheme).colorSurfaceContainerLow};
+  }
+`;
+
+const SidebarItemTitle = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  font-weight: 535;
+`;
+
+const SidebarItemTagline = styled.span`
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+`;
+
+// Main column ─────────────────────────────────────────────────────
+
+const Main = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+`;
+
+const Intro = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+`;
+
+const IntroTitle = styled.h2`
   ${({ theme }) => (theme as StyledTheme).typestyleV2TitleMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
   margin: 0;
 `;
 
-const SectionDescription = styled.p`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  margin: 0;
-  max-width: 760px;
-`;
-
-const PRDQuote = styled.blockquote`
-  margin: 0;
-  padding: ${({ theme }) => (theme as StyledTheme).space400};
-  border-left: 3px solid ${({ theme }) => (theme as StyledTheme).colorPrimary};
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
+const IntroText = styled.p`
   ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
+  margin: 0;
 `;
 
-const Controls = styled.div`
+const KindChip = styled.span<{ kind: string }>`
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  font-weight: 535;
+  align-self: flex-start;
+  margin-top: 4px;
+  background-color: ${({ kind, theme }) => {
+    const t = theme as StyledTheme;
+    switch (kind) {
+      case 'overlay':
+        return t.colorPrimaryContainer ?? '#E7EFFD';
+      case 'inline':
+        return t.colorSuccessContainer ?? '#E3F4E5';
+      case 'workspace':
+        return t.colorWarningContainer ?? '#FEF7E0';
+      case 'transient':
+        return t.colorSurfaceContainerHigh ?? '#E8EAED';
+      default:
+        return t.colorSurfaceContainerHigh ?? '#E8EAED';
+    }
+  }};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+`;
+
+const ControlsRow = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => (theme as StyledTheme).space600};
-  align-items: flex-start;
+  align-items: center;
+  gap: 16px;
 `;
 
-const ControlGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
-  min-width: 200px;
-`;
-
-const ControlLabel = styled.div`
+const ControlLabel = styled.span`
   ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  font-weight: 535;
 `;
 
-const VariationButtons = styled.div`
-  display: flex;
-  gap: ${({ theme }) => (theme as StyledTheme).space200};
-`;
-
-const VariationButton = styled.button<{ active: boolean }>`
-  padding: 8px 14px;
-  border: 1px solid
-    ${({ active, theme }) =>
-      active ? (theme as StyledTheme).colorPrimary : (theme as StyledTheme).colorOutlineVariant};
-  background-color: ${({ active, theme }) =>
-    active
-      ? ((theme as StyledTheme).colorPrimaryContainer ??
-        (theme as StyledTheme).colorSurfaceContainerLow)
-      : (theme as StyledTheme).colorSurfaceContainerLowest};
-  color: ${({ active, theme }) =>
-    active ? (theme as StyledTheme).colorPrimary : (theme as StyledTheme).colorOnSurface};
-  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
-  cursor: pointer;
-  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
-  font-weight: ${({ active }) => (active ? 535 : 430)};
-`;
-
-// ─── Focused pay run card ─────────────────────────────────────────
-
-const RunCardSurface = styled.div`
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLowest};
+const SceneFrame = styled.div`
   border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
   border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerLg};
-  padding: ${({ theme }) => (theme as StyledTheme).space600};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  padding: 24px;
+  min-height: 360px;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => (theme as StyledTheme).space400};
-  max-width: 720px;
+  gap: 16px;
 `;
 
-const RunCardTop = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: ${({ theme }) => (theme as StyledTheme).space400};
-`;
-
-const RunCardTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const RunName = styled.div`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2TitleSmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-  font-weight: 535;
-`;
-
-const RunSub = styled.div`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-`;
-
-const RunMeta = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: ${({ theme }) => (theme as StyledTheme).space400};
-`;
-
-const MetaItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const MetaLabel = styled.div`
+const SceneLabel = styled.div`
   ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
   color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
   text-transform: uppercase;
   letter-spacing: 0.04em;
 `;
 
-const MetaValue = styled.div`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyLarge};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
-`;
-
-const StatusInline = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: ${({ theme }) => (theme as StyledTheme).colorSuccess ?? '#137333'};
-`;
-
-const StatusDot = styled.span`
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${({ theme }) => (theme as StyledTheme).colorSuccess ?? '#137333'};
-`;
-
-const ChainSummary = styled.div`
-  ${({ theme }) => (theme as StyledTheme).typestyleV2BodySmall};
-  color: ${({ theme }) => (theme as StyledTheme).colorOnSurfaceVariant};
-  padding-top: ${({ theme }) => (theme as StyledTheme).space200};
-  border-top: 1px dashed ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
-`;
-
-const FocusedRunCard: React.FC<{
-  chain: CorrectionChain;
-  onCreateCorrection: () => void;
-}> = ({ chain, onCreateCorrection }) => (
-  <RunCardSurface>
-    <RunCardTop>
-      <RunCardTitle>
-        <RunName>{chain.reference.displayName}</RunName>
-        {chain.reference.subTitle && <RunSub>{chain.reference.subTitle}</RunSub>}
-      </RunCardTitle>
-      <Button
-        appearance={Button.APPEARANCES.PRIMARY}
-        size={Button.SIZES.M}
-        onClick={onCreateCorrection}
-      >
-        Create Correction
-      </Button>
-    </RunCardTop>
-
-    <RunMeta>
-      <MetaItem>
-        <MetaLabel>Country</MetaLabel>
-        <MetaValue>
-          <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
-            <Atoms.Country
-              countryCode={chain.reference.countryCode}
-              size={Atoms.Country.SIZES.S}
-              onlyFlag
-            />
-            {chain.reference.countryName}
-          </span>
-        </MetaValue>
-      </MetaItem>
-      <MetaItem>
-        <MetaLabel>Entity</MetaLabel>
-        <MetaValue>{chain.reference.entityDisplayName}</MetaValue>
-      </MetaItem>
-      <MetaItem>
-        <MetaLabel>People</MetaLabel>
-        <MetaValue>{chain.reference.numberOfEmployeesInvolved}</MetaValue>
-      </MetaItem>
-      <MetaItem>
-        <MetaLabel>Pay date</MetaLabel>
-        <MetaValue>{chain.reference.payDate}</MetaValue>
-      </MetaItem>
-    </RunMeta>
-
-    <div>
-      <MetaLabel>Status</MetaLabel>
-      <StatusInline>
-        <StatusDot />
-        {chain.reference.status}
-      </StatusInline>
-    </div>
-
-    <ChainSummary>
-      This run has <strong>{chain.corrections.length}</strong> existing correction
-      {chain.corrections.length > 1 ? 's' : ''} ({chain.model}{' '}
-      {chain.model === 'GP' ? 'chained' : 'linear'} model). Click "Create Correction" to see the
-      proposed flow.
-    </ChainSummary>
-  </RunCardSurface>
-);
-
-// ─── Page ──────────────────────────────────────────────────────────
+// ─── Page component ───────────────────────────────────────────────
 
 const CorrectionOnCorrectionDemo: React.FC = () => {
   const [variation, setVariation] = useState<Variation>('v1');
   const [model, setModel] = useState<CorrectionModel>('GP');
-  const [isOpen, setIsOpen] = useState(false);
 
   const chain = model === 'GP' ? GP_CHAIN : US_CHAIN;
+  const kind = VARIATION_KIND[variation];
 
   return (
     <AppShellLayout
@@ -266,76 +188,46 @@ const CorrectionOnCorrectionDemo: React.FC = () => {
       showNotificationBadge
       notificationCount={2}
     >
-      <PageRoot>
-        <Section>
-          <SectionTitle>Problem · Correction-on-correction creation</SectionTitle>
-          <SectionDescription>
-            Correction runs are moving inside <code>ReconciliationProcess</code>. Once they do,
-            completed correction runs no longer appear on the Overview page's Completed tab — only
-            in Corrections (and Archived). This breaks admins who need to create a correction on a
-            correction for GP countries, because the chained model requires targeting the latest
-            correction run, which they can't reach from the Overview.
-          </SectionDescription>
-          <PRDQuote>
-            <strong>GP (chained):</strong> Auto-redirect into Create Correction with the latest
-            correction pre-selected as the reference.
-            <br />
-            <strong>US (linear):</strong> Show a modal with options to view the latest correction or
-            create a new correction on the original reference run.
-          </PRDQuote>
-        </Section>
+      <Page>
+        <Sidebar>
+          <SidebarHeading>Variations</SidebarHeading>
+          {VARIATION_ORDER.map(v => (
+            <SidebarItem key={v} active={variation === v} onClick={() => setVariation(v)}>
+              <SidebarItemTitle>{VARIATION_LABELS[v]}</SidebarItemTitle>
+              <SidebarItemTagline>{VARIATION_TAGLINES[v]}</SidebarItemTagline>
+            </SidebarItem>
+          ))}
+        </Sidebar>
 
-        <Section>
-          <SectionTitle>Variations</SectionTitle>
-          <SectionDescription>
-            Switch between variations to compare. Choose a country model to see how each variation
-            behaves.
-          </SectionDescription>
+        <Main>
+          <Intro>
+            <IntroTitle>{VARIATION_LABELS[variation]}</IntroTitle>
+            <IntroText>{VARIATION_DESCRIPTIONS[variation]}</IntroText>
+            <KindChip kind={kind}>
+              {kind === 'overlay' && 'Surface: Modal / Drawer overlay'}
+              {kind === 'inline' && 'Surface: Inline in the table'}
+              {kind === 'workspace' && 'Surface: Full-page workspace'}
+              {kind === 'transient' && 'Surface: Toast / silent navigation'}
+            </KindChip>
+          </Intro>
 
-          <Controls>
-            <ControlGroup>
-              <ControlLabel>Variation</ControlLabel>
-              <VariationButtons>
-                {VARIATIONS.map(v => (
-                  <VariationButton key={v} active={variation === v} onClick={() => setVariation(v)}>
-                    {VARIATION_LABELS[v]}
-                  </VariationButton>
-                ))}
-              </VariationButtons>
-              <SectionDescription style={{ marginTop: 4 }}>
-                {VARIATION_DESCRIPTIONS[variation]}
-              </SectionDescription>
-            </ControlGroup>
+          <ControlsRow>
+            <ControlLabel>Country model</ControlLabel>
+            <Tabs.SWITCH
+              activeIndex={MODELS.indexOf(model)}
+              onChange={i => setModel(MODELS[Number(i)])}
+            >
+              <Tabs.Tab title="GP (chained)" />
+              <Tabs.Tab title="US (linear)" />
+            </Tabs.SWITCH>
+          </ControlsRow>
 
-            <ControlGroup>
-              <ControlLabel>Country model</ControlLabel>
-              <Tabs.SWITCH
-                activeIndex={MODELS.indexOf(model)}
-                onChange={i => setModel(MODELS[Number(i)])}
-              >
-                <Tabs.Tab title="GP (chained)" />
-                <Tabs.Tab title="US (linear)" />
-              </Tabs.SWITCH>
-            </ControlGroup>
-          </Controls>
-        </Section>
-
-        <Section>
-          <SectionTitle>Try it</SectionTitle>
-          <SectionDescription>
-            This is a Completed pay run with an existing correction chain. Click "Create Correction"
-            to trigger the selected variation.
-          </SectionDescription>
-          <FocusedRunCard chain={chain} onCreateCorrection={() => setIsOpen(true)} />
-        </Section>
-      </PageRoot>
-
-      <VariationRenderer
-        variation={variation}
-        isOpen={isOpen}
-        chain={chain}
-        onClose={() => setIsOpen(false)}
-      />
+          <SceneFrame>
+            <SceneLabel>Scene preview · {chain.reference.displayName}</SceneLabel>
+            <VariationScene variation={variation} chain={chain} />
+          </SceneFrame>
+        </Main>
+      </Page>
     </AppShellLayout>
   );
 };

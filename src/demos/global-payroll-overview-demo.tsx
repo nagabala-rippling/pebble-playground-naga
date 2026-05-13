@@ -19,8 +19,23 @@ import {
   TAB_TITLES,
   runsForTab,
 } from './global-payroll-overview/data';
-import { GP_CHAIN, US_CHAIN, Variation, VARIATION_LABELS } from './correction-on-correction/data';
-import { VariationRenderer } from './correction-on-correction/variations';
+import {
+  GP_CHAIN,
+  US_CHAIN,
+  Variation,
+  VARIATION_LABELS,
+  VARIATION_ORDER,
+  VARIATION_KIND,
+} from './correction-on-correction/data';
+import {
+  VariationRenderer,
+  V4SmartPill,
+  V5InlineChainStrip,
+  V6PromotedNotice,
+  V7Workspace,
+  V8SmartRouting,
+} from './correction-on-correction/variations';
+import Modal from '@rippling/pebble/Modal';
 
 // ─── Status mapping (matches GPStatusRenderer's STATUS_TYPE_CLASS_IDENTIFIER_MAP) ─
 
@@ -345,6 +360,8 @@ interface RunListGridProps {
   emptyText: string;
   payDateRangeLabel: string;
   onCreateCorrection?: (run: PayRun) => void;
+  /** Custom renderer for the action cell. If provided, replaces the default Create Correction button. */
+  renderRowAction?: (run: PayRun) => React.ReactNode;
 }
 
 const RunListGrid: React.FC<RunListGridProps> = ({
@@ -359,7 +376,9 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   emptyText,
   payDateRangeLabel,
   onCreateCorrection,
+  renderRowAction,
 }) => {
+  const hasRowAction = !!onCreateCorrection || !!renderRowAction;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
 
@@ -531,7 +550,7 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                     </ColumnHeaderInner>
                   </Th>
                 )}
-                {onCreateCorrection && <Th width={170}>Action</Th>}
+                {hasRowAction && <Th width={200}>Action</Th>}
               </tr>
             </thead>
             <tbody>
@@ -584,15 +603,19 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                     </Td>
                   )}
                   {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
-                  {onCreateCorrection && (
+                  {hasRowAction && (
                     <Td>
-                      <Button
-                        appearance={Button.APPEARANCES.OUTLINE}
-                        size={Button.SIZES.S}
-                        onClick={() => onCreateCorrection(run)}
-                      >
-                        Create Correction
-                      </Button>
+                      {renderRowAction ? (
+                        renderRowAction(run)
+                      ) : (
+                        <Button
+                          appearance={Button.APPEARANCES.OUTLINE}
+                          size={Button.SIZES.S}
+                          onClick={() => onCreateCorrection?.(run)}
+                        >
+                          Create Correction
+                        </Button>
+                      )}
                     </Td>
                   )}
                 </Tr>
@@ -718,7 +741,18 @@ const VariationChip = styled.button<{ active: boolean }>`
   font-weight: ${({ active }) => (active ? 535 : 430)};
 `;
 
-const VARIATIONS_LIST: Variation[] = ['v1', 'v2', 'v3'];
+const InlineToast = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerHigh};
+  border: 1px solid ${({ theme }) => (theme as StyledTheme).colorOutlineVariant};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2BodyMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+`;
 
 const GlobalPayrollOverviewDemo: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -728,29 +762,93 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
   const cfg = tabConfig[activeTab];
   const tabRuns = useMemo(() => runsForTab(activeTab, PAY_RUNS), [activeTab]);
 
-  // Variation state — read from URL ?variation=v1|v2|v3
+  // Variation state — read from URL ?variation=…
   const variationParam = searchParams.get('variation') as Variation | null;
   const variation: Variation =
-    variationParam && (['v1', 'v2', 'v3'] as Variation[]).includes(variationParam)
-      ? variationParam
-      : 'v1';
+    variationParam && VARIATION_ORDER.includes(variationParam) ? variationParam : 'v1';
 
-  // Open chain state for the variation overlay
+  const variationKind = VARIATION_KIND[variation];
+
+  // For overlay variations (v1-v3)
   const [openChainCountry, setOpenChainCountry] = useState<'GP' | 'US' | null>(null);
+  // For workspace (v7)
+  const [workspaceChainCountry, setWorkspaceChainCountry] = useState<'GP' | 'US' | null>(null);
+  // For transient toast (v8)
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const setVariation = (v: Variation) => {
     const next = new URLSearchParams(searchParams);
     next.set('variation', v);
     setSearchParams(next);
+    // Reset any open overlays / toasts when switching variations
+    setOpenChainCountry(null);
+    setWorkspaceChainCountry(null);
+    setToastMessage(null);
   };
 
+  const chainForRun = (run: PayRun) => (run.countryCode === 'US' ? US_CHAIN : GP_CHAIN);
+
   const handleCreateCorrection = (run: PayRun) => {
-    // Determine which chain to use based on country
-    setOpenChainCountry(run.countryCode === 'US' ? 'US' : 'GP');
+    const country = run.countryCode === 'US' ? 'US' : 'GP';
+    const chain = chainForRun(run);
+    const tip = chain.corrections[chain.corrections.length - 1];
+
+    if (variation === 'v1' || variation === 'v2' || variation === 'v3') {
+      setOpenChainCountry(country);
+      return;
+    }
+    if (variation === 'v6') {
+      // For v6, the notice is already rendered above the table; the row button just opens v1
+      setOpenChainCountry(country);
+      return;
+    }
+    if (variation === 'v7') {
+      setWorkspaceChainCountry(country);
+      return;
+    }
+    if (variation === 'v8') {
+      const isGP = country === 'GP';
+      setToastMessage(
+        isGP
+          ? `Routed to chain tip: ${tip.ordinal} pre-selected on ${run.entityDisplayName}`
+          : `Started new correction on ${run.displayName} (US linear model)`,
+      );
+      setTimeout(() => setToastMessage(null), 4000);
+      return;
+    }
+    // v4 / v5 / composite — handled via custom row renderer / inline panel
   };
 
   const activeChain =
     openChainCountry === 'US' ? US_CHAIN : openChainCountry === 'GP' ? GP_CHAIN : null;
+  const activeWorkspaceChain =
+    workspaceChainCountry === 'US' ? US_CHAIN : workspaceChainCountry === 'GP' ? GP_CHAIN : null;
+
+  // Row action renderer that depends on the active variation
+  const renderRowActionForVariation = (run: PayRun): React.ReactNode => {
+    const chain = chainForRun(run);
+    if (variation === 'v4' || variation === 'composite') {
+      return (
+        <V4SmartPill
+          chain={chain}
+          onPrimary={() => handleCreateCorrection(run)}
+          onSecondary={() => setToastMessage(`Opened correction list for ${run.entityDisplayName}`)}
+        />
+      );
+    }
+    return (
+      <Button
+        appearance={Button.APPEARANCES.OUTLINE}
+        size={Button.SIZES.S}
+        onClick={() => handleCreateCorrection(run)}
+      >
+        Create Correction
+      </Button>
+    );
+  };
+
+  // Sample chain for top-of-page surfaces (notice / strip / smart routing)
+  const sampleChainForBanner = GP_CHAIN;
 
   const counts = useMemo(() => {
     const r: Partial<Record<Tab, number>> = {};
@@ -827,18 +925,39 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
         >
           <Page>
             {activeTab === 'completed' && (
-              <VariationBanner>
-                <span>Correction-on-correction prototype variation:</span>
-                {VARIATIONS_LIST.map(v => (
-                  <VariationChip key={v} active={variation === v} onClick={() => setVariation(v)}>
-                    {VARIATION_LABELS[v]}
-                  </VariationChip>
-                ))}
-                <span style={{ marginLeft: 'auto', opacity: 0.7 }}>
-                  Click "Create Correction" on a row to trigger the variation
-                </span>
-              </VariationBanner>
+              <>
+                <VariationBanner>
+                  <span style={{ flexShrink: 0 }}>Correction-on-correction variation:</span>
+                  {VARIATION_ORDER.map(v => (
+                    <VariationChip key={v} active={variation === v} onClick={() => setVariation(v)}>
+                      {VARIATION_LABELS[v]}
+                    </VariationChip>
+                  ))}
+                </VariationBanner>
+
+                {/* V6 / Composite: Notice banner above the table */}
+                {(variation === 'v6' || variation === 'composite') && (
+                  <div style={{ marginBottom: 16 }}>
+                    <V6PromotedNotice
+                      chain={sampleChainForBanner}
+                      onPrimary={() => setOpenChainCountry('GP')}
+                      onSecondary={() => setOpenChainCountry('GP')}
+                    />
+                  </div>
+                )}
+
+                {/* V5 / Composite: Inline chain strip above the table */}
+                {(variation === 'v5' || variation === 'composite') && (
+                  <div style={{ marginBottom: 16 }}>
+                    <V5InlineChainStrip chain={sampleChainForBanner} defaultOpen={false} />
+                  </div>
+                )}
+
+                {/* V8 transient toast */}
+                {toastMessage && <InlineToast>✓ {toastMessage}</InlineToast>}
+              </>
             )}
+
             <RunListGrid
               title={TAB_TITLES[activeTab]}
               runs={tabRuns}
@@ -851,11 +970,25 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
               emptyText={cfg.emptyText}
               payDateRangeLabel={cfg.payDateRangeLabel}
               onCreateCorrection={activeTab === 'completed' ? handleCreateCorrection : undefined}
+              renderRowAction={
+                activeTab === 'completed' && (variation === 'v4' || variation === 'composite')
+                  ? renderRowActionForVariation
+                  : undefined
+              }
             />
+
+            {/* V8 standalone explanation panel when v8 active */}
+            {activeTab === 'completed' && variation === 'v8' && (
+              <div style={{ marginTop: 24 }}>
+                <V8SmartRouting chain={sampleChainForBanner} />
+              </div>
+            )}
           </Page>
         </AppNavBarNewRouter>
       </div>
-      {activeChain && (
+
+      {/* Overlay variations: V1, V2, V3 + V6 (clicking row btn still opens overlay) */}
+      {activeChain && variationKind === 'overlay' && (
         <VariationRenderer
           variation={variation}
           isOpen={openChainCountry !== null}
@@ -863,6 +996,28 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
           onClose={() => setOpenChainCountry(null)}
         />
       )}
+      {activeChain && variation === 'v6' && (
+        <VariationRenderer
+          variation="v1"
+          isOpen={openChainCountry !== null}
+          chain={activeChain}
+          onClose={() => setOpenChainCountry(null)}
+        />
+      )}
+
+      {/* V7 workspace as a full-screen modal */}
+      <Modal
+        isVisible={activeWorkspaceChain !== null}
+        onCancel={() => setWorkspaceChainCountry(null)}
+        title="Create correction · Workspace"
+        isFullScreen
+      >
+        {activeWorkspaceChain && (
+          <div style={{ padding: 24, minHeight: '70vh' }}>
+            <V7Workspace chain={activeWorkspaceChain} />
+          </div>
+        )}
+      </Modal>
     </AppShellLayout>
   );
 };

@@ -143,16 +143,67 @@ export function buildUSViewCorrectionUrl(reconProcessId: string): string {
 
 // ─── Variation enum ────────────────────────────────────────────────
 
-export type Variation = 'v1' | 'v2' | 'v3';
+export type Variation = 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8' | 'composite';
+
+export type VariationKind = 'overlay' | 'inline' | 'workspace' | 'transient';
+
+export const VARIATION_KIND: Record<Variation, VariationKind> = {
+  v1: 'overlay',
+  v2: 'overlay',
+  v3: 'overlay',
+  v4: 'inline',
+  v5: 'inline',
+  v6: 'inline',
+  v7: 'workspace',
+  v8: 'transient',
+  composite: 'inline',
+};
 
 export const VARIATION_LABELS: Record<Variation, string> = {
   v1: 'V1 · Baseline (PRD)',
   v2: 'V2 · Unified Modal',
   v3: 'V3 · Chain Drawer',
+  v4: 'V4 · Status-Aware Pill',
+  v5: 'V5 · Inline Chain Strip',
+  v6: 'V6 · Promoted Notice',
+  v7: 'V7 · Correction Workspace',
+  v8: 'V8 · Smart Routing',
+  composite: 'Composite · V4 + V5 + V6',
+};
+
+export const VARIATION_TAGLINES: Record<Variation, string> = {
+  v1: 'GP redirect · US modal',
+  v2: 'Same modal, different primary',
+  v3: 'Side drawer with full chain',
+  v4: 'Button label adapts to chain state',
+  v5: 'Expandable inline strip per row',
+  v6: 'Notice banner is the entry',
+  v7: 'Full-page workspace with chain rail',
+  v8: 'Invisible — routes to the right place',
+  composite: 'Pill + strip + notice together',
 };
 
 export const VARIATION_DESCRIPTIONS: Record<Variation, string> = {
-  v1: 'GP auto-redirects into Create Correction flow with the latest correction pre-selected. US shows a modal with View / Create new / Cancel.',
-  v2: 'Both GP and US show a modal, but with different primary actions. GP pre-selects the latest correction; US offers a choice.',
-  v3: 'Both GP and US open a side drawer that visualizes the full correction chain. GP only lets you continue from the tip; US lets you pick any link.',
+  v1: 'PRD as written. GP auto-redirects into Create Correction with the latest correction pre-selected as reference. US shows a modal with View latest / Create new / Cancel.',
+  v2: 'Both models get a modal, but the primary action differs. GP modal: "Continue from Correction 3". US modal: "Create new correction" with secondary "View latest". One pattern, two semantics.',
+  v3: 'Both models open a side drawer that visualizes the full correction chain. GP only lets the tip be actionable; US lets reference + each link be actionable. Educational, makes chain explicit.',
+  v4: 'No modal. The "Create Correction" button itself becomes a context-aware pill that adapts to the chain state: "Continue chain · 3 →" for GP with corrections, split button "Create new / View 2 existing" for US with corrections, "Finish pending correction →" if a draft is in flight, "Locked" with tooltip when blocked.',
+  v5: 'Each row that has corrections shows a compact summary line beneath it: "▸ This run has 3 corrections · Latest approved by Naga on May 10". Expand inline to see the chain with action buttons per link. Stays inside the table — no overlay.',
+  v6: 'Leverages the existing `runCorrectionInfoNotice` banner on the run preview page. Promotes it from informational to interactive: the banner becomes the primary entry point with the right CTA per model. Most conservative — reuses what already exists.',
+  v7: 'Click "Create Correction" opens a focused full-page workspace. Left rail visualizes the chain (tree for GP, list for US); right pane is the create-correction form pre-filled with the right reference. Chain stays visible while editing. Best for deep chains.',
+  v8: 'No new UI at all. Clicking "Create Correction" just navigates to the right place based on context: GP → tip-selected, US → chooser, blocked → toast. Invisible to users in the happy path. Costs disambiguation.',
+  composite:
+    'Combines V4 (smart pill), V5 (inline strip), and V6 (notice banner). The notice anchors the entry, the pill speeds up the click, the strip lets admins peek without leaving the table. Most surface area, most options.',
 };
+
+export const VARIATION_ORDER: Variation[] = [
+  'v1',
+  'v2',
+  'v3',
+  'v4',
+  'v5',
+  'v6',
+  'v7',
+  'v8',
+  'composite',
+];
