@@ -49,6 +49,14 @@ const ALL_DEMOS: DemoCard[] = [
     icon: Icon.TYPES.PAYROLL_OUTLINE,
     category: 'prototype',
   },
+  {
+    title: 'Correction on Correction',
+    description:
+      'Three variations for the correction-on-correction creation flow when correction runs live inside ReconciliationProcess. Covers GP chained and US linear models.',
+    path: '/correction-on-correction',
+    icon: Icon.TYPES.PAYROLL_REPORT_DOLLAR_OUTLINE,
+    category: 'prototype',
+  },
 ];
 
 const PageContainer = styled.div`

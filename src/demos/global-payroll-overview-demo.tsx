@@ -19,6 +19,8 @@ import {
   TAB_TITLES,
   runsForTab,
 } from './global-payroll-overview/data';
+import { GP_CHAIN, US_CHAIN, Variation, VARIATION_LABELS } from './correction-on-correction/data';
+import { VariationRenderer } from './correction-on-correction/variations';
 
 // ─── Status mapping (matches GPStatusRenderer's STATUS_TYPE_CLASS_IDENTIFIER_MAP) ─
 
@@ -342,6 +344,7 @@ interface RunListGridProps {
   searchPlaceholder: string;
   emptyText: string;
   payDateRangeLabel: string;
+  onCreateCorrection?: (run: PayRun) => void;
 }
 
 const RunListGrid: React.FC<RunListGridProps> = ({
@@ -355,6 +358,7 @@ const RunListGrid: React.FC<RunListGridProps> = ({
   searchPlaceholder,
   emptyText,
   payDateRangeLabel,
+  onCreateCorrection,
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
@@ -527,6 +531,7 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                     </ColumnHeaderInner>
                   </Th>
                 )}
+                {onCreateCorrection && <Th width={170}>Action</Th>}
               </tr>
             </thead>
             <tbody>
@@ -579,6 +584,17 @@ const RunListGrid: React.FC<RunListGridProps> = ({
                     </Td>
                   )}
                   {showChangedBy && <Td>{run.changedByDisplayName ?? '—'}</Td>}
+                  {onCreateCorrection && (
+                    <Td>
+                      <Button
+                        appearance={Button.APPEARANCES.OUTLINE}
+                        size={Button.SIZES.S}
+                        onClick={() => onCreateCorrection(run)}
+                      >
+                        Create Correction
+                      </Button>
+                    </Td>
+                  )}
                 </Tr>
               ))}
             </tbody>
@@ -670,6 +686,40 @@ const Page = styled.div`
   min-height: 100%;
 `;
 
+const VariationBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  border: 1px dashed ${({ theme }) => (theme as StyledTheme).colorOutline};
+  border-radius: ${({ theme }) => (theme as StyledTheme).shapeCornerMd};
+  background-color: ${({ theme }) => (theme as StyledTheme).colorSurfaceContainerLow};
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelMedium};
+  color: ${({ theme }) => (theme as StyledTheme).colorOnSurface};
+  flex-wrap: wrap;
+`;
+
+const VariationChip = styled.button<{ active: boolean }>`
+  padding: 4px 10px;
+  border: 1px solid
+    ${({ active, theme }) =>
+      active ? (theme as StyledTheme).colorPrimary : (theme as StyledTheme).colorOutlineVariant};
+  background-color: ${({ active, theme }) =>
+    active
+      ? ((theme as StyledTheme).colorPrimaryContainer ??
+        (theme as StyledTheme).colorSurfaceContainerHigh)
+      : (theme as StyledTheme).colorSurfaceContainerLowest};
+  color: ${({ active, theme }) =>
+    active ? (theme as StyledTheme).colorPrimary : (theme as StyledTheme).colorOnSurface};
+  border-radius: 999px;
+  cursor: pointer;
+  ${({ theme }) => (theme as StyledTheme).typestyleV2LabelSmall};
+  font-weight: ${({ active }) => (active ? 535 : 430)};
+`;
+
+const VARIATIONS_LIST: Variation[] = ['v1', 'v2', 'v3'];
+
 const GlobalPayrollOverviewDemo: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const sectionParam = searchParams.get('section') as Tab | null;
@@ -677,6 +727,30 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
     sectionParam && TAB_ORDER.includes(sectionParam) ? sectionParam : 'upcomingAndDraft';
   const cfg = tabConfig[activeTab];
   const tabRuns = useMemo(() => runsForTab(activeTab, PAY_RUNS), [activeTab]);
+
+  // Variation state — read from URL ?variation=v1|v2|v3
+  const variationParam = searchParams.get('variation') as Variation | null;
+  const variation: Variation =
+    variationParam && (['v1', 'v2', 'v3'] as Variation[]).includes(variationParam)
+      ? variationParam
+      : 'v1';
+
+  // Open chain state for the variation overlay
+  const [openChainCountry, setOpenChainCountry] = useState<'GP' | 'US' | null>(null);
+
+  const setVariation = (v: Variation) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('variation', v);
+    setSearchParams(next);
+  };
+
+  const handleCreateCorrection = (run: PayRun) => {
+    // Determine which chain to use based on country
+    setOpenChainCountry(run.countryCode === 'US' ? 'US' : 'GP');
+  };
+
+  const activeChain =
+    openChainCountry === 'US' ? US_CHAIN : openChainCountry === 'GP' ? GP_CHAIN : null;
 
   const counts = useMemo(() => {
     const r: Partial<Record<Tab, number>> = {};
@@ -752,6 +826,19 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
           links={navLinks}
         >
           <Page>
+            {activeTab === 'completed' && (
+              <VariationBanner>
+                <span>Correction-on-correction prototype variation:</span>
+                {VARIATIONS_LIST.map(v => (
+                  <VariationChip key={v} active={variation === v} onClick={() => setVariation(v)}>
+                    {VARIATION_LABELS[v]}
+                  </VariationChip>
+                ))}
+                <span style={{ marginLeft: 'auto', opacity: 0.7 }}>
+                  Click "Create Correction" on a row to trigger the variation
+                </span>
+              </VariationBanner>
+            )}
             <RunListGrid
               title={TAB_TITLES[activeTab]}
               runs={tabRuns}
@@ -763,10 +850,19 @@ const GlobalPayrollOverviewDemo: React.FC = () => {
               searchPlaceholder={cfg.searchPlaceholder}
               emptyText={cfg.emptyText}
               payDateRangeLabel={cfg.payDateRangeLabel}
+              onCreateCorrection={activeTab === 'completed' ? handleCreateCorrection : undefined}
             />
           </Page>
         </AppNavBarNewRouter>
       </div>
+      {activeChain && (
+        <VariationRenderer
+          variation={variation}
+          isOpen={openChainCountry !== null}
+          chain={activeChain}
+          onClose={() => setOpenChainCountry(null)}
+        />
+      )}
     </AppShellLayout>
   );
 };
